@@ -2,23 +2,22 @@
   <div class="navbar">
     <hamburger :toggle-click="toggleSideBar" :is-active="sidebar.opened" class="hamburger-container"/>
 
-    
-
     <div class="right-menu">
       <template v-if="device!=='mobile'">
         <span class="phone">
-          <span></span>
+          <span/>
         </span>
         <span class="news">
-          <span></span>
+          <span/>
         </span>
-        <span class="userName">{{userName}}</span> 
+        <span style="font-size:14px;color:#ffffff;">欢迎您，</span>
+        <span class="userName">{{ name }}</span>
         <span class="gender">
-          <span v-if="male" class="male"></span>
-          <span v-if="neuter" class="neuter"></span>
-          <span v-if="female" class="female"></span>
+          <span v-if="male" class="male"/>
+          <span v-if="neuter" class="neuter"/>
+          <span v-if="female" class="female"/>
         </span>
-
+        <span class="logout" @click="logout">退出</span>
 
         <!-- <span class="news"></span> -->
         <!-- <error-log class="errLog-container right-menu-item"/>
@@ -29,11 +28,11 @@
 
         <el-tooltip :content="$t('navbar.size')" effect="dark" placement="bottom">
           <size-select class="international right-menu-item"/>
-        </el-tooltip>
+        </el-tooltip> -->
 
         <lang-select class="international right-menu-item"/>
 
-        <el-tooltip :content="$t('navbar.theme')" effect="dark" placement="bottom">
+        <!-- <el-tooltip :content="$t('navbar.theme')" effect="dark" placement="bottom">
           <theme-picker class="theme-switch right-menu-item"/>
         </el-tooltip> -->
       </template>
@@ -85,10 +84,10 @@ export default {
   },
   data() {
     return {
-      userName:'张三',
-      male:true,
-      female:false,
-      neuter:false
+      userName: '张三',
+      male: true,
+      female: false,
+      neuter: false
     }
   },
   computed: {
@@ -153,6 +152,8 @@ export default {
        line-height: 60px;
       //  margin: 0 29px 0 12px;
        vertical-align: top;
+       width: 50px;
+
       span{
         background: url("/static/image/news.png") no-repeat;
         background-size: 100% 100%;
@@ -161,10 +162,10 @@ export default {
         height: 20px;
         display: inline-block;
         vertical-align: middle;
-      }    
+      }
     }
     .userName{
-      font-size: 16px;
+      font-size: 14px;
       color: #FFFFFF;
       display: inline-block;
       vertical-align: top;
@@ -174,6 +175,8 @@ export default {
        line-height: 60px;
        margin: 0 29px 0 12px;
        vertical-align: top;
+       width: 4px;
+       height: 40px;
       .male{
         background: url("/static/image/male.png") no-repeat;
         vertical-align: middle;
@@ -202,7 +205,13 @@ export default {
         display: inline-block;
       }
     }
-    
+    .logout{
+      color: #ffffff;
+      margin: 0 24px 0 10px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
     &:focus{
      outline: none;
     }

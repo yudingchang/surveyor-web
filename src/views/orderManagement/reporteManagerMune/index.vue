@@ -1,5 +1,5 @@
 <template>
-  <div class="examineGoods">
+  <div class="reporteManager">
     <div class="examine-good">
       <div class="tab-content clear-fixed">
         <div class="top-form">
@@ -31,59 +31,51 @@
     </div>
     <el-table
       :data="tableData2"
-      :row-class-name="tableRowClassName"
-      class="table-content"
-      style="width: 100%">
+      style="width: 100%"
+      class="grabSheet"
+      empty-text="暂无待办事项"
+    >
       <el-table-column
         label="订单号"
-        width="230"
-      >
+        width="180">
         <template slot-scope="scope">
-          <span v-if="scope.row.is_main == true" class="numberBg">主</span><span v-if="scope.row.is_main == false" class="numberBg">辅</span> <el-button type="text" class="btnText" @click="goOrderDetail(scope.row)">{{ scope.row.number }}</el-button>
+          <el-button type="text" class="btnText">{{ scope.row.service.number }}</el-button>
         </template>
       </el-table-column>
       <el-table-column
-        prop="inspection_first_date"
+        label="报告单号"/>
+      <el-table-column
         label="验货开始日期"/>
       <el-table-column
         label="验货地名称">
         <template slot-scope="scope">
-          <span>{{ scope.row.inspection_address.name }}</span>
-          <!-- <span v-if="scope.row.products.length==1"><span style="display:inline-block;width:100px;">{{scope.row.products[0].name}}</span> </span>
-          <span v-else-if="scope.row.products.length>1"><span style="display:inline-block;width:100px;">{{scope.row.products[0].name}}...</span><i style="margin-left:20px" class="iconfont icon-IconCopy" @click="getDetail(scope.row)"/></span> -->
+          {{ scope.row.address.address_summary }}{{ scope.row.address.address_detail }}
         </template>
       </el-table-column>
       <el-table-column
-        width="200"
         label="验货地区">
         <template slot-scope="scope">
-          <span>{{ scope.row.inspection_address.address_detail }}</span>
-          <!-- <div class="tc-separate "><span v-for="(item,index) in filterFees(scope.row.fees)" :key='index'>{{item}}</span></div>  -->
+          {{ scope.row.address.address_summary }}
         </template>
       </el-table-column>
       <el-table-column
-        label="报告语言"
-      >
+        label="报告语言">
         <template slot-scope="scope">
-          <span v-for="(item,index) in scope.row.reports" :key="index" style="margin-right:5px;">{{ item.locale_name }}</span>
-          <!-- <div class="tc-separate "><span v-for="(item,index) in filterFees(scope.row.fees)" :key='index'>{{item}}</span></div>  -->
+          {{ scope.row.locale_name }}({{ scope.row.type_name }})
         </template>
       </el-table-column>
       <el-table-column
-        prop="marking_name"
-        label="状态"/>
-      <el-table-column
-        prop="marking_name"
-        label="测库联系人"/>
-      <el-table-column
-        label="操作"
-      >
+        label="状态">
         <template slot-scope="scope">
-          <el-button v-if="scope.row.marking_name!='已完成'" style="color:#FFA800;margin-right:10px;" type="text" size="small">退单</el-button>
-          <el-button v-if="scope.row.marking_name=='待验货' && scope.row.is_main==true" style="color:#FFA800;margin-right:10px;" type="text" size="small">下载模板</el-button>
-          <el-button v-if="scope.row.marking_name=='验货中' && scope.row.is_main==true" style="color:#FFA800;margin-right:10px;" type="text" size="small">写报告</el-button>
-          <el-button v-if="scope.row.marking_name=='已完成'" style="color:#FFA800;margin-right:10px;" type="text" size="small">查看报告</el-button>
-          <el-button v-if="scope.row.marking_name=='已完成'" style="color:#FFA800;margin-right:10px;" type="text" size="small">下载PDF报告</el-button>
+          {{ scope.row.marking_name }}({{ scope.row.service.marking_name }})
+        </template>
+
+      </el-table-column>
+      <el-table-column
+        label="操作">
+        <template slot-scope="scope">
+          <el-button type="text" class="orangeText" @click="goReportDetail(scope.row)">写报告</el-button>
+          <!-- {{scope.row.marking_name}}({{scope.row.service.marking_name}})  -->
         </template>
       </el-table-column>
     </el-table>
@@ -99,6 +91,7 @@
 <script>
 import { getList } from '@/api/order'
 import { orderList } from '@/api/dashboard'
+import { getReportList } from '@/api/report'
 export default {
   name: '',
   components: {},
@@ -131,19 +124,19 @@ export default {
           isBool: true
         },
         {
-          content: '已抢待审核',
+          content: '未提交',
           isBool: false
         },
         {
-          content: '待验货',
+          content: '待审核',
           isBool: false
         },
         {
-          content: '验货中',
+          content: '审核通过',
           isBool: false
         },
         {
-          content: '已完成',
+          content: '审核未通过',
           isBool: false
         }
       ],
@@ -219,7 +212,7 @@ export default {
     }
   },
   created() {
-    this.getList()
+    this.getReportList()
   },
   mounted() {
     // console.log(this.$route.fullPath)
@@ -303,6 +296,19 @@ export default {
     // 去订单详情
     goOrderDetail(row) {
       this.$router.push({ path: 'orderDetails', query: { orderId: row.id }})
+    },
+    // 报告列表
+    getReportList() {
+      getReportList({}).then(res => {
+        if (res.data.code == 0) {
+          this.tableData2 = res.data.data
+        }
+      })
+    },
+    goReportDetail(row) {
+      this.$router.push({
+        path: 'writeReporte', query: { id: row.id }
+      })
     }
   }
 }
@@ -310,8 +316,8 @@ export default {
 <style rel="stylesheet/scss" lang="scss">
 /* 修复input 背景不协调 和光标变色 */
 /* Detail see https://github.com/PanJiaChen/vue-element-admin/pull/927 */
-
-.el-dialog__header {
+.reporteManager{
+    .el-dialog__header {
   padding: 50px 20px 10px;
 }
 .el-dialog__title {
@@ -321,13 +327,13 @@ export default {
   color: #909399;
   font-weight: normal;
 }
-.examineGoods .el-table th {
+.el-table th {
   background-color: #ffffff;
   font-size: 14px;
   color: #50688C;
 }
 
-.examineGoods .el-table td {
+.el-table td {
   font-size: 12px;
 }
 .el-button--text {
@@ -379,6 +385,8 @@ content: '/ ';
 }
 }
 }
+}
+
 </style>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
@@ -396,8 +404,18 @@ content: '/ ';
 .changecolor {
   color: #67c23a;
 }
-.examineGoods{
+.reporteManager{
   margin:25px 40px;
+.btnText{
+    color:#158BE4;
+    font-size:12px !important;
+    display: inline-block;
+}
+.orangeText{
+    color:#FFA800;
+    font-size:12px !important;
+    display: inline-block;
+}
 .examine-good {
   border: 1px solid #e6eaee;
   border-radius: 4px;

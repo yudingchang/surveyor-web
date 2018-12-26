@@ -46,7 +46,6 @@ const user = {
   actions: {
     // 用户名登录
     LoginByUsername({ commit }, userInfo) {
-      console.log('dddd')
       // console.log(userInfo);
       // const email = userInfo.email.trim()
       return new Promise((resolve, reject) => {
@@ -78,7 +77,7 @@ const user = {
             reject('getInfo: roles must be a non-null array !')
           }
 
-          commit('SET_NAME', data.name)
+          commit('SET_NAME', data.real_name)
           commit('SET_AVATAR', data.avatar)
           commit('SET_INTRODUCTION', data.introduction)
           resolve(response)

@@ -21,11 +21,13 @@ import './icons' // icon
 import './errorLog' // error log
 import './permission' // permission control
 import './mock' // simulation data
-
+import EleMultiCascader from 'ele-multi-cascader'
+Vue.use(EleMultiCascader)
 import * as filters from './filters' // global filters
 
 import VueLodash from 'vue-lodash'
 Vue.use(VueLodash, { name: '_' })
+Vue.use(require('vue-moment'))
 
 Vue.use(Element, {
   size: Cookies.get('size') || 'medium', // set element-ui default size

@@ -87,13 +87,20 @@ export const constantRouterMap = [
         meta: { title: '控制台', icon: 'dashboard', noCache: true }
       },
       {
+        path: 'grabList',
+        name: 'grabList',
+        component: () => import('@/views/controlboard/grabList'),
+        meta: { title: '抢单列表', noCache: true },
+        hidden: true
+      },
+      {
         path: 'checkoutSuccess',
         component: () => import('@/views/controlboard/checkoutSuccess'),
         hidden: true
       }
     ]
-  },
-  
+  }
+
   // {
   //   path: '/documentation',
   //   component: Layout,
@@ -294,43 +301,7 @@ export const asyncRouterMap = [
   //     }
   //   ]
   // },
-  // 账户管理
-  {
-    path: '/accountManagement',
-    component: Layout,
-    redirect: '/accountManagement/personalInformation',
-    name: 'accountManagement',
-    meta: {
-      title: '账户信息',
-      icon: 'excel'
-    },
-    children: [
-      {
-        path: 'personalInformation',
-        component: () => import('@/views/accountManagement/personalInformation'),
-        name: 'personalInformation',
-        meta: { title: '个人信息' }
-      },
-      {
-        path: 'companyInformation',
-        component: () => import('@/views/accountManagement/companyInformation'),
-        name: 'companyInformation',
-        meta: { title: '企业信息' }
-      },
-      {
-        path: 'accountSetting',
-        component: () => import('@/views/accountManagement/accountSetting'),
-        name: 'accountSetting',
-        meta: { title: '账户设置' }
-      },
-      {
-        path: 'dataSetting',
-        component: () => import('@/views/accountManagement/dataSetting'),
-        name: 'dataSetting',
-        meta: { title: '资料设置' }
-      }
-    ]
-  },
+
   // 订单管理
   {
     path: '/orderManagement',
@@ -362,29 +333,159 @@ export const asyncRouterMap = [
         name: 'orderDetails',
         component: () => import('@/views/orderManagement/orderDetails'),
         meta: { title: '订单详情' }
+      },
+      {
+        path: 'reporteManager',
+        name: 'reporteManager',
+        component: () => import('@/views/orderManagement/reporteManager'),
+        redirect: '/orderManagement/reporteManager/index',
+        meta: { title: '报告管理' },
+        children: [
+          {
+            path: 'index',
+            hidden: true,
+            component: () => import('@/views/orderManagement/reporteManagerMune'),
+            name: 'index',
+            meta: {
+            }
+          },
+          {
+            path: 'writeReporte',
+            hidden: true,
+            component: () => import('@/views/report/templates/base'),
+            name: 'writeReporte',
+            meta: {
+              title: '写报告'
+            }
+          }
+        ]
       }
     ]
   },
-  // 资金管理
+  // 账户管理
   {
-    path: '/fundManagement',
+    path: '/accountManagement',
     component: Layout,
-    redirect: '/fundManagement/walletAccount',
-    alwaysShow: true,
-    name: 'fundManagement',
+    redirect: '/accountManagement/wallet/walletAccount',
+    name: 'accountManagement',
     meta: {
-      title: '资金管理',
+      title: '账户信息',
       icon: 'excel'
     },
     children: [
       {
-        path: 'walletAccount',
-        component: () => import('@/views/fundManagement/walletAccount'),
-        name: 'walletAccount',
-        meta: { title: '钱包账户' }
+        path: 'wallet',
+        component: () => import('@/views/accountManagement/wallet'),
+        name: 'wallet',
+        redirect: '/accountManagement/wallet/walletAccount',
+        meta: { title: '钱包账户' },
+        children: [
+
+          {
+            path: 'withdrawCash',
+            hidden: true,
+            component: () => import('@/views/accountManagement/walletAccountMune/withdrawCash'),
+            name: 'withdrawCash',
+            meta: {
+              title: '提现'
+            }
+          },
+          {
+            path: 'addCard',
+            component: () => import('@/views/accountManagement/walletAccountMune/addCard'),
+            name: 'addCard',
+            hidden: true,
+            meta: { title: '添加银行卡' }
+          },
+          {
+            path: 'cardManagement',
+            component: () => import('@/views/accountManagement/walletAccountMune/cardManagement'),
+            name: 'cardManagement',
+            hidden: true,
+            meta: { title: '银行卡管理' }
+          },
+          {
+            path: 'confirmDrawCash',
+            component: () => import('@/views/accountManagement/walletAccountMune/confirmDrawCash'),
+            name: 'confirmDrawCash',
+            hidden: true,
+            meta: { title: '确认提现' }
+          },
+          {
+            path: 'walletAccount',
+            hidden: true,
+            component: () => import('@/views/accountManagement/walletAccountMune/walletAccount'),
+            name: 'walletAccount',
+            meta: {
+              // title: '钱包账户'
+            }
+          },
+          {
+            path: 'walletDetail',
+            hidden: true,
+            component: () => import('@/views/accountManagement/walletAccountMune/walletDetail'),
+            name: 'walletDetail',
+            meta: {
+              title: '钱包详情'
+            }
+          }
+        ]
+      },
+      // {
+      //   path: 'withdrawCash',
+      //   hidden: true,
+      //   component: () => import('@/views/accountManagement/withdrawCash'),
+      //   name: 'withdrawCash',
+      //   meta: {
+      //     title: '提现'
+      //   }
+      // },
+      {
+        path: 'accountSetting',
+        component: () => import('@/views/accountManagement/accountSetting'),
+        name: 'accountSetting',
+        meta: { title: '账户设置' }
+      },
+      // {
+      //   path: 'companyInformation',
+      //   component: () => import('@/views/accountManagement/companyInformation'),
+      //   name: 'companyInformation',
+      //   meta: { title: '企业信息' }
+      // },
+      // {
+      //   path: 'accountSetting',
+      //   component: () => import('@/views/accountManagement/accountSetting'),
+      //   name: 'accountSetting',
+      //   meta: { title: '账户设置' }
+      // },
+      {
+        path: 'professiondData',
+        component: () => import('@/views/accountManagement/professiondData'),
+        name: 'professiondData',
+        meta: { title: '专业资料' }
       }
     ]
   },
+  // 资金管理
+  // {
+  //   path: '/fundManagement',
+  //   component: Layout,
+  //   redirect: '/fundManagement/walletAccount',
+  //   alwaysShow: true,
+  //   name: 'fundManagement',
+  //   meta: {
+  //     title: '资金管理',
+  //     icon: 'excel'
+  //   },
+  //   children: [
+  //     {
+  //       path: 'walletAccount',
+  //       component: () => import('@/views/fundManagement/walletAccount'),
+  //       name: 'walletAccount',
+  //       meta: { title: '钱包账户' }
+  //     }
+  //   ]
+  // },
 
   // {
   //   path: '/zip',

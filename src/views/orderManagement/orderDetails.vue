@@ -1,365 +1,700 @@
 <template>
   <div class="order-detail">
-      <div class="order-number">
-          <span>订单号: {{number}}</span><span class="greencolor orderstate">({{marking_name}})</span>
-          <span>下单时间: {{created_at}}</span>
-          <div class="closeIcon">
-              <i class="iconfont icon-guanbi_"/>
-              <p>关闭</p>
-          </div>
+    <el-row>
+      <el-col :span="14">
+        <div class="orderNumber clearfix">
+          <span>订单号: {{ fundamentalState.number }}</span>
+          <span class="greencolor orderstate">({{ fundamentalState.marking_name }})</span>
           <div class="copyIcon closeIcon">
-              <i class="iconfont icon-fuzhi"/>
-              <p>复制</p>
+            <i class="iconfont icon-fuzhi"/>
+            <p>退单</p>
           </div>
-      </div>
-      <div class="supplierInformation">
-          <span>供应商信息</span><span class="manDay">订单工作量{{workload}}MD需付款</span><span class="payNumber"><span>¥{{CNYpay}}</span><span>/${{USDpay}}</span></span><span class="btn">立即付款</span>  
-      </div>
-      <div class="productInformation">
-        <el-tabs v-model="editableTabsValue2" type="card" >
-          <el-tab-pane
-            v-for="(item, index) in editableTabs2"
-            :key="index"
-            :label="'产品' + (index + 1)"
-            :name="'tab' + (index + 1)">
-            <div class="content">
-              <el-form :model="item"  label-width="80px" class="demo-ruleForm">
-                <el-form-item label="产品名称" prop="name">
-                    <span class="left30">{{item.name}}</span>
-                  <!-- <el-input v-model="item.name" placeholder="请输入产品名称" style="width:500px;"/>
-                  <div class="copy" @click="copy(item,index)">
-                    <i class="iconfont icon-fuzhi_"/>
-                    <p>复制</p>
-                  </div> -->
-                </el-form-item>
-                <el-form-item label="产品货号">
-                    <span class="left30">{{item.number}}</span>
-                  <!-- <el-input v-model="item.number" placeholder="请输入产品货号" style="width:500px;"/> -->
-                </el-form-item>
-                <el-form-item v-for="(val,i) in item.PO" :key="i" label="P.O号">
-                    <span class="left30">{{val.number}}</span>
-                    <span class="left30">{{val.quantity}}</span>
-                    <span>{{val.unit}}</span>
-                  <!-- <el-input v-model="val.number" placeholder="请输入P.O号" style="width:155px;"/> -->
-                  <!-- <el-input v-model="val.quantity" placeholder="请输入数量" class="input-with-select" style="width:240px;">
-                    <el-select slot="append" v-model="val.unit" style="width:100px" placeholder="请选择">
-                      <el-option label="件" value="1"/>
-                      <el-option label="个" value="2"/>
-                      <el-option label="条" value="3"/>
-                    </el-select>
-                  </el-input> -->
-                  <!-- <el-button type="success" icon="el-icon-plus" @click="addPO(val,index)"> P.O 号</el-button>
-                  <el-button v-if="i>0" type="danger" icon="el-icon-minus" @click="removePO(val,index,i)"> P.O 号</el-button> -->
-                </el-form-item>
-              </el-form>
-            </div>
-          </el-tab-pane>
-        </el-tabs>
-      </div>
-      <div class="supplierDetail">
-          <p>供应商信息</p>
+        </div>
+      </el-col>
+    </el-row>
+    <el-row>
+      <el-col :span="14">
+        <div class="supplierDetail">
+          <p>基本信息</p>
           <div class="supplierContent">
-              <el-form ref="item" :model="supplier"  label-width="100px" class="demo-ruleForm">
-                <el-form-item label="供应商名称" prop="name">
-                        <span class="left30">{{supplier.name}}</span>
-                </el-form-item>
-                <el-form-item label="联系人姓名" prop="name">
-                        <span class="left30">{{supplier.last_name + supplier.first_name}}</span>
-                </el-form-item>
-                <el-form-item label="手机号码" prop="name">
-                        <span class="left30">{{supplier.phone_number}}</span>
-                </el-form-item>
-                <el-form-item label="电子邮箱" prop="name">
-                        <span class="left30">{{supplier.email}}</span>
-                </el-form-item>
-                <el-form-item label="验货地址" prop="name">
-                        <span class="left30">{{supplier.address_summary + supplier.address_detail}}</span>
-                </el-form-item>
-              </el-form>  
+            <el-form ref="item" :model="supplier" label-width="100px" class="demo-ruleForm">
+              <el-form-item label="验货地区" prop="name">
+                <span>{{ fundamentalState.inspection_address.address_detail }}</span>
+              </el-form-item>
+              <el-form-item label="验货日期" prop="name">
+                <span class="tc-separate">
+                  <span
+                    v-for="(item,index) in fundamentalState.inspection_dates"
+                    :key="index"
+                  >{{ item }}</span>
+                </span>
+              </el-form-item>
+              <el-form-item label="价格" prop="name">
+                <span>¥{{ Number(fundamentalState.commission) + Number(fundamentalState.other_fee) }}</span>
+                <span v-if="fundamentalState.other_fee!=''">
+                  <span>(含其他费用</span>
+                  <span
+                    v-for="(item,index) in fundamentalState.other_fee_detail"
+                    :key="index"
+                  >{{ item.name }} : ¥{{ item.fee }}</span>
+                  <span>)</span>
+                </span>
+              </el-form-item>
+              <el-form-item label="我的工作量" prop="name">
+                <span>{{ fundamentalState.workload }}天</span>
+              </el-form-item>
+              <el-form-item label="总工作量" prop="name">
+                <span>{{ fundamentalState.total_workload }}人天</span>
+              </el-form-item>
+              <el-form-item label="服务类型" prop="name">
+                <span>{{ fundamentalState.order.slug_name }}</span>
+              </el-form-item>
+              <el-form-item label="验货类型" prop="name">
+                <span>{{ fundamentalState.order.inspection_type_name }}</span>
+              </el-form-item>
+              <el-form-item label="报告语言" prop="name">
+                <span v-if="cn_num>0">简体中文{{ cn_num }}份</span>
+                <span v-if="cn_num>0 && en_num>0">，</span>
+                <span v-if="en_num>0">英文{{ en_num }}份</span>
+              </el-form-item>
+              <el-form-item label="测库联系人" prop="name">
+                <span style="margin-right:8px;">{{ fundamentalState.system_contact.nickname }}</span>
+                <span>{{ fundamentalState.system_contact.mobile_phone }}</span>
+              </el-form-item>
+              <el-form-item label="其他验货员" prop="name">
+                <p v-for="(item,index) in fundamentalState.relations" :key="index">
+                  <span v-if="item.real_name!=null">
+                    <span style="margin-right:8px;" v->{{ item.real_name }}{{ item.phone_number }}</span>
+                    <span v-if="item.is_main == 1" class="numberBg">主</span>
+                    <span v-if="item.is_main == 0" class="numberBg">辅</span>
+                    <span>{{ Number(item.workload) }}天</span>
+                  </span>
+                </p>
+                <p>还缺{{ vacancy_num }}名验货员</p>
+              </el-form-item>
+            </el-form>
           </div>
-      </div>
-       <div class="examineGoodsMessage">
-          <p>验货基本信息</p>
+        </div>
+      </el-col>
+    </el-row>
+    <el-row>
+      <el-col :span="14">
+        <div class="examineGoodsMessage">
+          <p>验货地信息</p>
           <div class="examineGoodContent">
-              <el-form ref="item"  label-width="100px" class="demo-ruleForm">
-                <el-form-item label="产品总数" prop="name">
-                        <span class="left30">{{supplierName}}</span>
-                </el-form-item>
-                <el-form-item label="抽样数" prop="name">
-                        <span class="left30">{{supplierFullName}}</span>
-                </el-form-item>
-                <el-form-item label="预计验货时间" prop="name">
-                        <span class="left30">{{phone}}</span>
-                </el-form-item>
-                <el-form-item label="实际验货时间" prop="name">
-                        <span class="left30">{{email}}</span>
-                </el-form-item>
-                <el-form-item label="验货类型" prop="name">
-                        <span class="left30">{{address}}</span>
-                </el-form-item>
-                <el-form-item label="是否提供样品" prop="name">
-                    <p><span class="left30">{{address}}</span></p>
-                    <p class="left30"><span>测库收件人</span><span class="left30">{{address}}</span></p>
-                    <p class="left30"><span>联系电话</span><span class="left30">{{address}}</span></p>
-                    <p class="left30"><span>地址</span><span class="left30">{{address}}</span></p>
-                </el-form-item>
-              </el-form>  
+            <el-form ref="item" label-width="120px" class="demo-ruleForm">
+              <el-form-item label="验货地名称" prop="name">
+                <span>{{ fundamentalState.inspection_address.name }}</span>
+              </el-form-item>
+              <el-form-item label="验货地详细信息" prop="name">
+                <span>{{ fundamentalState.inspection_address.address_detail }}</span>
+              </el-form-item>
+              <el-form-item label="联系人姓名" prop="name">
+                <span>{{ fundamentalState.inspection_address.last_name + fundamentalState.inspection_address.first_name }}</span>
+              </el-form-item>
+              <el-form-item label="手机号码" prop="name">
+                <span>{{ fundamentalState.inspection_address.phone_number }}</span>
+              </el-form-item>
+              <el-form-item label="电子邮箱" prop="name">
+                <span>{{ fundamentalState.inspection_address.email }}</span>
+              </el-form-item>
+            </el-form>
           </div>
-      </div>
-      <div class="reportList">
-          <el-table
-            :data="tableData"
-            border
-            style="width: 90%">
-            <el-table-column
-            prop="date"
-            label="验货时间"
-            align='center'
-            width="180">
-            </el-table-column>
-            <el-table-column
-            prop="date"
-            label="报告"
-            align='center'
-            width="180">
-            </el-table-column>
-            <el-table-column
-            prop="name"
-            label="包含产品"
-            align='center'
-            width="180">
-            </el-table-column>
-            <el-table-column
-            prop="address"
-            align='center'
-            label="产品数量">
-            </el-table-column>
-            <el-table-column
-            prop="address"
-            align='center'
-            label="抽样数量">
-            </el-table-column>
-            <el-table-column
-            prop="address"
-            align='center'
-            label="抽样标准">
-            </el-table-column>
-            <el-table-column
-            prop="address"
-            align='center'
-            label="报告语言">
-            </el-table-column>
-            <el-table-column
-            prop="address"
-            align='center'
-            label="报告接收邮箱">
-            </el-table-column>
-            <el-table-column
-            prop="address"
-            align='center'
-            label="报告模版">
-            </el-table-column>
-        </el-table>
-      </div>
-      <dir class="otherRequirements">
+        </div>
+      </el-col>
+    </el-row>
+    <el-row>
+      <el-col :span="24">
+        <div class="otherRequirements">
           <p>其它要求</p>
           <div class="otherRequirementsContent">
-              <div><span class="requirementText">要求内容</span><span>{{description}}</span></div>
-              <div>
-                  <span class="requirementText">检验资料</span>
-                  <ShowFile :fileList="files"></ShowFile>
-              </div>
+            <el-form ref="item" label-width="120px" class="demo-ruleForm">
+              <el-form-item label="手机号码" prop="name">
+                <span>{{ fundamentalState.order.description }}</span>
+              </el-form-item>
+              <el-form-item label="检验资料" prop="name">
+                <ShowFile :file-list="files"/>
+              </el-form-item>
+              <!-- <div><span class="requirementText">要求内容</span><span>{{fundamentalState.order.description}}</span></div>
+                  <div>
+                      <span class="requirementText">检验资料</span>
+                      <ShowFile :fileList="files"></ShowFile>
+              </div>-->
+            </el-form>
           </div>
-      </dir>
+        </div>
+      </el-col>
+    </el-row>
+    <!-- 参考样品 -->
+    <el-row>
+      <el-col :span="24">
+        <div class="sampleReference">
+          <p>参考样品</p>
+          <div>
+            <el-form ref="item" label-width="100px" class="demo-ruleForm">
+              <div
+                v-for="(item,index) in this.fundamentalState.order.mailings"
+                :key="index"
+                class="sampleReferenceContent"
+              >
+                <el-form-item label="参考样品">
+                  <span>{{ item.name }}</span>
+                </el-form-item>
+                <el-form-item label="说明">
+                  <span>{{ item.description }}</span>
+                </el-form-item>
+                <el-form-item label="参考图片">
+                  <ShowFile :file-list="item.files"/>
+                </el-form-item>
+              </div>
+            </el-form>
+          </div>
+        </div>
+      </el-col>
+    </el-row>
+    <!-- 取样信息 -->
+    <el-row>
+      <el-col :span="24">
+        <div class="sampleIntelligence">
+          <p>取样信息</p>
+          <div>
+            <el-form ref="item" label-width="100px" class="demo-ruleForm">
+              <div
+                v-for="(item,index) in fundamentalState.order.sampling_information"
+                :key="index"
+                class="sampleIntelligenceContent"
+              >
+                <el-form-item label="取样数量">
+                  <span>{{ item.sampling_quantity }}</span>
+                </el-form-item>
+                <el-form-item label="取样原因">
+                  <span>{{ item.sampling_reason }}</span>
+                </el-form-item>
+                <el-form-item label="收件公司">
+                  <span>{{ item.receive_company }}</span>
+                </el-form-item>
+                <el-form-item label="收件人">
+                  <span>{{ item.receive_person }}</span>
+                </el-form-item>
+                <el-form-item label="收件地址">
+                  <span>{{ item.receive_address }}</span>
+                </el-form-item>
+                <el-form-item label="备注信息">
+                  <span v-if="item.remark != null">{{ item.remark }}</span>
+                  <span v-else>无</span>
+                </el-form-item>
+                <el-form-item label="参考图片">
+                  <span v-if="item.remark != null">{{ item.remark }}</span>
+                  <span v-else>无</span>
+                </el-form-item>
+              </div>
+            </el-form>
+          </div>
+        </div>
+      </el-col>
+    </el-row>
+    <!-- 产品信息 -->
+    <el-row>
+      <el-col :span="24">
+        <div class="productWrap">
+          <div
+            v-for="(item,index) in fundamentalState.reports"
+            :key="index"
+            class="productInformationWrap"
+          >
+            <div :class="{titleChange:item.is_collapse}" class="normalTitle">
+              <span class="left">报告{{ index+1 }}</span>
+              <span class="right" @click="Spread(item,index)">
+                <span v-if="item.is_collapse == false">收起</span>
+                <span v-else>展开</span>
+                <i :class="{rotaga:item.is_collapse}" class="el-icon-caret-top"/>
+              </span>
+            </div>
+            <div v-show="!item.is_collapse" class="productInformationContent">
+              <div class="productInformation">
+                <p>产品信息</p>
+                <el-tabs v-model="item.name" type="card">
+                  <el-tab-pane
+                    v-for="(item, index) in item.products"
+                    :key="index"
+                    :label="'产品' + (index + 1)"
+                    :name="'report' + (index + 1)"
+                  >
+                    <div class="content">
+                      <el-form :model="item" label-width="80px" class="demo-ruleForm">
+                        <el-form-item label="产品名称" prop="name">
+                          <span>{{ item.name }}</span>
+                          <!-- <el-input v-model="item.name" placeholder="请输入产品名称" style="width:500px;"/>
+                              <div class="copy" @click="copy(item,index)">
+                                <i class="iconfont icon-fuzhi_"/>
+                                <p>复制</p>
+                          </div>-->
+                        </el-form-item>
+                        <el-form-item label="产品货号">
+                          <span>{{ item.number }}</span>
+                          <!-- <el-input v-model="item.number" placeholder="请输入产品货号" style="width:500px;"/> -->
+                        </el-form-item>
+                        <el-form-item v-for="(val,i) in item.PO" :key="i" label="P.O号">
+                          <span>{{ val.number }}</span>
+                          <span>{{ val.quantity }}</span>
+                          <span>{{ val.unit }}</span>
+                        </el-form-item>
+                        <el-form-item label="产品总数">
+                          <span>{{ item.report_quantity }}</span>
+                        </el-form-item>
+                        <el-form-item label="抽样数量">
+                          <span>{{ item.check_quantity }}</span>
+                        </el-form-item>
+                      </el-form>
+                    </div>
+                  </el-tab-pane>
+                </el-tabs>
+                <p>标准信息</p>
+                <el-form>
+                  <el-form-item label="检验标准:">
+                    <span v-if="item.sampling.type == 1">ANSI/ASQ Z1.4 Single Sampling Plan</span>
+                    <span v-if="item.sampling.type == 2">抽样比例</span>
+                    <span v-if="item.sampling.type == 3">抽样数量</span>
+                    <span v-if="item.sampling.type == 4">ASTM D5430 4 Points System</span>
+                  </el-form-item>
+                </el-form>
+                <div class="labelStyle">验货项目</div>
+                <table class="gridtable" border>
+                  <!-- type=1 level2 -->
+                  <tbody v-if="item.sampling.type == 1">
+                    <tr>
+                      <td class="greenTd">数量检查</td>
+                      <td colspan="3">全检</td>
+                    </tr>
+                    <tr>
+                      <td class="greenTd">一致性检查</td>
+                      <td colspan="3">核对样板及检验资料</td>
+                    </tr>
+                    <tr align="center">
+                      <td
+                        class="greenTd fourLine"
+                        rowspan="4"
+                        style="vertical-align:middle;text-align:center;"
+                      >产品外观及工艺</td>
+                      <td>检验水平</td>
+                      <td v-if="item.sampling.params.level == 1" colspan="2">S-1</td>
+                      <td v-else-if="item.sampling.params.level == 2" colspan="2">S-2</td>
+                      <td v-else-if="item.sampling.params.level == 3" colspan="2">S-3</td>
+                      <td v-else-if="item.sampling.params.level == 4" colspan="2">S-4</td>
+                      <td v-else-if="item.sampling.params.level == 11" colspan="2">I</td>
+                      <td v-else-if="item.sampling.params.level == 12" colspan="2">II</td>
+                      <td v-else-if="item.sampling.params.level == 13" colspan="2">III</td>
+                      <td v-else colspan="2"/>
+                    </tr>
+                    <tr>
+                      <td rowspan="3" style="vertical-align:middle;text-align:center;">可接受质量限</td>
+                      <td>致命缺陷</td>
+                      <td>{{ item.sampling.params.fatal_defect_limit }}</td>
+                    </tr>
+                    <tr>
+                      <td>严重缺陷</td>
+                      <td>{{ item.sampling.params.serious_defect_limit }}</td>
+                    </tr>
+                    <tr>
+                      <td>轻微缺陷</td>
+                      <td>{{ item.sampling.params.minor_defect_limit }}</td>
+                    </tr>
+                    <tr>
+                      <td class="greenTd">功能测试项</td>
+                      <td colspan="3">具体见测试项明细</td>
+                    </tr>
+                  </tbody>
+
+                  <!-- type=2 或 type=3  -->
+                  <tbody v-if="item.sampling.type == 2 || item.sampling.type == 3">
+                    <tr>
+                      <td class="greenTd">数量检查</td>
+                      <td colspan="3">全检</td>
+                    </tr>
+                    <tr>
+                      <td class="greenTd">一致性检查</td>
+                      <td colspan="3">核对样板及检验资料</td>
+                    </tr>
+                    <tr align="center">
+                      <td
+                        class="greenTd fourLine"
+                        rowspan="4"
+                        style="vertical-align:middle;text-align:center;"
+                      >产品外观及工艺</td>
+                      <td v-if="item.sampling.type == 2">抽样数量</td>
+                      <td v-if="item.sampling.type == 3">抽样比例</td>
+                      <td
+                        v-if="item.sampling.type == 2"
+                        colspan="2"
+                      >{{ item.sampling.params.quantity }}</td>
+                      <td
+                        v-if="item.sampling.type == 3"
+                        colspan="2"
+                      >{{ item.sampling.params.quantity }}%</td>
+                    </tr>
+                    <tr>
+                      <td rowspan="3" style="vertical-align:middle;text-align:center;">可接受缺陷数</td>
+                      <td>致命缺陷</td>
+                      <td>{{ item.sampling.params.fatal_defect }}</td>
+                    </tr>
+                    <tr>
+                      <td>严重缺陷</td>
+                      <td>{{ item.sampling.params.serious_defect }}</td>
+                    </tr>
+                    <tr>
+                      <td>轻微缺陷</td>
+                      <td>{{ item.sampling.params.minor_defect }}</td>
+                    </tr>
+                    <tr>
+                      <td class="greenTd">功能测试项</td>
+                      <td colspan="3">具体见测试项明细</td>
+                    </tr>
+                  </tbody>
+
+                  <!-- type=4 布料标准 -->
+                  <tbody v-if="item.sampling.type == 4">
+                    <tr>
+                      <td class="greenTd">数量检查</td>
+                      <td colspan="2">全检</td>
+                    </tr>
+                    <tr>
+                      <td class="greenTd">一致性检查</td>
+                      <td colspan="2">核对样板及检验资料</td>
+                    </tr>
+                    <tr align="center">
+                      <td
+                        class="greenTd fourLine"
+                        rowspan="3"
+                        style="vertical-align:middle;text-align:center;"
+                      >产品外观及工艺</td>
+                      <td>抽样方法</td>
+                      <td v-if="item.sampling.params.method == 1">全检</td>
+                      <td v-else-if="item.sampling.params.method == 2">总数量开平方*10</td>
+                      <td v-else-if="item.sampling.params.method == 3">总数量百分比</td>
+                      <td v-else-if="item.sampling.params.method == 4">固定值</td>
+                    </tr>
+                    <tr>
+                      <td rowspan="2" style="vertical-align:middle;text-align:center;">可接受质量限</td>
+                      <td>单卷每100平方码分数允许分值&nbsp;{{ item.sampling.params.single_limit }}</td>
+                    </tr>
+                    <tr>
+                      <td>整批每100平方码分数允许分值&nbsp;{{ item.sampling.params.entire_limit }}</td>
+                    </tr>
+                    <tr>
+                      <td class="greenTd">功能测试项</td>
+                      <td colspan="3">具体见测试项明细</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <p>测试项明细</p>
+                <el-table
+                  :data="item.checkitems"
+                  border
+                  style="width: 100%"
+                  class="grabSheet"
+                  empty-text="暂无待抢订单"
+                >
+                  <el-table-column label="测试项目" prop="title" align="center"/>
+                  <el-table-column prop="description" label="测试要求" align="center"/>
+
+                  <el-table-column label="包含产品" align="center">
+                    <template slot-scope="scope">
+                      <span v-if="scope.row.products.length==1">{{ scope.row.products[0] }}</span>
+                      <span v-else-if="scope.row.products.length>1" style="display:inline-block;">
+                        <span style="display:inline-block;width:120px;">{{ scope.row.products[0] }}...</span>
+                        <i
+                          style="display:inline-block;"
+                          class="iconfont icon-IconCopy"
+                          @click="getDetail(scope.row)"
+                        />
+                      </span>
+                    </template>
+                  </el-table-column>
+                  <el-table-column prop="check_quantity" label="测试数量" align="center"/>
+                </el-table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </el-col>
+    </el-row>
+    <!-- 产品名称弹出层 -->
+    <div class="productBorder">
+      <el-dialog :visible.sync="dialogTableVisible" title="产品名称" class="detail-dialog" width="400px" >
+        <el-table :data="gridData" border height="200">
+          <el-table-column type="index" label="序号" width="100" align="center"/>
+          <el-table-column property="name" label="产品名称" align="center"/>
+        </el-table>
+      </el-dialog>
+    </div>
+
   </div>
 </template>
 
 <script>
-import ShowFile from "../../components/showfile"
-import { getOrderList } from "@/api/order";
+import ShowFile from '../../components/showfile'
+// import { getOrderList } from "@/api/order";
+import { orderDetail } from '@/api/dashboard'
 export default {
+  components: {
+    ShowFile
+  },
   data() {
     return {
-      orderId:this.$route.query.orderId,
-      number: "2018050310291584",
-      marking_name: "待付款",
-      created_at: "2018.08.01 12:02",
-      description:'',
+      orderId: this.$route.query.orderId,
+      number: '2018050310291584',
+      marking_name: '待付款',
+      created_at: '2018.08.01 12:02',
+      description: '',
       workload: 1,
-      files:[],
-    //   fileList:'',
-      CNYpay: "800",
-      USDpay: "100",
-      supplier:{},
-      supplierName:'测库供应商',
-      supplierFullName:'王大大',
-      phone:'+86-11577889611',
-      email:'wangdada123@qq.com',
-      address:'浙江省杭州市滨江区',
-      tableData: [{
-          date: '2016-05-02',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          date: '2016-05-04',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1517 弄'
-        }, {
-          date: '2016-05-01',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1519 弄'
-        }, {
-          date: '2016-05-03',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1516 弄'
-        }],
+      files: [],
+      //   fileList:'',
+      CNYpay: '800',
+      USDpay: '100',
+      supplier: {},
+      supplierName: '测库供应商',
+      supplierFullName: '王大大',
+      phone: '+86-11577889611',
+      email: 'wangdada123@qq.com',
+      address: '浙江省杭州市滨江区',
+      tableData: [
+        // {
+        //   date: "2016-05-02",
+        //   name: "王小虎",
+        //   address: "上海市普陀区金沙江路 1518 弄"
+        // },
+        // {
+        //   date: "2016-05-04",
+        //   name: "王小虎",
+        //   address: "上海市普陀区金沙江路 1517 弄"
+        // },
+        // {
+        //   date: "2016-05-01",
+        //   name: "王小虎",
+        //   address: "上海市普陀区金沙江路 1519 弄"
+        // },
+        // {
+        //   date: "2016-05-03",
+        //   name: "王小虎",
+        //   address: "上海市普陀区金沙江路 1516 弄"
+        // }
+      ],
+      fundamentalState: {
+        reports: [
+          {
+            bool: true,
+            spreadtext: '展开'
+          },
+          {
+            bool: false,
+            spreadtext: '展开'
+          }
+        ]
+      },
       editableTabs2: [
         {
-          number: "22300188497563",
-          name: "testcoo",
-          title: "testcoo",
+          number: '22300188497563',
+          name: 'testcoo',
+          title: 'testcoo',
           PO: [
             {
-              number: "421181199112181",
-              quantity: "500",
-              unit: "件"
+              number: '421181199112181',
+              quantity: '500',
+              unit: '件'
             }
           ]
         },
         {
-          number: "22300188497563",
-          name: "testcoo1",
-          title: "testcoo",
+          number: '22300188497563',
+          name: 'testcoo1',
+          title: 'testcoo',
           PO: [
             {
-              number: "421181199112181",
-              quantity: "500",
-              unit: "件"
+              number: '421181199112181',
+              quantity: '500',
+              unit: '件'
             },
             {
-              number: "421181199112181",
-              quantity: "1000",
-              unit: "个"
+              number: '421181199112181',
+              quantity: '1000',
+              unit: '个'
             }
           ]
         }
       ],
-      editableTabsValue2: "tab1"
-    };
-  },
-  created(){
-      this.getOrderList()
-  },
-  components: {
-      ShowFile
+      editableTabsValue2: 'tab1',
+      fundamentalState: {
+        other_fee: '',
+        order: '',
+        system_contact: '',
+        inspection_address: ''
+      },
+      cn_num: '',
+      en_num: '',
+      vacancy_num: '',
+      spreadtext: '收起',
+      productInformationContentShow: false,
+      dialogTableVisible: false,
+      gridData: []
+    }
   },
   computed: {},
-  methods:{
-    //   获取订单详情
-      getOrderList(){
-          getOrderList({
-              url:'/v1/inspection/'+ this.orderId
-          }).then(response =>{
-              if(response.data.code == 0){
-                  let {number,marking_name,created_at,products,supplier,reports,workload,fees_total,description,files} = response.data.data
-                  this.number = number
-                  this.marking_name = marking_name
-                  this.created_at = created_at
-                  this.editableTabs2 = products
-                  this.supplier = supplier
-                  this.tableData = reports
-                  this.workload = workload
-                  this.CNYpay = fees_total.CNY
-                  this.USDpay = fees_total.USD
-                  this.description = description
-                  this.files = files
-              }
-          })
-      }
+  created() {
+    this.getOrderList()
   },
-  mounted() {
-
+  mounted() {},
+  methods: {
+    //   获取订单详情
+    getOrderList() {
+      orderDetail({
+        url: '/v1/inspector/service/' + this.orderId
+      }).then(response => {
+        if (response.data.code == 0) {
+          this.fundamentalState = response.data.data
+          this.cn_num = this.fundamentalState.reports.filter(
+            t => t.locale_name == '简体中文'
+          ).length
+          this.cn_name = '简体中文'
+          this.en_num = this.fundamentalState.reports.filter(
+            t => t.locale_name == '英文'
+          ).length
+          this.en_name = '英文'
+          this.vacancy_num = this.fundamentalState.relations.filter(
+            t => t.real_name == null
+          ).length
+          this.files = this.fundamentalState.order.files
+        }
+      })
+    },
+    Spread(item, index) {
+      item.is_collapse = !item.is_collapse
+    },
+    // 获取商品明细弹出框
+    getDetail(row) {
+      console.log(row)
+      this.dialogTableVisible = true
+      this.gridData = row.products.map((item, index) => {
+        return {
+          name: item
+        }
+      })
+    }
   }
-};
+}
 </script>
-<style>
-.el-tabs__item.is-active {
-  color: #ffa800;
-  height: 40px;
-  line-height: 40px;
-  position: relative;
-  background-image: none;
-  background-color: #ffffff;
-  top: 0;
-  width: 100px;
-  text-align: center;
-}
-.el-tabs__nav-wrap {
-  margin-bottom: 0;
-}
-.el-tabs__item {
-  margin-right: 10px;
-  border: 1px solid #e6eaee;
-  line-height: 35px;
-  height: 35px;
-  /* // background-color: #ffffff; */
-  border-radius: 4px;
-  position: relative;
-  color: #768caa;
-  top: 5px;
-  background-image: linear-gradient(0deg, #f4f7fa 0%, #ffffff 100%);
-}
-.el-tabs__item:hover {
-  color: #ffa800;
-}
-.el-tabs--card > .el-tabs__header .el-tabs__nav {
-  border: none;
-}
-.el-tabs--card > .el-tabs__header .el-tabs__item:first-child {
-  border-left: 1px solid #e6eaee;
-}
-.el-tabs__nav-next,
-.el-tabs__nav-prev {
-  line-height: 50px;
-}
-.el-tabs--card > .el-tabs__header {
-  border-bottom: none;
-  margin: 0;
-}
-.el-form-item__label {
-  font-size: 14px;
-  color: #7c8fa6;
-}
-.el-form-item {
+<style lang="scss">
+.order-detail {
+  .el-tabs__item.is-active {
+    color: #ffa800;
+    height: 40px;
+    line-height: 40px;
+    position: relative;
+    background-image: none;
+    background-color: #ffffff;
+    top: 0;
+    width: 100px;
+    text-align: center;
+  }
+  .el-tabs__nav-wrap {
+    margin-bottom: 0;
+  }
+  .el-tabs__item {
+    margin-right: 10px;
+    border: 1px solid #e6eaee;
+    line-height: 35px;
+    height: 35px;
+    /* // background-color: #ffffff; */
+    border-radius: 4px;
+    position: relative;
+    color: #768caa;
+    top: 5px;
+    background-image: linear-gradient(0deg, #f4f7fa 0%, #ffffff 100%);
+  }
+  .el-tabs__item:hover {
+    color: #ffa800;
+  }
+  .el-tabs--card > .el-tabs__header .el-tabs__nav {
+    border: none;
+  }
+  .el-tabs--card > .el-tabs__header .el-tabs__item:first-child {
+    border-left: 1px solid #e6eaee;
+  }
+  .el-tabs__nav-next,
+  .el-tabs__nav-prev {
+    line-height: 50px;
+  }
+  .el-tabs--card > .el-tabs__header {
+    border-bottom: none;
+    margin: 0;
+  }
+  .el-form-item__label {
+    font-size: 14px;
+    color: #7c8fa6;
+  }
+  .el-form-item {
     margin-bottom: 15px;
+  }
+  .el-table th {
+    background: #7dc855;
+    color: #ffffff;
+    height: 60px;
+  }
+  .el-form-item__label {
+    text-align: left;
+  }
 }
-.el-table th {
-   background: #7DC855; 
-   color: #ffffff;
+.productBorder{
+  .el-table th {
+    background:inherit;
+    height: inherit;
+    color: inherit;
+}
+.el-dialog__header{
+  text-align: center;
+  background:rgba(230,234,238,1);
+  padding: 20px 20px 15px;
+}
+.el-dialog__title{
+  color: #164061;
+  font-size: 14px;
+  font-weight: bold;
+}
+.el-dialog__body{
+  padding: 0;
+}
 }
 </style>
 <style rel="stylesheet/scss" lang="scss" scoped>
+
 .order-detail {
-  margin: 32px 0 0 100px;
+  margin: 32px 120px 0 100px;
   .greencolor {
     color: #ffc500;
   }
-  .order-number {
+  .orderNumber {
     width: 1000px;
+    width: 100%;
     background-color: #ffffff;
     color: #50688c;
     padding: 18px 42px 32px;
     border-left: 2px solid #158be4;
+    height: 84px;
+    > span {
+      line-height: 50px;
+      vertical-align: middle;
+    }
+
     .orderstate {
       margin-right: 32px;
     }
     .closeIcon {
       width: 40px;
       text-align: center;
-      display: inline-block;
-      position: relative;
-      top: 9px;
-      margin-left: 32px;
+      // display: inline-block;
+      float: right;
+      // position: relative;
+      // top: 9px;
+      // margin-left: 32px;
       cursor: pointer;
       i {
         color: #7c8ca5;
@@ -392,132 +727,270 @@ export default {
       margin-left: 16px;
     }
   }
-  .productInformation {
-    position: relative;
-    width: 85%;
-    .addNewProducts {
-      cursor: pointer;
-      position: absolute;
-      right: 0;
-    }
-    > p {
-      font-size: 16px;
-      font-weight: bold;
+
+  .supplierDetail {
+    margin-top: 32px;
+    > p:first-child {
+      font-size: 18px;
       color: #50688c;
-      margin-bottom: 24px;
     }
-    .addNewProduct {
+    .numberBg {
       display: inline-block;
-      position: absolute;
-      cursor: pointer;
-      right: 0;
-      z-index: 5;
-      top: 55px;
-      background-image: linear-gradient(0deg, #f4f7fa 0%, #ffffff 100%);
+      // paddding:5px;
+      border-radius: 6px;
+      width: 22px;
+      height: 22px;
+      color: #ffffff;
+      text-align: center;
+      line-height: 22px;
+      background: rgba(74, 144, 226, 1);
     }
-    .content {
-      width: 100%;
-      padding: 20px 30px 10px;
+    .supplierContent {
+      // width: 1000px;
       background-color: #ffffff;
-      border-top: 1px solid #e6eaee;
+      padding: 20px 40px 10px;
+      margin-top: 16px;
       color: #50688c;
       .left30 {
         margin-left: 30px;
       }
-      .copy {
-        display: inline-block;
-        color: #7c8ca5;
-        font-size: 10px;
-        line-height: 36px;
-        height: 36px;
-        vertical-align: middle;
-        margin-left: 30px;
-        cursor: pointer;
-        p {
-          margin: 0;
-          padding: 0;
-          position: relative;
-          top: -28px;
-          text-align: center;
-        }
-        i {
-          position: relative;
-          display: inline-block;
-          width: 24px;
-          top: -10px;
-          text-align: center;
+      .tc-separate {
+        span + span {
+          &::before {
+            content: " , ";
+          }
         }
       }
     }
   }
-  .supplierDetail{
-      margin-top: 32px;
-      >p:first-child{
-          font-size: 18px;
-          color: #50688C;
+  .examineGoodsMessage {
+    margin-top: 32px;
+    > p:first-child {
+      font-size: 18px;
+      color: #50688c;
+    }
+    .examineGoodContent {
+      //  width: 1000px;
+      background-color: #ffffff;
+      padding: 20px 40px 10px;
+      color: #50688c;
+      margin-top: 16px;
+      .left30 {
+        margin-left: 30px;
       }
-      .supplierContent{
-          width: 1000px;
-          background-color: #ffffff;
-          padding: 20px 40px 10px;
-          margin-top:16px;
-          color: #50688C;
-          .left30 {
-            margin-left: 30px;
+    }
+  }
+  .reportList {
+    margin-top: 25px;
+  }
+  .otherRequirements {
+    margin-top: 32px;
+    padding: 0;
+    > p:first-child {
+      font-size: 18px;
+      color: #50688c;
+    }
+    .otherRequirementsContent {
+      // width: 1000px;
+      background-color: #ffffff;
+      padding: 20px 40px 10px;
+      margin-top: 16px;
+      .left30 {
+        margin-left: 30px;
+      }
+      > div {
+        margin-bottom: 24px;
+        > span:first-child {
+          color: #7c8fa6;
+        }
+        // >span:last-child{
+        //     color: #50688C;;
+        // }
+      }
+    }
+  }
+  .sampleReference {
+    margin-top: 32px;
+    padding: 0;
+    > p:first-child {
+      font-size: 18px;
+      color: #50688c;
+      margin-bottom: 16px;
+    }
+    .sampleReferenceContent {
+      background-color: #ffffff;
+      padding: 20px 40px 10px;
+      color: #50688c;
+      margin-bottom: 24px;
+    }
+  }
+
+  .sampleIntelligence {
+    margin-top: 32px;
+    padding: 0;
+    > p:first-child {
+      font-size: 18px;
+      color: #50688c;
+      margin-bottom: 16px;
+    }
+    .sampleIntelligenceContent {
+      background-color: #ffffff;
+      padding: 20px 40px 10px;
+      color: #50688c;
+      margin-bottom: 24px;
+    }
+  }
+  .productWrap {
+    margin-top: 32px;
+    .productInformationWrap {
+      background-color: #ffffff;
+      // padding: 32px 0;
+      color: #50688c;
+      margin-bottom: 24px;
+
+      .normalTitle {
+        padding-bottom: 20px;
+        border-bottom: 1px solid #bfc4cc;
+        padding: 32px 40px;
+        overflow: hidden;
+        .left {
+          float: left;
+          color: #50688c;
+          font-size: 16px;
+          > span {
+            color: #ef3535;
+            margin-right: 8px;
+          }
+        }
+        .right {
+          float: right;
+          font-size: 16px;
+          i {
+            color: #ffa800;
+            margin-left: 16px;
+            transition: all 0.5s;
+          }
+          .rotaga {
+            transform: rotate(180deg);
+            -ms-transform: rotate(180deg); /* IE 9 */
+            -moz-transform: rotate(180deg); /* Firefox */
+            -webkit-transform: rotate(180deg); /* Safari 和 Chrome */
+            -o-transform: rotate(180deg); /* Opera */
+          }
         }
       }
-  }
-  .examineGoodsMessage{
-      margin-top: 32px;
-      >p:first-child{
-          font-size: 18px;
-          color: #50688C;
-      }
-      .examineGoodContent{
-           width: 1000px;
+      .titleChange {
+      border-bottom: none;
+      // padding-bottom: 0;
+    }
+      .productInformation {
+        position: relative;
+        padding: 24px 40px 60px;
+        // width: 85%;
+        .addNewProducts {
+          cursor: pointer;
+          position: absolute;
+          right: 0;
+        }
+        > p {
+          font-size: 16px;
+          font-weight: bold;
+          color: #ffa800;
+          margin-bottom: 24px;
+        }
+        .addNewProduct {
+          display: inline-block;
+          position: absolute;
+          cursor: pointer;
+          right: 0;
+          z-index: 5;
+          top: 55px;
+          background-image: linear-gradient(0deg, #f4f7fa 0%, #ffffff 100%);
+        }
+        .content {
+          width: 100%;
+          padding: 20px 30px 10px;
           background-color: #ffffff;
-          padding: 20px 40px 10px;
-          color: #50688C;
-          margin-top:16px;
+          border: 1px solid #e6eaee;
+          border-radius: 4px;
+          color: #50688c;
+          margin-bottom: 32px;
           .left30 {
             margin-left: 30px;
-        }
-      }
-  }
-  .reportList{
-      margin-top:25px; 
-  }
-  .otherRequirements{
-      margin-top: 32px;
-      padding: 0;
-       >p:first-child{
-          font-size: 18px;
-          color: #50688C;
-      }
-      .otherRequirementsContent{
-          width: 1000px;
-          background-color: #ffffff;
-          padding: 20px 40px 10px;
-          margin-top:16px;
-          .left30 {
+          }
+          .copy {
+            display: inline-block;
+            color: #7c8ca5;
+            font-size: 10px;
+            line-height: 36px;
+            height: 36px;
+            vertical-align: middle;
             margin-left: 30px;
-        }
-        >div{
-            margin-bottom: 24px;
-            >span:first-child{
-                color: #7C8FA6;
+            cursor: pointer;
+            p {
+              margin: 0;
+              padding: 0;
+              position: relative;
+              top: -28px;
+              text-align: center;
             }
-            // >span:last-child{
-            //     color: #50688C;;
+            i {
+              position: relative;
+              display: inline-block;
+              width: 24px;
+              top: -10px;
+              text-align: center;
+            }
+          }
+        }
+        .labelStyle {
+          font-size: 14px;
+          color: #7c8fa6;
+        }
+        .gridtable {
+          border-collapse: collapse;
+          width: 100%;
+          margin: 15px auto 33px;
+          thead > tr {
+            // background: #eef1f6;
+            height: 40px;
+            line-height: 40px;
+          }
+          th,
+          td {
+            border: 1px solid #dfe6ec;
+            font-size: 14px;
+            font-weight: normal;
+            text-align: center;
+          }
+
+          .w {
+            width: 120px;
+          }
+          tbody > tr {
+            height: 50px;
+            line-height: 50px;
+            // &:hover {
+            //   background: #eef1f6;
             // }
+            td {
+              padding: 0 10px;
+              color: #50688c;
+            }
+            .greenTd {
+              background: #7dc855;
+              color: #ffffff;
+            }
+            // vertical-align:
+            // line-height: 200px;
+            // height: 200px;
+            // }
+          }
         }
       }
+    }
   }
-
-
-
-
-
 }
+
 </style>
 
