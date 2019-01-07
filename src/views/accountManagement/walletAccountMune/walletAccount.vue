@@ -41,7 +41,7 @@
                 stripe
                 style="width: 100%"
                 max-height="500"
-              >
+                >
                 <el-table-column
                   prop="created_at"
                   label="创建时间"
@@ -68,10 +68,9 @@
                 </el-table-column>
                 <el-table-column
                   label="状态">
-                  <template slot-scope="scope">
-                    <span v-if="scope.row.status == 0">处理中</span>
-                    <span v-if="scope.row.status == 1">成功</span>
-                    <span v-if="scope.row.status == 2">失败</span>
+                  <template slot-scope="scope">                
+                    <span v-if="scope.row.status == 2">成功</span>
+                    <span v-else>{{scope.row.status}}</span>
                   </template>
                 </el-table-column>
                 <el-table-column
@@ -90,7 +89,7 @@
                 stripe
                 style="width: 100%"
                 max-height="500"
-              >
+                >
                 <el-table-column
                   prop="created_at"
                   label="创建时间"
@@ -112,7 +111,7 @@
                 <el-table-column
                   label="保证金">
                   <template slot-scope="scope">
-                    <span>¥{{ jsonGetName(scope.row.currency_data,'CNY') }}</span>
+                    <span>¥{{ scope.row.after_snapshot_price}}</span>
                   </template>
                 </el-table-column>
                 <el-table-column
@@ -149,19 +148,24 @@
                   <template slot-scope="scope">
                     <span v-if="scope.row.plus_minus==true">+</span>
                     <span v-if="scope.row.plus_minus==false">-</span>
-                    <span>¥{{ scope.row.price }}</span>
+                    <span>¥{{ scope.row.total_price }}</span>
                   </template>
                 </el-table-column>
                 <el-table-column
                   label="钱包余额">
                   <template slot-scope="scope">
-                    <span>¥{{ jsonGetName(scope.row.currency_data,'CNY') }}</span>
+                    <span>¥{{ scope.row.balance_after_presentation}}</span>
                   </template>
                 </el-table-column>
 
                 <el-table-column :filters="[{ text: '成功', value: '成功' }, { text: '处理中', value: '处理中' },{ text: '失败', value: '失败' }]" :filter-method="filterTag" prop="tag" label="状态" filter-placement="bottom-end">
                   <template slot-scope="scope">
-                    <span :type="scope.row.tag === '家' ? 'primary' : 'success'" disable-transitions>{{ scope.row.tag }}</span>
+                    <!-- {{scope.row}} -->
+                    <!-- <span :type="scope.row.tag === '家' ? 'primary' : 'success'" disable-transitions> -->
+                      <span v-if="scope.row.status == 0">处理中</span>
+                      <span v-if="scope.row.status == 1">成功</span>
+                      <span v-if="scope.row.status == 2">失败</span>
+                    <!-- </span> -->
                   </template>
                 </el-table-column>
                 <el-table-column
@@ -203,8 +207,8 @@
         background
         layout="total, sizes, prev, pager, next, jumper"
         style="float:right;margin-top:10px;"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"/>
+        @size-change="CashSizeChange"
+        @current-change="CashCurrentChange"/>
     </el-col>
     <el-col v-if="num==2" :span="24" class="toolbar">
       <el-pagination
@@ -215,8 +219,8 @@
         background
         layout="total, sizes, prev, pager, next, jumper"
         style="float:right;margin-top:10px;"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"/>
+        @size-change="DepositSizeChange"
+        @current-change="DepositCurrentChange"/>
     </el-col>
 
   </div>
@@ -236,19 +240,19 @@ export default {
     return {
       filters: {
         page: 1,
-        rows: 1,
+        rows: 15,
         currentpage: 1,
         total: 10
       },
       Cashfilters: {
         page: 1,
-        rows: 1,
+        rows: 15,
         currentpage: 1,
         total: 10
       },
       Depositfilters: {
         page: 1,
-        rows: 1,
+        rows: 15,
         currentpage: 1,
         total: 10
       },
@@ -453,6 +457,28 @@ export default {
       this.filters.page = val
       this.filters.currentpage = val
       this.getBalanceList()
+      // console.log(`当前页: ${val}`);
+    },
+    CashSizeChange(val) {
+      this.Cashfilters.rows = val
+      // this.filters.currentpage = val;
+      this.getCashList()
+    },
+    handleCurrentChange(val) {
+      this.Cashfilters.page = val
+      this.Cashfilters.currentpage = val
+      this.getCashList()
+      // console.log(`当前页: ${val}`);
+    },
+    DepositSizeChange(val) {
+      this.Cashfilters.rows = val
+      // this.filters.currentpage = val;
+      this.getCashList()
+    },
+    DepositCurrentChange(val) {
+      this.Depositfilters.page = val
+      this.Depositfilters.currentpage = val
+      this.getDepositList()
       // console.log(`当前页: ${val}`);
     },
     // 钱包详情

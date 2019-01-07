@@ -73,3 +73,18 @@ export function walletDetail(query) {
     method: 'GET'
   })
 }
+
+export function getBankList() {
+  return request({
+    url: '/v1/config/info',
+    method: 'GET'
+  })
+}
+
+export function sendMa(data) {
+  return request({
+    url: '/v1/verificationcode/send',
+    method: 'GET',
+    params: data
+  })
+}

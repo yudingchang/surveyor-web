@@ -9,13 +9,15 @@
           <span>{{ cardMessage.cardholder }}</span>
         </el-form-item>
         <el-form-item label="开户银行" prop="open_bank">
-          <el-select v-model="cardMessage.open_bank" placeholder="请选择开户银行" class="inputLength">
-            <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"/>
-          </el-select>
+          <el-autocomplete
+            :fetch-suggestions="querySearchAsync"
+            v-model="cardMessage.open_bank"
+            value-key="label"
+            placeholder="请输入开户银行"
+            class="inputLength"
+            @select="handleSelect"
+            >
+          </el-autocomplete>
         </el-form-item>
         <el-form-item label="开户支行" prop="bank_branch">
           <el-input v-model="cardMessage.bank_branch" placeholder="请输入开户支行名称" class="inputLength"/>
@@ -40,7 +42,7 @@
         </el-form-item>
         <el-form-item label="验证码" prop="verification_code">
           <el-input v-model="cardMessage.verification_code" placeholder="请输入验证码" class="input-with-select" style="width:400px;">
-            <el-button slot="append" style="width:120px;color:#FFA500;" @click="secondStepSendMa()">{{ secondStepText }}</el-button>
+            <el-button slot="append" style="width:120px;color:#FFA500;" :disabled="sendMaDisabled" @click="secondStepSendMa()">{{ secondStepText }}</el-button>
           </el-input>
         </el-form-item>
         <el-form-item label=" ">
@@ -52,7 +54,7 @@
 </template>
 
 <script>
-import { addCard } from '@/api/walletDetail'// 列表请求数据
+import { addCard , getBankList , sendMa } from '@/api/walletDetail'// 列表请求数据
 export default {
   name: '',
   components: {
@@ -81,6 +83,7 @@ export default {
         cardholder: '狗子',
         open_bank: '',
         bank_code: 'ICBC',
+        area_phone_number:'0086',
         bank_branch: '',
         bank_account: '',
         phone_number: '',
@@ -111,21 +114,51 @@ export default {
   methods: {
     // 第二步发送验证码
     secondStepSendMa() {
-    //   this.forgetSendMa();
+      this.sendMa();
       const TIME_COUNT = 60
       //   this.sendMaDisabled = true
       this.secondStepText = TIME_COUNT
       clearInterval(this.timer)
       this.timer = setInterval(() => {
         if (this.secondStepText > 0 && this.secondStepText <= TIME_COUNT) {
-          this.secondStepText--
-        } else {
+          this.sendMaDisabled = true
+         this.secondStepText--
+        }else {
           this.sendMaDisabled = false
           this.secondStepText = '发送验证码'
           clearInterval(this.timer)
           this.timer = null
         }
       }, 1000)
+    },
+    // 输入式查询银行
+    querySearchAsync(queryString, cb) {
+      getBankList()
+        .then(res => {
+          let restaurants  = res.data.data.bankList;
+          let results = queryString ? restaurants.filter(this.createFilter(queryString)) : restaurants;
+          cb(results);
+        });
+    },
+    // 过滤符合条件的筛选项
+    createFilter(queryString) {
+      return (restaurant) => {
+        return (restaurant.label.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+      };
+    },
+    handleSelect(item) {
+        this.cardMessage.bank_code = item.id
+      },
+    // 发送验证码
+    sendMa(){
+      sendMa({
+        to:this.cardMessage.phone_number,
+        type:'phone_number'
+      }).then(res=>{
+        if(res.data.code == 0){
+
+        }
+      })
     },
     addCard() {
       this.$refs['cardMessage'].validate((valid) => {
@@ -134,7 +167,10 @@ export default {
             ...this.cardMessage
           }).then(res => {
             if (res.data.code == 0) {
-
+              this.$message({
+                message: '银行卡添加成功',
+                type: 'success'
+              });
             }
           })
         }

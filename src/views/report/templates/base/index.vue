@@ -12,7 +12,7 @@
     <el-form style="margin:60px auto 100px">
       <el-form-item label-width="0" style="text-align: center;">
         <el-button style="border:1px solid rgba(144,147,153,1);width:140px;color:#909399;" @click="back()">返回</el-button>
-        <el-button style="background:#67C23A;width:140px;color:#ffffff;outline:none;border:none">预览报告</el-button>
+        <el-button style="background:#67C23A;width:140px;color:#ffffff;outline:none;border:none" @click="previewReport()">预览报告</el-button>
         <el-button style="background:#FFA800;width:140px;color:#ffffff;outline:none;border:none" @click="reportsubmit()">提交报告</el-button>
       </el-form-item>
     </el-form>
@@ -99,12 +99,22 @@ export default {
       update(this.id, params).then(response => {
         this.data[name] = data
         loading.close()
+        this.getData()
       })
     },
     reportsubmit() {
       reportsubmit(this.id, this.configs).then(res => {
         if (res.data.code == 0) {
 
+        }
+      })
+    },
+    previewReport(){
+      this.$router.push({
+        path:'previewReport',
+        query:{
+          id:this.id,
+          configs:this.configs
         }
       })
     },
@@ -135,6 +145,11 @@ export default {
     .tc-input-number-pd .el-input__inner{
       padding: 0 15px;
       width: 100% !important;
+    }
+    .tdInput .el-input__inner{
+      border: none;
+      background-color: transparent;
+      width: 100%;
     }
     .tc-input-number-ld .el-input__inner{
       padding: 0 15px;

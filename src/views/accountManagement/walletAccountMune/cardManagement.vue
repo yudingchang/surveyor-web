@@ -12,7 +12,7 @@
                 <img :src="item.logo" alt="">
                 <!-- <span>{{item.open_bank}}</span> -->
               </p>
-              <p>{{ bankNumber(item.bank_account) }}</p>
+              <p>{{ item.bank_account  ?  bankNumber(item.bank_account) : ''}}</p>
             </div>
             <div class="right1">
               <p v-if="item.is_default == 1">默认卡</p>
@@ -52,7 +52,6 @@
         </div>
       </el-col>
     </el-row>
-    <div />
   </div>
 </template>
 
@@ -64,15 +63,15 @@ export default {
   },
   data() {
     return {
-      cardList: [
-        {
-
-        },
-        {
-
-        }
+      cardList: [ 
       ],
-      CardDetail: ''
+      CardDetail:{
+        cardholder:'',
+        open_bank:'',
+        bank_branch:'',
+        bank_account:'',
+        phone_number:''
+      }
     }
   },
   created() {

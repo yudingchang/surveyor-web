@@ -93,6 +93,18 @@
         <el-table-column property="name" label="产品名称"/>
       </el-table>
     </el-dialog>
+    <el-col :span="24" class="toolbar">
+      <el-pagination
+        :current-page="filters.currentpage"
+        :page-sizes="[15, 30, 50]"
+        :page-size="filters.rows"
+        :total="total"
+        background
+        layout="total, sizes, prev, pager, next, jumper"
+        style="float:right;"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"/>
+    </el-col>
   </div>
 </template>
 
@@ -104,6 +116,11 @@ export default {
   components: {},
   data() {
     return {
+      filters: {
+        page: 1,
+        rows: 15,
+        currentpage: 1
+      },
       fitter: {
         timeStyle: 0,
         time: '',
@@ -236,17 +253,13 @@ export default {
       return fees
     },
     getList() {
-      orderList(
-      //   {
-      //   number: this.fitter.number,
-      //   marking: markingstyle==''?'':markingstyle,
-      //   product_name: this.fitter.product_name,
-      //   estimated_first_date:this.fitter.timeStyle== 0?this.fitter.time:'',
-      //   created_at: this.fitter.timeStyle== 0?'':this.fitter.time,
-      // }
-      ).then(response => {
+      orderList({
+         page: this.filters.page,
+        limit: this.filters.rows
+      }).then(response => {
         if (response.data.code == 0) {
           this.tableData2 = response.data.data
+          this.total = response.data.meta.total
         }
       })
     },
@@ -303,6 +316,17 @@ export default {
     // 去订单详情
     goOrderDetail(row) {
       this.$router.push({ path: 'orderDetails', query: { orderId: row.id }})
+    },
+    handleSizeChange(val) {
+      this.filters.rows = val
+      // this.filters.currentpage = val;
+      this.getList()
+    },
+    handleCurrentChange(val) {
+      this.filters.page = val
+      this.filters.currentpage = val
+      this.getList()
+      // console.log(`当前页: ${val}`);
     }
   }
 }
@@ -398,7 +422,7 @@ content: '/ ';
 }
 .examineGoods{
   margin:25px 40px;
-.examine-good {
+  .examine-good {
   border: 1px solid #e6eaee;
   border-radius: 4px;
   // padding-bottom: 70px;
@@ -484,6 +508,11 @@ content: '/ ';
     background:rgba(74,144,226,1);
   }
 }
+.toolbar{
+  position: absolute;
+  right: 40px;
+  bottom: 10px;
+  }
 }
 
 </style>

@@ -108,8 +108,11 @@
             type="textarea"
             style="width: 560px;"/>
         </el-form-item>
-        <el-form-item label="备注" style="margin-bottom: 16px;">
-          <el-select
+        <el-form-item  label="备注" :rules="[2, 3].includes(data.conclusion) ? [{ required: true, message: '请填写结论', trigger: 'blur' }] : []"
+            prop="remark_content">
+
+            <div style="margin-bottom:12px;">
+              <el-select
             v-model="data.remark_title"
             filterable
             default-first-option
@@ -120,14 +123,16 @@
               :label="item.label"
               :value="item.value"/>
           </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-input
+            </div>
+          <div>
+            <el-input
             :autosize="{ minRows: 3, maxRows: 5}"
+            
             v-model="data.remark_content"
             type="textarea"
             placeholder="补充说明文字"
             style="width: 560px;"/>
+          </div>
         </el-form-item>
         <el-form-item label="图片">
           <tc-upload-image

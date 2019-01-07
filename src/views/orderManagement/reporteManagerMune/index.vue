@@ -74,8 +74,11 @@
       <el-table-column
         label="操作">
         <template slot-scope="scope">
-          <el-button type="text" class="orangeText" @click="goReportDetail(scope.row)">写报告</el-button>
-          <!-- {{scope.row.marking_name}}({{scope.row.service.marking_name}})  -->
+          <el-button type="text" class="orangeText" v-if="(scope.row.type == 'offline')&&(scope.row.service.marking == 'WAIT_INSPECT')" @click="goReportDetail(scope.row)">下载模版</el-button>
+          <el-button type="text" class="orangeText" v-if="(scope.row.type == 'offline')&&(scope.row.service.marking == 'INSPECTING')" @click="goReportDetail(scope.row)">上传报告</el-button> 
+          <el-button type="text" class="orangeText" v-if="(scope.row.type == 'online')&&(scope.row.service.marking == 'INSPECTING')&& (scope.row.marking == 'WAIT_MODIFY')" @click="goReportDetail(scope.row)">修改报告</el-button>
+          <el-button type="text" class="orangeText" v-if="(scope.row.type == 'online')&&(scope.row.service.marking=='INSPECTING')&& (scope.row.marking == 'WAIT_MODIFY')" @click="goReportDetail(scope.row)">查看原因</el-button>
+          <el-button type="text" class="orangeText" v-if="(scope.row.type == 'online')&&(scope.row.service.marking=='INSPECTING')&& (scope.row.marking == 'WAIT_WRITE')" @click="goReportDetail(scope.row)">写报告</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -85,6 +88,18 @@
         <el-table-column property="name" label="产品名称"/>
       </el-table>
     </el-dialog>
+    <el-col :span="24" class="toolbar">
+      <el-pagination
+        :current-page="filters.currentpage"
+        :page-sizes="[15, 30, 50]"
+        :page-size="filters.rows"
+        :total="total"
+        background
+        layout="total, sizes, prev, pager, next, jumper"
+        style="float:right;"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"/>
+    </el-col>
   </div>
 </template>
 
@@ -97,6 +112,12 @@ export default {
   components: {},
   data() {
     return {
+       filters: {
+        page: 1,
+        rows: 15,
+        currentpage: 1
+      },
+      total:10,
       fitter: {
         timeStyle: 0,
         time: '',
@@ -230,16 +251,10 @@ export default {
     },
     getList() {
       orderList(
-      //   {
-      //   number: this.fitter.number,
-      //   marking: markingstyle==''?'':markingstyle,
-      //   product_name: this.fitter.product_name,
-      //   estimated_first_date:this.fitter.timeStyle== 0?this.fitter.time:'',
-      //   created_at: this.fitter.timeStyle== 0?'':this.fitter.time,
-      // }
       ).then(response => {
         if (response.data.code == 0) {
           this.tableData2 = response.data.data
+          this.total = response.data.meta.total
         }
       })
     },
@@ -309,6 +324,17 @@ export default {
       this.$router.push({
         path: 'writeReporte', query: { id: row.id }
       })
+    },
+    handleSizeChange(val) {
+      this.filters.rows = val
+      // this.filters.currentpage = val;
+      this.getList()
+    },
+    handleCurrentChange(val) {
+      this.filters.page = val
+      this.filters.currentpage = val
+      this.getList()
+      // console.log(`当前页: ${val}`);
     }
   }
 }
@@ -502,6 +528,11 @@ content: '/ ';
     background:rgba(74,144,226,1);
   }
 }
+.toolbar{
+  position: absolute;
+  right: 40px;
+  bottom: 10px;
+  }
 }
 
 </style>

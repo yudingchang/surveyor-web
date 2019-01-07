@@ -30,6 +30,10 @@
       class="image-preview shadow-sm"
       list-type="picture-card">
       <i class="el-icon-upload"/>
+      <p style="font-size:14px;color:#7F8FA4;line-height:20px;">上传图片</p>
+      <!-- <div>
+
+      </div> -->
     </el-upload>
   </div>
 </template>
@@ -125,25 +129,25 @@ export default {
   .image-preview {
     position: relative;
     border: 1px solid rgb(220, 223, 230);
-    border-radius: 7px;
+    border-radius: 4px;
     float: left;
-    width: 220px;
-    height: 179px;
+    width: 300px;
+    height: 225px;
     margin-right: 10px;
     margin-bottom: 15px;
     text-align: center;
     overflow: hidden;
     .el-upload-dragger {
-      width: 208px;
+      // width: 208px;
       height: 167px;
       margin: 5px;
       border: dotted 1px rgb(220, 223, 230);
       border-radius: 5px;
       .el-icon-upload {
-        font-size: 34px;
+        font-size: 40px;
         color: #FFA800;
-        margin: 0;
-        line-height: 157px;
+        margin: 70px auto 10px;
+        // line-height: 157px;
       }
     }
     .el-upload {
@@ -151,8 +155,9 @@ export default {
       width: 100%;
       background-color: #fff;
       .el-upload-dragger {
+        width:auto;
         height: 100%;
-        line-height: 150px;
+        // line-height: 150px;
         border-radius: 0;
         border-width: 0;
         background-color: transparent;
@@ -163,17 +168,31 @@ export default {
         }
         }
       }
+      .el-upload{
+        display: block;
+      }
+      $body_padding: 12px;
       .el-upload--picture-card {
-      height: 100% !important;
-    }
+        // padding: 6px;
+        width: auto;
+        // height: auto;
+        border: 2px dashed #CED0DA;
+        line-height: 0;
+        margin: 6px !important;
+        height:  calc(100% - #{$body_padding});
+      }
 
     .image-preview-wrapper {
       position: relative;
+      
+      // border: 2px dashed #CED0DA;
+      // width: 300px; 
+      // height: 225px;
       width: 100%;
       height: 100%;
       img {
-        width: 220px;
-        height: 179px;
+        width: 100%;
+        height: 100%;
         object-fit: contain;
       }
     }
@@ -193,10 +212,14 @@ export default {
       .el-input {
         background-color: transparent;
         .el-input__inner {
-          background-color: rgba(255,255,255,.85);
+          border: none;
+          border-top:1px solid #DFE3E9; 
+          background-color: rgba(255,255,255,.8);
+          opacity: .8;
           border-radius: 0 0 5px 5px / 5px;
           height: 26px;
           font-size: 12px;
+          color:#50688C;
           margin: 0;
           text-align: center;
         }
@@ -216,6 +239,7 @@ export default {
       position: absolute;
       width: 100%;
       height: 100%;
+      padding: 6px;
       left: 0;
       top: 0;
       cursor: default;

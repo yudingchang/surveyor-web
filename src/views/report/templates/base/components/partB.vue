@@ -63,7 +63,7 @@
                             v-for="item in configs.packageOptions.single"
                             :key="item.value"
                             :label="item.label"
-                            :value="item.value"/>
+                            :value="item.value"/> 
                         </el-select>
                       </el-form-item>
                       <el-form-item label="说明" label-width="70px">
@@ -212,7 +212,7 @@
             </el-form-item>
           </el-form-item>
 
-          <el-form-item label="备注" label-width="70px">
+          <el-form-item label="备注" label-width="70px" :rules="[2, 3].includes(product.conclusion) ? [{ required: true, message: '请输入备注内容', trigger: 'blur' }] : []" :prop="'packing.products.'+index+'.remark_content'">
             <el-input
               :autosize="{ minRows: 3, maxRows: 5}"
               v-model="product.remark_content"
@@ -259,7 +259,7 @@
               </el-form-item>
             </el-form-item>
           </el-form-item>
-          <el-form-item label="备注" label-width="70px">
+          <el-form-item label="备注" label-width="70px" :rules="[2, 3].includes(product.conclusion) ? [{ required: true, message: '请输入备注内容', trigger: 'blur' }] : []" :prop="'marking.products.'+index+'.remark_content'">
             <el-input
               :autosize="{ minRows: 3, maxRows: 5}"
               v-model="product.remark_content"

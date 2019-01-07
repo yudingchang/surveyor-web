@@ -357,6 +357,15 @@ export const asyncRouterMap = [
             meta: {
               title: '写报告'
             }
+          },
+          {
+            path: 'previewReport',
+            hidden: true,
+            component: () => import('@/views/orderManagement/reporteManagerMune/previewReport'),
+            name: 'previewReport',
+            meta: {
+              title: '报告预览'
+            }
           }
         ]
       }
@@ -443,8 +452,90 @@ export const asyncRouterMap = [
       {
         path: 'accountSetting',
         component: () => import('@/views/accountManagement/accountSetting'),
+        redirect: '/accountManagement/accountSetting/index',
         name: 'accountSetting',
-        meta: { title: '账户设置' }
+        meta: { title: '账户设置' },
+        children: [
+          {
+            path: 'index',
+            hidden: true,
+            component: () => import('@/views/accountManagement/accountSettingMune'),
+            name: 'index',
+            meta: {
+
+            }
+          },
+          {
+            path: 'accountResetLoginPassword',
+            hidden: true,
+            component: () => import('@/views/accountManagement/accountSettingMune/accountResetLoginPassword'),
+            name: 'accountResetLoginPassword',
+            meta: {
+              title: '登录密码重置' }
+          },
+          {
+            path: 'resetByPassword',
+            hidden: true,
+            component: () => import('@/views/accountManagement/accountSettingMune/resetByPassword'),
+            name: 'resetByPassword',
+            meta: {
+              title: '登录密码重置' }
+          },
+          {
+            path: 'resetByEmail',
+            hidden: true,
+            component: () => import('@/views/accountManagement/accountSettingMune/resetByEmail'),
+            name: 'resetByEmail',
+            meta: {
+              title: '登录密码重置' 
+            }
+          },
+          {
+            path: 'resetByPhone',
+            hidden: true,
+            component: () => import('@/views/accountManagement/accountSettingMune/resetByPhone'),
+            name: 'resetByPhone',
+            meta: {
+              title: '登录密码重置' 
+            }
+          },
+          {
+            path: 'resetPaymentPassword',
+            hidden: true,
+            component: () => import('@/views/accountManagement/accountSettingMune/resetPaymentPassword'),
+            name: 'resetPaymentPassword',
+            meta: {
+              title: '支付密码重置' 
+            }
+          },
+          {
+            path: 'payResetByPassword',
+            hidden: true,
+            component: () => import('@/views/accountManagement/accountSettingMune/payResetByPassword'),
+            name: 'payResetByPassword',
+            meta: {
+              title: '支付密码重置' 
+            }
+          },
+          {
+            path: 'payResetByEmail',
+            hidden: true,
+            component: () => import('@/views/accountManagement/accountSettingMune/payResetByEmail'),
+            name: 'payResetByEmail',
+            meta: {
+              title: '支付密码重置' 
+            }
+          },
+          {
+            path: 'payResetByPhone',
+            hidden: true,
+            component: () => import('@/views/accountManagement/accountSettingMune/payResetByPhone'),
+            name: 'payResetByPhone',
+            meta: {
+              title: '支付密码重置' 
+            }
+          }    
+        ]  
       },
       // {
       //   path: 'companyInformation',

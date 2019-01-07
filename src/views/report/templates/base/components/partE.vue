@@ -134,10 +134,10 @@
           <el-form-item label-width="0" style="margin: 0 0 22px 0;">
             <el-button type="success" icon="el-icon-plus" @click="handleAddDefectiveItem(product)">添加缺陷项</el-button>
           </el-form-item>
-          <el-form-item label="备注">
+          <el-form-item label="备注" prop="remark_content" :rules="((data.real_fatal_defect>data.sampling.params.fatal_defect) || (data.real_serious_defect>data.sampling.params.serious_defect) || (data.real_minor_defect>data.sampling.params.minor_defect)) ? [{ required: true, message:'请输入备注内容', trigger: 'blur' }] : []">
             <el-input
               :autosize="{ minRows: 3, maxRows: 5}"
-              v-model="product.remark_content"
+              v-model="data.remark_content"
               type="textarea"
               placeholder="请输入备注内容"
               style="width: 100%;"/>
@@ -223,6 +223,7 @@ export default {
   methods: {
     setData(data) {
       if (data) {
+        
         this.data = this._.cloneDeep(data)
       } else {
         const _data = this._.cloneDeep(defaultData)
@@ -236,6 +237,7 @@ export default {
           })
         })
         this.data = _data
+        console.log(this.data)
       }
       this.loading = false
     },

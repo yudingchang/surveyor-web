@@ -90,15 +90,47 @@
             <span class="left">抢单资格</span>
           </div>
           <div class="grabContent">
-            <!-- <p class="number">¥{{balance}}</p>
-                  <el-button class="btn" @click="goProfessiondData()">立即完善</el-button> -->
+            <div v-if="!informationComplete">
+               <p class="number">您的专业资料未完善，无法抢单！</p>
+              <el-button class="btn" @click="goProfessiondData()">立即完善</el-button>
+            </div>
+            <div v-if="informationComplete" class="completeMessage clearfix">
+               <div class="informationContent fl">
+                 <p class="informationTitle">可抢主辅单</p>
+                 <p class="informationList clearfix">
+                   <span class="fl">辅单(不能写报告)</span>
+                   <span class="fr">主单(能写报告)</span>
+                 </p>
+               </div>
+               <div class="line fl"></div>
+               <div class="informationContent fl">
+                 <p class="informationTitle">可抢报告语言订单</p>
+                 <p class="informationList clearfix">
+                   <span class="fl">中文报告</span>
+                   <span class="fr">英文报告</span>
+                 </p>
+               </div>
+               <div class="line fl"></div>
+               <div class="informationContent fl">
+                 <p class="informationTitle">可抢产品分类</p>
+                 <p class="informationList clearfix">
+                   <span class="fl">
+                     电子电器
+                     <i class="iconfont icon-IconCopy"></i>
+                   </span>
+                   <span class="fl">轻工产品</span>
+                   <span class="fr">纺织品</span>
+                 </p>
+               </div>
+            </div>
+           
           </div>
         </div>
       </el-col>
     </el-row>
     <div class="nomarlTop backlog">
       <span class="left">近期待办事项</span>
-      <a class="right">更多<i class="el-icon-d-arrow-right"/></a>
+      <a class="right" @click="goReporteManager()">更多<i class="el-icon-d-arrow-right"/></a>
     </div>
     <el-table
       :data="tableData2"
@@ -145,8 +177,11 @@
       <el-table-column
         label="操作">
         <template slot-scope="scope">
-          <el-button type="text"/>
-          <!-- {{scope.row.marking_name}}({{scope.row.service.marking_name}})  -->
+          <el-button type="text" class="orangeText" v-if="(scope.row.type == 'offline')&&(scope.row.service.marking == 'WAIT_INSPECT')" @click="goReportDetail(scope.row)">下载模版</el-button>
+          <el-button type="text" class="orangeText" v-if="(scope.row.type == 'offline')&&(scope.row.service.marking == 'INSPECTING')" @click="goReportDetail(scope.row)">上传报告</el-button> 
+          <el-button type="text" class="orangeText" v-if="(scope.row.type == 'online')&&(scope.row.service.marking == 'INSPECTING')&& (scope.row.marking == 'WAIT_MODIFY')" @click="goReportDetail(scope.row)">修改报告</el-button>
+          <el-button type="text" class="orangeText" v-if="(scope.row.type == 'online')&&(scope.row.service.marking=='INSPECTING')&& (scope.row.marking == 'WAIT_MODIFY')" @click="goReportDetail(scope.row)">查看原因</el-button>
+          <el-button type="text" class="orangeText" v-if="(scope.row.type == 'online')&&(scope.row.service.marking=='INSPECTING')&& (scope.row.marking == 'WAIT_WRITE')" @click="goReportDetail(scope.row)">写报告</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -193,7 +228,9 @@ export default {
       grabSheetText: '',
       orderService: '',
       canConfirm: false,
-      canChase: false
+      canChase: false,
+      // 资料完善度
+      informationComplete:true
     }
   },
   computed: {
@@ -295,8 +332,13 @@ export default {
           this.tableData2 = res.data.data
         }
       })
+    },
+    // 跳转报告管理
+    goReporteManager(){
+      this.$router.push({
+        path: '/orderManagement/reporteManager'
+      })
     }
-
   }
 }
 </script>
@@ -424,8 +466,8 @@ $TotleLeft:500px;
                 border:1px solid rgba(230,234,238,1);
                 background:rgba(255,255,255,1);
                 .number{
-                   font-size:30px;
-                   color:rgba(21,139,228,1);
+                   font-size:20px;
+                   color:#50688C;
                    text-align: center;
                    margin-top: 24px;
                 }
@@ -439,6 +481,36 @@ $TotleLeft:500px;
                     color:rgba(255,255,255,1);
                     font-size:16px;
                     margin-top: 16px;
+                }
+                .completeMessage{
+                  padding:34px 38px;
+                  .informationContent{
+                    width: 240px;
+                    .informationTitle{
+                      text-align:center;
+                      color:#4A90E2;
+                      font-size:16px;
+                    }
+                    .informationList{
+                      margin-top:27px;
+                      color:#50688C;
+                      font-size:14px;
+                      i{
+                        margin-left:8px;
+                        font-size:14px;
+                        color:#768CAA;
+                      }
+                      &>span:nth-child(2){
+                        margin-left:39px;
+                      }
+                    }
+                  }
+                  .line{
+                    width: 1px;
+                    height: 50px;
+                    background:#DFE3E9;
+                    margin:10px 40px 0;
+                  }
                 }
             }
         }

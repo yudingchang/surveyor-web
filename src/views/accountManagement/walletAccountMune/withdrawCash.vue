@@ -138,7 +138,7 @@ export default {
     // 判断是否每月1.15号
     judgeDay() {
       const day = new Date().getDate()
-      this.isdisabled = !((day == 1 || day == 21))
+      this.isdisabled = !((day == 1 || day == 29))
     }
   }
 }

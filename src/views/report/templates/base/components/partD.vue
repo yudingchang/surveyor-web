@@ -84,7 +84,10 @@
           <el-button type="success" icon="el-icon-plus" @click="handleAddCheckItem">添加测试项</el-button>
         </el-form-item>
 
-        <el-form-item label="备注">
+        <el-form-item label="备注" :rules="
+          _.filter(data.checkitems, item => {
+            return [2,3].includes(item.conclusion) 
+          }).length ? [{ required: true, message: '请输入备注内容', trigger: 'blur' }] : []" prop="remark_content">
           <el-input
             :autosize="{ minRows: 3, maxRows: 5}"
             v-model="data.remark_content"

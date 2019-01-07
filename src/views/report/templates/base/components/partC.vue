@@ -37,7 +37,8 @@
               </el-form-item>
             </el-form-item>
           </el-form-item>
-          <el-form-item label="备注">
+          <el-form-item label="备注" :rules="[2, 3].includes(product.conclusion) ? [{ required: true, message: '请输入备注内容', trigger: 'blur' }] : []"
+                :prop="'products.'+index+'.remark_content'">
             <el-input
               :autosize="{ minRows: 3, maxRows: 5}"
               v-model="product.remark_content"

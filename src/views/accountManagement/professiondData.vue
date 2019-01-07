@@ -385,7 +385,7 @@
           </div>
           <!-- 工作经验只读 -->
           <div v-show="!is_edit_work">
-            <el-form ref="experienceForm" :model="experienceForm" class="personalCertificateForm" label-width="200px">
+            <el-form  :model="experienceForm" class="personalCertificateForm" label-width="200px">
               <div v-for="(item,index) in experienceForm.experienceFormArray" :key="index" style="margin-bottom:50px;" >
                 <el-form-item
                   :prop="'experienceFormArray.' + index + '.company'"
@@ -542,7 +542,7 @@
           </div>
           <!-- 教育经历只读 -->
           <div v-show="!is_edit_education">
-            <el-form ref="educationForm" :model="educationForm" class="personalCertificateForm" label-width="100px">
+            <el-form :model="educationForm" class="personalCertificateForm" label-width="100px">
               <div v-for="(item,index) in educationForm.educationFormArray" :key="index" style="margin-bottom:50px">
                 <el-form-item
                   :prop="'educationFormArray.' + index + '.start_end_date'"
@@ -895,7 +895,6 @@
           <!-- 培训经历只读 -->
           <div v-show="!is_edit_training">
             <el-form
-              ref="trainingExperienceForm"
               :model="trainingExperienceForm"
               class="personalCertificateForm"
               label-width="100px"
@@ -959,6 +958,7 @@ import { grabSheet } from '@/api/dashboard'
 import { getToken } from '@/utils/auth'
 import { getPersonalAuthentication } from '@/api/professiondData'
 import InspectionTarget from '@/components/InspectionTarget'
+import store from '../../store/'
 import {
   fetchList,
   fetchCounty,
@@ -1149,10 +1149,10 @@ export default {
       imageUrl2: '',
       imageUrl3: '',
       options: [
-        // {
-        //   value: 0,
-        //   label: "请选择证件类型"
-        // },
+        {
+          value: 0,
+          label: "请选择证件类型"
+        },
         {
           value: 1,
           label: '身份证'
@@ -1208,7 +1208,11 @@ export default {
 
       inspectorCompanyScaleArr: '',
       technicalCompetenceForm: {
-        technicalCompetenceFormArray: [{}]
+        technicalCompetenceFormArray: [{
+          skill:'en',
+          en_images:[],
+          certificate_images:[]
+        }]
       },
       technicalCompetenceRules: {
         level_attained: [
@@ -1224,7 +1228,7 @@ export default {
       num: 0,
       electronicsData: [],
       handheld: {},
-      is_edit_certificate: false,
+      is_edit_certificate: true,
       is_edit_serve: false,
       is_edit_work: false,
       is_edit_education: false,
@@ -1440,6 +1444,7 @@ export default {
       this.technicalCompetenceForm.technicalCompetenceFormArray[
         index
       ].en_images.push(res.data)
+      console.log(this.technicalCompetenceForm)
     },
     // 验货相关证书
     handleRemoveCertificate(index, file, fileList) {
@@ -1463,8 +1468,6 @@ export default {
         company_nature: '',
         company_scale: '',
         is_full_time: '',
-        inspector_id: this.supplier.id,
-        user_id: this.supplier.user_id
       })
     },
     // 添加教育经历
@@ -1475,8 +1478,6 @@ export default {
         major: '',
         education: '',
         is_full_time: '',
-        inspector_id: this.supplier.id,
-        user_id: this.supplier.user_id
       })
     },
     // 添加培训经历
@@ -1609,6 +1610,7 @@ export default {
             }
           }).then(response => {
             if (response.data.code == 0) {
+              store.dispatch('GetUserInfo')
               this.$message({
                 message: '个人认证资料保存成功',
                 type: 'success'
@@ -1647,7 +1649,11 @@ export default {
     },
     // 保存工作经验
     saveExperience() {
-      this.$refs['experienceForm'].validate(valid => {
+      this.$nextTick(() => {
+        console.log(this.experienceForm.experienceFormArray)
+      })
+      this.$refs.experienceForm.validate(valid => {
+        console.log(valid)
         if (valid) {
           saveExperience({
             work_experience: this.experienceForm.experienceFormArray
@@ -1668,7 +1674,7 @@ export default {
     },
     // 保存教育经历
     saveEducationForm() {
-      this.$refs['educationForm'].validate(valid => {
+      this.$refs.educationForm.validate(valid => {
         if (valid) {
           saveEducation({
             education_info: this.educationForm.educationFormArray
@@ -1689,7 +1695,7 @@ export default {
     },
     // 保存培训经历
     savetrainingExperienceForm() {
-      this.$refs['trainingExperienceForm'].validate(valid => {
+      this.$refs.trainingExperienceForm.validate(valid => {
         if (valid) {
           savetrainingExperience({
             training_experience: this.trainingExperienceForm

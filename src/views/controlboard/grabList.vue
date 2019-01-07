@@ -83,7 +83,7 @@
     <el-col :span="24" class="toolbar">
       <el-pagination
         :current-page="filters.currentpage"
-        :page-sizes="[1, 30, 50]"
+        :page-sizes="[15, 30, 50]"
         :page-size="filters.rows"
         :total="total"
         background
@@ -105,7 +105,7 @@ export default {
     return {
       filters: {
         page: 1,
-        rows: 1,
+        rows: 15,
         currentpage: 1
       },
       dialogTableVisible: false,
