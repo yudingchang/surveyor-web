@@ -30,7 +30,7 @@
           <size-select class="international right-menu-item"/>
         </el-tooltip> -->
 
-        <lang-select class="international right-menu-item"/>
+        <!-- <lang-select class="international right-menu-item"/> -->
 
         <!-- <el-tooltip :content="$t('navbar.theme')" effect="dark" placement="bottom">
           <theme-picker class="theme-switch right-menu-item"/>

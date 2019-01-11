@@ -350,6 +350,15 @@ export const asyncRouterMap = [
             }
           },
           {
+            path: 'uploadReport',
+            hidden: true,
+            component: () => import('@/views/orderManagement/reporteManagerMune/uploadReport'),
+            name: 'uploadReport',
+            meta: {
+              title: '上传报告'
+            }
+          },
+          {
             path: 'writeReporte',
             hidden: true,
             component: () => import('@/views/report/templates/base'),
@@ -436,6 +445,15 @@ export const asyncRouterMap = [
             name: 'walletDetail',
             meta: {
               title: '钱包详情'
+            }
+          },
+          {
+            path: 'withdrawRecord',
+            hidden: true,
+            component: () => import('@/views/accountManagement/walletAccountMune/withdrawRecord'),
+            name: 'withdrawRecord',
+            meta: {
+              title: '提现记录详情'
             }
           }
         ]

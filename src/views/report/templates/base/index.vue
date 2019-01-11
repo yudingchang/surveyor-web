@@ -61,6 +61,10 @@ export default {
   },
   created() {
     this.id = this.$route.query.id
+    let modify = this.$route.query.modify ? this.$route.query.modify : false
+    if(modify){
+      this.$route.meta.title  = '修改报告'
+    }
     this.$nextTick(() => {
       this.getData()
     })

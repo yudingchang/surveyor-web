@@ -67,8 +67,7 @@
 </template>
 
 <script>
-import { sendMa } from '@/api/walletDetail'
-import { validpassword , resetpassword} from '@/api/accountSetting'
+import {  resetpassword } from '@/api/accountSetting'
 import { resetPassword , forgetSendMa} from '@/api/login'
 export default {
   name: 'resetByPassword',

@@ -79,7 +79,7 @@
                 <td v-if="cloneA.conclusion==3" style="width: 270px;">待定</td>
                 <td v-if="cloneA.conclusion==4" style="width: 270px;">不适用</td>
                 <td v-if="cloneA.conclusion==1">无</td>
-                <td v-if="[2,3].includes(cloneA.conclusion)"> <el-input type="text" class="tdInput" placeholder="请输入"></el-input> </td>
+                <td v-if="[2,3].includes(cloneA.conclusion)"> <el-input type="text" class="tdInput" v-model="data.conclusion.quantityCompliance" placeholder="请输入"></el-input> </td>
               </tr>
               <tr>
                 <td class="background-gray">包装/标识/标签</td>
@@ -87,7 +87,7 @@
                 <td v-if="ClonebStatu == 2">待定</td>
                 <td v-if="ClonebStatu == 3">符合</td>
                 <td v-if="ClonebStatu == 3">无</td>
-                <td v-if="[1,2].includes(ClonebStatu)"><el-input type="text" class="tdInput" placeholder="请输入"></el-input> </td>
+                <td v-if="[1,2].includes(ClonebStatu)"><el-input type="text" class="tdInput" v-model="data.conclusion.packing" placeholder="请输入"></el-input> </td>
               </tr>
               <tr>
                 
@@ -96,7 +96,7 @@
                 <td v-if="CloneCStatu == 2">待定</td>
                 <td v-if="CloneCStatu == 3">符合</td>
                 <td v-if="CloneCStatu == 3">无</td>
-                <td v-if="[1,2].includes(CloneCStatu)"><el-input type="text" class="tdInput" placeholder="请输入"></el-input> </td>
+                <td v-if="[1,2].includes(CloneCStatu)"><el-input type="text" class="tdInput" v-model="data.conclusion.product" placeholder="请输入"></el-input> </td>
               </tr>
               <tr>
                 <!-- {{cloneD}} -->
@@ -105,7 +105,7 @@
                 <td v-if="CloneDStatu == 2">待定</td>
                 <td v-if="CloneDStatu == 3">符合</td>
                 <td v-if="CloneDStatu == 3">无</td>
-                <td v-if="[1,2].includes(CloneDStatu)"><el-input type="text" class="tdInput" placeholder="请输入"></el-input> </td>
+                <td v-if="[1,2].includes(CloneDStatu)"><el-input type="text" class="tdInput" v-model="data.conclusion.measure" placeholder="请输入"></el-input> </td>
               </tr>
               <tr>
                 <td class="background-gray">特别注意点</td>
@@ -113,7 +113,7 @@
                 <td v-if="CloneFStatu == 2">待定</td>
                 <td v-if="CloneFStatu == 3">符合</td>
                 <td v-if="CloneFStatu == 3">无</td>
-                <td v-if="[1,2].includes(CloneFStatu)"><el-input type="text" class="tdInput" placeholder="请输入"></el-input> </td>
+                <td v-if="[1,2].includes(CloneFStatu)"><el-input type="text" class="tdInput" v-model="data.conclusion.keyPoint" placeholder="请输入"></el-input> </td>
               </tr>
             </tbody>
           </table>
@@ -161,7 +161,8 @@ import UploadImage from '@/views/report/components/UploadImage'
 
 const defaultData = {
   general_conclusion: '',
-  remarks: []
+  remarks: [],
+  conclusion :{}
 }
 const defaultRemark = {
   remark: ''
@@ -204,7 +205,12 @@ export default {
   methods: {
     setData(data, Deepclone) {
       if (data) {
+        
         this.data = this._.cloneDeep(data)
+        this.data = this.data.hasOwnProperty("conclusion") ? this.data : this.$set(this.data,'conclusion',{}) 
+      
+        
+        console.log(this.data) 
       } else {
         const _data = this._.cloneDeep(defaultData)
         this.data = _data

@@ -8,10 +8,14 @@
       </el-form-item>
       <el-form-item label="创建时间">{{ form.created_at }}</el-form-item>
       <el-form-item label="类型">
-        <span v-if="form.type==2" >订单退款</span>
-        <span v-if="form.type==6" >提现退款</span>
-        <span v-if="form.type==7" >手续费退款</span>
-         <span v-if="form.type==8" >验货收入</span>
+        <span v-if="form.type=='4'" >提现</span>
+        <span v-if="form.type=='5'" >手续费</span>
+        <span v-if="form.type=='6'" >提现退款</span>
+        <span v-if="form.type=='7'" >手续费退款</span>
+        <span v-if="form.type=='8'" >验货收入</span>
+        <span v-if="form.type=='9'" >保证金</span>
+        <span v-if="form.type=='10'" >其他费用</span>
+        <span v-if="form.type=='11'" >保证金扣除</span>
       </el-form-item>
       <el-form-item label="金额">
         <span v-if="form.plus_minus==true">+</span>
@@ -22,7 +26,7 @@
          ¥{{jsonGetName(form.currency_data,'CNY') }}
         </el-form-item>
         <el-form-item label="说明">
-          {{form.remark ? form.remark : ''}}
+          {{form.description ? form.description : '无'}}
         </el-form-item>
       
     </el-form>

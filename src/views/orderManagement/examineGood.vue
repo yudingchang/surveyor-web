@@ -15,7 +15,7 @@
               format="yyyy 年 MM 月 dd 日"
             />
             <el-form-item label="验货地名称" label-width="100px">
-              <el-input v-model="fitter.number" placeholder="请输入内容" style="width:370px;"/>
+              <el-input v-model="fitter.inspection_contact" placeholder="请输入内容" style="width:370px;"/>
             </el-form-item>
             <el-button type="success" @click="getList()">查询</el-button>
           </el-form>
@@ -58,32 +58,32 @@
         label="验货地区">
         <template slot-scope="scope">
           <span>{{ scope.row.inspection_address.address_detail }}</span>
-          <!-- <div class="tc-separate "><span v-for="(item,index) in filterFees(scope.row.fees)" :key='index'>{{item}}</span></div>  -->
+          <!-- <div ><span v-for="(item,index) in filterFees(scope.row.fees)" :key='index'>{{item}}</span></div>  -->
         </template>
       </el-table-column>
       <el-table-column
         label="报告语言"
       >
         <template slot-scope="scope">
-          <span v-for="(item,index) in scope.row.reports" :key="index" style="margin-right:5px;">{{ item.locale_name }}</span>
-          <!-- <div class="tc-separate "><span v-for="(item,index) in filterFees(scope.row.fees)" :key='index'>{{item}}</span></div>  -->
+          <span class="tc-separate"><span v-for="(item,index) in Duplicate(scope.row.reports)" :key="index" style="margin-right:5px;">{{ item.locale_name }}</span></span> 
+          <!-- <div class=""><span v-for="(item,index) in filterFees(scope.row.fees)" :key='index'>{{item}}</span></div>  -->
         </template>
       </el-table-column>
       <el-table-column
         prop="marking_name"
         label="状态"/>
       <el-table-column
-        prop="marking_name"
+        prop="admin.nickname"
         label="测库联系人"/>
       <el-table-column
         label="操作"
       >
-        <template slot-scope="scope">
-          <el-button v-if="scope.row.marking_name!='已完成'" style="color:#FFA800;margin-right:10px;" type="text" size="small">退单</el-button>
-          <el-button v-if="scope.row.marking_name=='待验货' && scope.row.is_main==true" style="color:#FFA800;margin-right:10px;" type="text" size="small">下载模板</el-button>
-          <el-button v-if="scope.row.marking_name=='验货中' && scope.row.is_main==true" style="color:#FFA800;margin-right:10px;" type="text" size="small">写报告</el-button>
-          <el-button v-if="scope.row.marking_name=='已完成'" style="color:#FFA800;margin-right:10px;" type="text" size="small">查看报告</el-button>
-          <el-button v-if="scope.row.marking_name=='已完成'" style="color:#FFA800;margin-right:10px;" type="text" size="small">下载PDF报告</el-button>
+        <template slot-scope="scope">  
+          <el-button v-if="scope.row.marking_name=='待验货' && scope.row.is_main==true" style="color:#FFA800;margin-right:10px;" type="text" size="small" @click="viewReport(scope.row)">查看报告</el-button>
+          <el-button v-if="scope.row.marking_name=='验货中' && scope.row.is_main==true" style="color:#FFA800;margin-right:10px;" type="text" size="small" @click="viewReport(scope.row)">查看报告</el-button>
+          <el-button v-if="scope.row.marking_name=='完成'" style="color:#FFA800;margin-right:10px;" type="text" size="small" @click="viewReport(scope.row)">查看报告</el-button>
+          <!-- <el-button v-if="scope.row.marking_name=='完成'" style="color:#FFA800;margin-right:10px;" type="text" size="small">下载PDF报告</el-button> -->
+          <!-- <el-button v-if="scope.row.marking_name!='完成'" style="color:#FFA800;margin-right:10px;" type="text" size="small">退单</el-button> -->
         </template>
       </el-table-column>
     </el-table>
@@ -121,10 +121,11 @@ export default {
         rows: 15,
         currentpage: 1
       },
+      total:0,
       fitter: {
         timeStyle: 0,
         time: '',
-        number: ''
+        inspection_contact: ''
       },
       timeStyleList: [
         {
@@ -252,10 +253,13 @@ export default {
       })
       return fees
     },
-    getList() {
+    getList(marking) {
       orderList({
          page: this.filters.page,
-        limit: this.filters.rows
+        limit: this.filters.rows,
+        inspection_first_date:this.fitter.time,
+        inspection_contact:this.fitter.inspection_contact,
+        marking:marking?marking:'',
       }).then(response => {
         if (response.data.code == 0) {
           this.tableData2 = response.data.data
@@ -283,22 +287,16 @@ export default {
           this.getList()
           break
         case 1:
-          this.getList('WAIT_QUOTE')
+          this.getList('WAIT_CHECK')
           break
         case 2:
-          this.getList('WAIT_PAY')
-          break
-        case 3:
           this.getList('WAIT_INSPECT')
           break
-        case 4:
+        case 3:
           this.getList('INSPECTING')
           break
-        case 5:
+        case 4:
           this.getList('COMPLETED')
-          break
-        case 6:
-          this.getList('CLOSED')
           break
       }
     },
@@ -327,6 +325,27 @@ export default {
       this.filters.currentpage = val
       this.getList()
       // console.log(`当前页: ${val}`);
+    },
+    // 数组去重
+    Duplicate(Array){
+      let newArray = []
+      Array.forEach((item)=>{
+        newArray.push(item.locale_name)
+      })
+      return [...new Set(newArray)].map((item)=>{
+        return {
+          locale_name:item
+        }
+      });
+    },
+    //跳转报告管理
+    viewReport(row){
+      this.$router.push({
+        path:'reporteManager',
+        query:{
+          number:row.number
+        }
+      })
     }
   }
 }
@@ -399,7 +418,7 @@ export default {
 .tc-separate {
 span + span {
 &::before {
-content: '/ ';
+content: ' , ';
 }
 }
 }

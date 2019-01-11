@@ -14,10 +14,13 @@
               value-format="yyyy-MM-dd"
               format="yyyy 年 MM 月 dd 日"
             />
-            <el-form-item label="验货地名称" label-width="100px">
-              <el-input v-model="fitter.number" placeholder="请输入内容" style="width:370px;"/>
+            <el-form-item label="验货地名称" label-width="90px" style="margin-left:10px;">
+              <el-input v-model="fitter.inspection_contact" placeholder="请输入内容" style="width:250px;"/>
             </el-form-item>
-            <el-button type="success" @click="getList()">查询</el-button>
+            <el-form-item label="订单号" label-width="60px">
+              <el-input v-model="fitter.number" placeholder="请输入内容" style="width:250px;"/>
+            </el-form-item>
+            <el-button type="success" @click="getReportList()">查询</el-button>
           </el-form>
         </div>
         <div class="tabs-top">
@@ -39,13 +42,14 @@
         label="订单号"
         width="180">
         <template slot-scope="scope">
-          <el-button type="text" class="btnText">{{ scope.row.service.number }}</el-button>
+          <el-button type="text" class="btnText" @click="goOrderDetail(scope.row)" >{{ scope.row.service.number }}</el-button>
         </template>
       </el-table-column>
       <el-table-column
-        label="报告单号"/>
+        label="报告单号" prop="number"/>
+
       <el-table-column
-        label="验货开始日期"/>
+        label="验货开始日期" prop="service.inspection_first_date"/>
       <el-table-column
         label="验货地名称">
         <template slot-scope="scope">
@@ -74,11 +78,11 @@
       <el-table-column
         label="操作">
         <template slot-scope="scope">
-          <el-button type="text" class="orangeText" v-if="(scope.row.type == 'offline')&&(scope.row.service.marking == 'WAIT_INSPECT')" @click="goReportDetail(scope.row)">下载模版</el-button>
-          <el-button type="text" class="orangeText" v-if="(scope.row.type == 'offline')&&(scope.row.service.marking == 'INSPECTING')" @click="goReportDetail(scope.row)">上传报告</el-button> 
+          <el-button type="text" class="orangeText" v-if="(scope.row.type == 'offline')&&((scope.row.service.marking == 'WAIT_INSPECT') || (scope.row.service.marking == 'INSPECTING'))" @click="goReportDetail(scope.row)"> 下载模版</el-button>
+          <el-button type="text" class="orangeText" v-if="(scope.row.type == 'offline')&&(scope.row.service.marking == 'INSPECTING')" @click="uploadReport(scope.row)">上传报告</el-button> 
           <el-button type="text" class="orangeText" v-if="(scope.row.type == 'online')&&(scope.row.service.marking == 'INSPECTING')&& (scope.row.marking == 'WAIT_MODIFY')" @click="goReportDetail(scope.row)">修改报告</el-button>
           <el-button type="text" class="orangeText" v-if="(scope.row.type == 'online')&&(scope.row.service.marking=='INSPECTING')&& (scope.row.marking == 'WAIT_MODIFY')" @click="goReportDetail(scope.row)">查看原因</el-button>
-          <el-button type="text" class="orangeText" v-if="(scope.row.type == 'online')&&(scope.row.service.marking=='INSPECTING')&& (scope.row.marking == 'WAIT_WRITE')" @click="goReportDetail(scope.row)">写报告</el-button>
+          <el-button type="text" class="orangeText" v-if="(scope.row.type == 'online')&&(scope.row.service.marking == 'INSPECTING')&& (scope.row.marking == 'WAIT_WRITE')" @click="goReportDetail(scope.row)">写报告</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -119,9 +123,8 @@ export default {
       },
       total:10,
       fitter: {
-        timeStyle: 0,
-        time: '',
-        number: ''
+        inspection_contact: '',
+        time: [],
       },
       timeStyleList: [
         {
@@ -233,6 +236,7 @@ export default {
     }
   },
   created() {
+    this.fitter.number = this.$route.query.number ? this.$route.query.number : ''
     this.getReportList()
   },
   mounted() {
@@ -248,15 +252,6 @@ export default {
         })
       })
       return fees
-    },
-    getList() {
-      orderList(
-      ).then(response => {
-        if (response.data.code == 0) {
-          this.tableData2 = response.data.data
-          this.total = response.data.meta.total
-        }
-      })
     },
     tableRowClassName({ row, rowIndex }) {
       if (rowIndex === 0) {
@@ -275,25 +270,19 @@ export default {
       item.isBool = true
       switch (index) {
         case 0:
-          this.getList()
+          this.getReportList()
           break
         case 1:
-          this.getList('WAIT_QUOTE')
+          this.getReportList('WAIT_WRITE')
           break
         case 2:
-          this.getList('WAIT_PAY')
+          this.getReportList('WAIT_CHECK')
           break
         case 3:
-          this.getList('WAIT_INSPECT')
+          this.getReportList('COMPLETED')
           break
         case 4:
-          this.getList('INSPECTING')
-          break
-        case 5:
-          this.getList('COMPLETED')
-          break
-        case 6:
-          this.getList('CLOSED')
+          this.getReportList('WAIT_MODIFY')
           break
       }
     },
@@ -310,19 +299,28 @@ export default {
     },
     // 去订单详情
     goOrderDetail(row) {
-      this.$router.push({ path: 'orderDetails', query: { orderId: row.id }})
+      this.$router.push({ path: '/orderManagement/orderDetails', query: { orderId: row.service.id }})
     },
     // 报告列表
-    getReportList() {
-      getReportList({}).then(res => {
+    getReportList(marking) {
+      getReportList({
+        page: this.filters.page,
+        limit: this.filters.rows,
+        inspection_first_date:this.fitter.time,
+        inspection_contact:this.fitter.inspection_contact,
+        number:this.$route.query.number ? this.$route.query.number : ''  ,
+        marking:marking?marking:'',
+      }).then(res => {
         if (res.data.code == 0) {
           this.tableData2 = res.data.data
+           this.total = res.data.meta.total
+           this.$route.query.number = ''
         }
       })
     },
     goReportDetail(row) {
       this.$router.push({
-        path: 'writeReporte', query: { id: row.id }
+        path: 'writeReporte', query: { id: row.id ,modify:true}
       })
     },
     handleSizeChange(val) {
@@ -335,6 +333,13 @@ export default {
       this.filters.currentpage = val
       this.getList()
       // console.log(`当前页: ${val}`);
+    },
+    // 上传报告
+    uploadReport(row){
+      this.$router.push({
+        path: 'uploadReport', 
+        query: { id: row.id }
+      })
     }
   }
 }
@@ -343,8 +348,16 @@ export default {
 /* 修复input 背景不协调 和光标变色 */
 /* Detail see https://github.com/PanJiaChen/vue-element-admin/pull/927 */
 .reporteManager{
+  .tab-content{
+    .el-form-item__label{
+      text-align:left;
+    }
+  }
     .el-dialog__header {
   padding: 50px 20px 10px;
+}
+.el-date-editor .el-range-separator{
+  width:20px;
 }
 .el-dialog__title {
   color: #7f8fa4;

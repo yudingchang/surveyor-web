@@ -292,7 +292,7 @@ export default {
 </script>
 
 <style>
-  .avatar-uploader .el-upload {
+  /* .avatar-uploader .el-upload {
     width: 450px;
     border-radius: 6px;
     cursor: pointer;
@@ -306,10 +306,10 @@ export default {
     font-size: 28px;
     color: #8c939d;
     text-align: center;
-  }
-  .avatar {
+  } */
+  /* .avatar {
     width: 450px;
     display: block;
     object-fit: contain;
-  }
+  } */
 </style>

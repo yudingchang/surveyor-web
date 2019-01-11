@@ -14,8 +14,8 @@
                     <div class="interface-baseInfo-table">
                            <table border="1" cellspacing="0" cellpadding="0"  height="100%" class="baseInfo-element-table">
                                <tr height="60px">
-                                   <td width="240px">检验类型</td>
-                                   <td width="618px">第{{baseInfoData.number}}次验货</td>
+                                   <td>检验类型</td>
+                                   <td>第{{baseInfoData.number}}次验货</td>
                                </tr>
                                <tr height="60px">
                                    <td>买家名称</td>
@@ -47,9 +47,11 @@
                                    <!-- <td>{{ _.get(_.find(configs.inspectionTypes, {value : baseInfoData.inspection_type}), 'label') }}</td> -->
                                </tr>
                                <tr height="60px">
-                                   <td>检验日期</td>
+                                   <td style="text-align:center;vertical-align:middle;">检验日期</td>
                                    <td>
-                                       {{_.toString(baseInfoData.inspection_dates)}}
+                                       <span v-for="(item,index) in  baseInfoData.inspection_dates" :key = index>
+                                           {{ item | moment("YYYY.MM.DD")}}
+                                       </span>
                                    </td>
                                </tr>
                                <tr height="60px">
@@ -73,8 +75,65 @@
                 <!-- 检验结论 -->
                 <div class="Report-interface-conclusion">
                     <p>检验结论</p>
-                    <p><span>报告总结论</span><span :class="addClass(conclusionData.general_conclusion)">{{conclusionData.general_conclusion}}</span></p>
-                    <div class="conclusion-tableA">
+                    <p>
+                        <span>报告总结论</span>
+                        <span v-if="(exteriorData.real_fatal_defect<exteriorData.sampling.params.fatal_defect) && (exteriorData.real_serious_defect<exteriorData.sampling.params.serious_defect) && (exteriorData.real_minor_defect<exteriorData.sampling.params.minor_defect)">符合</span>
+                        <span v-else>不符合</span>
+                    </p>
+                    <!-- <el-form-item label-width="0" style="margin: 0 0 24px 0;"> -->
+                        <table cellspacing="0" cellpadding="0" border="0" class="tc-table" style="width: 100%">
+                            <tbody>
+                            <tr height="60px">
+                                <td style="width: 270px;" class="background-gray">外观及工艺</td>
+                                <td colspan="5" v-if="(exteriorData.real_fatal_defect<exteriorData.sampling.params.fatal_defect) && (exteriorData.real_serious_defect<exteriorData.sampling.params.serious_defect) && (exteriorData.real_minor_defect<exteriorData.sampling.params.minor_defect)">符合</td>
+                                <td colspan="5" v-else>不符合</td>
+                            </tr>
+                            <tr height="60px">
+                                <td style="width: 270px;" class="background-gray">抽样数</td>
+                                <td colspan="5">{{ exteriorData.sampling.params.quantity }}</td>
+                            </tr>
+                            <tr>
+                                <td rowspan="2" class="background-gray" style="vertical-align:middle;text-align:center;">检验标准</td>
+                                <!-- {{order}} -->
+                                <td rowspan="2" style="text-align:center;vertical-align:middle;">{{ _.get(_.find(_.get(configs, 'samplings.options', []), { value: exteriorData.sampling.type }), 'label') }}</td>
+                                <td style="width: 180px;height:40px;">疵点</td>
+                                <td style="width: 180px;">致命缺陷</td>
+                                <td style="width: 180px;">严重缺陷</td>
+                                <td style="width: 180px;">轻微缺陷</td>
+                            </tr>
+                            <tr>
+                                <td height="40px">AQL</td>
+                                <td>{{ exteriorData.sampling.params.fatal_defect_limit ? exteriorData.sampling.params.fatal_defect_limit : 'N/A' }}</td>
+                                <td>{{ exteriorData.sampling.params.serious_defect_limit ? exteriorData.sampling.params.serious_defect_limit : 'N/A' }}</td>
+                                <td>{{ exteriorData.sampling.params.minor_defect_limit ? exteriorData.sampling.params.minor_defect_limit : 'N/A' }}</td>
+                            </tr>
+                            <tr>
+                                <td rowspan="3" class="background-gray" style="vertical-align:middle;text-align:center;">检验水平</td>
+                                <td rowspan="3">{{ _.get(_.find(_.get(configs, 'samplings.levels', []), { level: _.get(order, 'visual_and_workmanship.sampling.params.level') }), 'value') }}</td>
+                                <td height="40px">最大允许值</td>
+                                <td>{{ exteriorData.sampling.params.fatal_defect }}</td>
+                                <td>{{ exteriorData.sampling.params.serious_defect }}</td>
+                                <td>{{ exteriorData.sampling.params.minor_defect }}</td>
+                            </tr>
+                            <tr>
+                                <td height="40px">实际值</td>
+                                <td>{{ exteriorData.real_fatal_defect }}</td>
+                                <td>{{ exteriorData.real_serious_defect }}</td>
+                                <td>{{ exteriorData.real_minor_defect }}</td>
+                            </tr>
+                            <tr>
+                                <td height="40px">结论</td>
+                                <td colspan="3" v-if="(exteriorData.real_fatal_defect<exteriorData.sampling.params.fatal_defect) && (exteriorData.real_serious_defect<exteriorData.sampling.params.serious_defect) && (exteriorData.real_minor_defect<exteriorData.sampling.params.minor_defect)">未超出可接受限值</td>
+                                <td colspan="3" v-if="(exteriorData.real_fatal_defect>exteriorData.sampling.params.fatal_defect)">致命缺陷</td>
+                                <td colspan="3" v-if="(exteriorData.real_serious_defect>exteriorData.sampling.params.serious_defect)">严重缺陷</td>
+                                <td colspan="3" v-if="(exteriorData.real_minor_defect>exteriorData.sampling.params.minor_defect)">轻微缺陷</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    <!-- </el-form-item> -->
+
+
+                    <!-- <div class="conclusion-tableA">
                         <table cellspacing="0" cellpadding="0" width="100%" height="100%" class="conclusion-element-tableA">
                             <tr height="60px">
                                 <td>外观及工艺</td>
@@ -89,16 +148,14 @@
                                 <td width="180px">轻微缺陷</td>
                             </tr>
                             <tr>
-                                <!-- <td></td>
-                                <td></td> -->
+                                
                                 <td>抽样数</td>
                                 <td></td>
                                 <td></td>
                                 <td></td>
                             </tr>
                             <tr>
-                                <!-- <td></td>
-                                <td></td> -->
+                               
                                 <td>AQL</td>
                                 <td></td>
                                 <td></td>
@@ -117,43 +174,59 @@
                                 <td></td>
                                 <td></td>
                                 <td></td>
-                                <!-- <td></td>
-                                <td></td> -->
+                               
                             </tr>
                             <tr>
                                 <td>结论</td>
                                 <td colspan="3"></td>
-                                <!-- <td></td>
-                                <td></td> -->
+                                
                             </tr>
                         </table>
-                    </div>
+                    </div> -->
+                    
+
                     <div class="conclusion-tableB">
                         <table cellspacing="0" cellpadding="0" width="100%" height="100%" class="conclusion-element-tableB">
                             <tr height="60px">
                                 <td width="270px">数量符合性</td>
-                                <td width="300px" :class="addClass(conclusionData.general_conclusion)">{{conclusionData.general_conclusion = 1?'符合':'不符合'}}</td>
-                                <td width="888px">请输入</td>
+                                <td v-if="QuantityData.conclusion==1" style="width: 270px;" class="trueText">符合</td>
+                                <td v-if="QuantityData.conclusion==2" style="width: 270px;" class='wrongText'>不符合</td>
+                                <td v-if="QuantityData.conclusion==3" style="width: 270px;" class='wrongText'>待定</td>
+                                <td v-if="QuantityData.conclusion==4" style="width: 270px;" class='wrongText'>不适用</td>
+                                <td > <span>{{conclusionData.conclusion.quantityCompliance ? conclusionData.conclusion.quantityCompliance : '无'}}</span></td>
                             </tr>
                             <tr height="60px">
                                 <td>包装/标识/标签</td>
-                                <td :class="addClass(conclusionData.general_conclusion)">{{conclusionData.general_conclusion = 1?'符合':'不符合'}}</td>
-                                <td></td>
+                                <td v-if="ClonebStatu == 1" class='wrongText'>不符合</td>
+                                <td v-if="ClonebStatu == 2" class='wrongText'>待定</td>
+                                <td v-if="ClonebStatu == 3" class="trueText">符合</td>
+                                <td > <span>{{conclusionData.conclusion.packing ?  conclusionData.conclusion.packing : '无'}}</span> </td>
+                                <!-- <td :class="addClass(conclusionData.general_conclusion)">{{conclusionData.general_conclusion = 1?'符合':'不符合'}}</td>
+                                <td></td> -->
                             </tr>
                             <tr height="60px">
                                 <td>产品符合性</td>
-                                <td :class="addClass(conclusionData.general_conclusion)">{{conclusionData.general_conclusion = 1?'符合':'不符合'}}</td>
-                                <td></td>
+                                <td v-if="CloneCStatu == 1" class='wrongText'>不符合</td>
+                                <td v-if="CloneCStatu == 2" class='wrongText'>待定</td>
+                                <td v-if="CloneCStatu == 3" class="trueText">符合</td>
+                                <td> <span>{{conclusionData.conclusion.product ? conclusionData.conclusion.product : '无'}}</span></td>
+                                <!-- <td :class="addClass(conclusionData.general_conclusion)">{{conclusionData.general_conclusion = 1?'符合':'不符合'}}</td>
+                                <td></td> -->
                             </tr>
                             <tr height="60px">
                                 <td>数据测量/现场测试</td>
-                                <td :class="addClass(conclusionData.general_conclusion)">{{conclusionData.general_conclusion = 1?'符合':'不符合'}}</td>
-                                <td></td>
+                                <td v-if="CloneDStatu == 1" class='wrongText'>不符合</td>
+                                <td v-if="CloneDStatu == 2" class='wrongText'>待定</td>
+                                <td v-if="CloneDStatu == 3" class="trueText">符合</td>
+                                <td><span>{{conclusionData.conclusion.measure ? conclusionData.conclusion.measure : '无'}}</span></td>
+                            
                             </tr>
                             <tr height="60px">
                                 <td>特别注意点</td>
-                                <td :class="addClass(conclusionData.general_conclusion)">{{conclusionData.general_conclusion = 1?'符合':'不符合'}}</td>
-                                <td></td>
+                                <td v-if="CloneFStatu == 1" class='wrongText'>不符合</td>
+                                <td v-if="CloneFStatu == 2" class='wrongText'>待定</td>
+                                <td v-if="CloneFStatu == 3" class="trueText">符合</td>
+                                <td><span>{{conclusionData.conclusion.keyPoint ? conclusionData.conclusion.keyPoint : '无'}}</span></td>            
                             </tr>
                         </table>
                     </div>
@@ -215,31 +288,26 @@
                             </tr>
                             <tr height="60px">
                                 <td colspan="2">总数</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
+                                <td>{{sum(_.get(QuantityData, 'products'),'order_quantity')}}</td>
+                                <td>{{sum(_.get(QuantityData, 'products'),'shipment_quantity')}}</td>
+                                <td>{{sum(_.get(QuantityData, 'products'),'completed_unpackaged')}}</td>
+                                <td>{{sum(_.get(QuantityData, 'products'),'completed_packaged')}}</td>
+                                <td>{{sum(_.get(QuantityData, 'products'),'unpackaged')}}</td>
+                                <td>{{sum(_.get(QuantityData, 'products'),'packaged')}}</td>
+                                <td>{{sum(_.get(QuantityData, 'products'),'check_quantity')}}</td>
+                                <td>{{sum(_.get(QuantityData, 'products'),'check_package_quantity')}}</td>
                             </tr>
                         </table>
                     </div>
-                    <p class="Quantity-p3"><span>是否有箱号:</span><span>{{QuantityData.has_package_number}}</span></p>
-                    <p class="Quantity-p4">{{QuantityData.packag_number}}</p>
+                    <p class="Quantity-p3"><span>是否有箱号:</span><span>{{QuantityData.has_package_number==0 ? '无' :'有'}}</span></p>
+                    <p class="Quantity-p4" v-if="QuantityData.has_package_number!=0">{{QuantityData.packag_number}}</p>
                     <div class="interface-Quantity-remark clearfix">
                         <p>备注:</p>
                         <p class="content">{{QuantityData.remark_content}}</p>
                     </div>
                     <div class="interface-Quantity-images clearfix">
                         <div>图片:</div>
-                        <div class="content">
-                            <p v-for="(item,index) in QuantityData.files" :key="index+'-Quantity-images'" >
-                                <img v-if="item" :src="item && item.url" alt="">
-                                <span>{{item.name}}</span>
-                            </p>
-                        </div>
+                        <ShowFile :file-list="QuantityData.files"/>
                     </div>
                 </div>
                 <!-- B、包装/标识/标签 -->
@@ -261,7 +329,7 @@
                                         <span>包装:</span><span>{{  _.get(_.find( configs.packageOptions.single, {value : item.single.package}), 'label')}}</span>
                                     </td>
                                     <td width="206px" colspan="3">
-                                        <span>说明:</span><span>{{item.single.description}}</span>
+                                        <span>说明:</span><span>{{item.single.description?item.single.description:'无'}}</span>
                                     </td>
                                 </tr>
                                 <tr height="60px">
@@ -273,7 +341,7 @@
                                         <span>包装:</span><span>{{ _.get(_.find( configs.packageOptions.inner, {value : item.inner.package}), 'label')}}</span>
                                     </td>
                                     <td colspan="2">
-                                        <span>说明:</span><span>{{item.inner.description}}</span>
+                                        <span>说明:</span><span>{{item.inner.description?item.inner.description:'无'}}</span>
                                     </td>
                                 </tr>
                                 <tr height="60px">
@@ -285,7 +353,7 @@
                                         <span>包装:</span><span>{{_.get(_.find( configs.packageOptions.outer, {value : item.outer.package}), 'label')}}</span>
                                     </td>
                                     <td colspan="2">
-                                        <span>说明:</span><span>{{item.outer.description}}</span>
+                                        <span>说明:</span><span>{{item.outer.description?item.outer.description:'无'}}</span>
                                     </td>
                                 </tr>
                                 <tr height="54px">
@@ -306,12 +374,7 @@
                         </div>
                         <div class="packageInfo1-picture clearfix">
                             <div>图片:</div>
-                            <div class="content">
-                                <p v-for="(Image,index) in item.files" :key="index+'-Info1-picture'">
-                                    <img :src="Image && Image.url" alt="">
-                                    <span>{{item.files.name}}</span>
-                                </p>
-                            </div>
+                            <ShowFile :file-list="item.files"/>
                         </div>
                     </div>
                     <p class="packageLogo-p3">唛头/标识</p>
@@ -324,12 +387,7 @@
                         </div>
                         <div class="identify-images clearfix">
                             <div>图片:</div>
-                            <div class="content">
-                                <p v-for="(Image,index) in item.files" :key="index+'-identify-images'">
-                                    <img :src="Image && Image.url" alt="">
-                                    <span>{{ Image.name }}</span>
-                                </p>
-                            </div>    
+                            <ShowFile :file-list="item.files"/>
                         </div>
                     </div>
                 </div>
@@ -342,16 +400,17 @@
                         <p class="detail-p2"><span>结论</span><span :class="addClass(item.conclusion)">{{ _.get(_.find( configs.conclusionOptions, {value : item.conclusion}), 'label') }}</span></p>
                         <div class="detail-remark clearfix">
                             <p>备注:</p>
-                            <p class="content">{{ item.remark_content }}</p>
+                            <p class="content">{{ item.remark_content?item.remark_content:'无' }}</p>
                         </div>
                         <div class="detail-images clearfix">
                            <div>图片:</div>
-                            <div class="content">
+                           <ShowFile :file-list="item.files"/>
+                            <!-- <div class="content">
                                 <p v-for="(Image,index) in item.files" :key="index+'-detail-images'">
                                     <img :src="Image && Image.url" alt="">
                                     <span>{{Image.name}}</span>
                                 </p>
-                            </div> 
+                            </div>  -->
                         </div>
                     </div>
                 </div>
@@ -380,61 +439,79 @@
                     </div>
                     <div class="gauge-remark clearfix">
                         <p>备注:</p>
-                        <p class="content">{{ gaugeData.remark_content }}</p>
+                        <p class="content">{{ gaugeData.remark_content?gaugeData.remark_content:'无' }}</p>
                     </div>
                     <div class="gauge-images clearfix">
                         <div>图片:</div>
-                        <div class="content">
+                        <ShowFile :file-list="gaugeData.files"/>
+                        <!-- <div class="content">
                             <p v-for="(Image,index) in gaugeData.files" :key="index+'-gauge-images'">
                                 <img :src="Image && Image.url" alt="">
                                 <span>{{Image.name}}</span>
                             </p>
-                        </div> 
+                        </div>  -->
                     </div>
                 </div>
                 <!-- E、外观及工艺 -->
                 <div class="Report-interface-exterior">
                     <p class="exterior-p1">E、外观及工艺</p>
                     <div class="exterior-table">
-                        <table cellspacing="0" cellpadding="0" width="100%" height="100%">
-                            <tr height="60px">
-                                <td width="270px">检验标准</td>
-                                <td width="395px" colspan="3">ANSI/ASQ Z1.4 Single Sampling Plan</td>
+                        <table cellspacing="0" cellpadding="0" border="0" class="tc-table" style="width: 100%">
+                            <tbody>
+                            <tr>
+                                <td style="width: 270px;height:60px;" class="background-gray">
+                                检验标准
+                                </td>
+                                <td colspan="3">
+                                {{ _.get(_.find(_.get(configs, 'samplings.options', []), { value: exteriorData.sampling.type }), 'label') }}
+                                </td>
                             </tr>
-                            <tr height="60px">
-                                <td>检验水平</td>
-                                <td colspan="3">Level II</td>
+                            <tr v-if="exteriorData.sampling.type === 1" style="height:60px">
+                                <td class="background-gray">
+                                抽样水平
+                                </td>
+                                <td colspan="3">
+                                {{ _.get(_.find(_.get(configs, 'samplings.levels', []), { level: exteriorData.sampling.params.level }), 'value') }}
+                                </td>
                             </tr>
-                            <tr height="60px">
-                                <td>缺陷分类</td>
+                            <tr v-if="exteriorData.sampling.type === 2" style="height:60px">
+                                <td class="background-gray">
+                                抽样比例
+                                </td>
+                                <td colspan="3">
+                                {{ exteriorData.sampling.params.proportion }}%
+                                <!-- {{ _.get(_.find(_.get(configs, 'samplings.options', []), { level: data.sampling.params.proportion }), 'label') }} -->
+                                </td>
+                            </tr>
+                            <tr style="height:60px">
+                                <td class="background-gray">抽样数量</td>
+                                <td colspan="3">{{ exteriorData.sampling.params.quantity }}</td>
+                            </tr>
+                            <tr style="height:60px">
+                                <td class="background-gray">缺陷分类</td>
                                 <td>致命缺陷</td>
-                                <td width="395px">严重缺陷</td>
-                                <td width="397px">轻微缺陷</td>
+                                <td>严重缺陷</td>
+                                <td>轻微缺陷</td>
                             </tr>
-                            <tr height="60px">
-                                <td>可接受质量限(AQL)</td>
-                                <td>20</td>
-                                <td>20</td>
-                                <td>20</td>
+                            <tr style="height:60px">
+                                <td class="background-gray">可接受质量限（AQL）</td>
+                                <td>{{ exteriorData.sampling.params.fatal_defect_limit ? exteriorData.sampling.params.fatal_defect_limit : 'N/A' }}</td>
+                                <td>{{ exteriorData.sampling.params.serious_defect_limit ? exteriorData.sampling.params.serious_defect_limit : 'N/A' }}</td>
+                                <td>{{ exteriorData.sampling.params.minor_defect_limit ? exteriorData.sampling.params.minor_defect_limit : 'N/A' }}</td>
                             </tr>
-                            <tr height="60px">
-                                <td>抽样数量</td>
-                                <td>20</td>
-                                <td>20</td>
-                                <td>20</td>
+                            <tr style="height:60px">
+                                <td class="background-gray">最大允许值</td>
+                                <td>{{ exteriorData.sampling.params.fatal_defect }}</td>
+                                <td>{{ exteriorData.sampling.params.serious_defect }}</td>
+                                <td>{{ exteriorData.sampling.params.minor_defect }}</td>
                             </tr>
-                            <tr height="60px">
-                                <td>最大允许量</td>
-                                <td>0</td>
-                                <td>0</td>
-                                <td>0</td>
-                            </tr>
-                            <tr height="60px">
-                                <td>实际发现</td>
+                            <tr style="height:60px">
+                                <td class="background-gray">实际发现</td>
                                 <td>{{ exteriorData.real_fatal_defect }}</td>
                                 <td>{{ exteriorData.real_serious_defect }}</td>
                                 <td>{{ exteriorData.real_minor_defect }}</td>
                             </tr>
+                            </tbody>
                         </table>
                     </div>
                     <div class="exterior-detail" v-for="(item,index) in _.get(exteriorData, 'products', [])" :key="index+'-exterior-detail'">
@@ -462,16 +539,11 @@
                         </div>
                         <div class="exterior-remark clearfix">
                             <p>备注:</p>
-                            <p class="content">{{item.remark_content}}</p>
+                            <p class="content">{{item.remark_content?item.remark_content:'无'}}</p>
                         </div>
                         <div class="exterior-images clearfix">
                             <div>图片:</div>
-                            <div class="content">
-                                <p v-for="(item,index) in item.files" :key="index+'-exterior-images'">
-                                    <img :src="item && item.url" alt="">
-                                    <span>{{item.name}}</span>
-                                </p>
-                            </div>
+                            <ShowFile :file-list="item.files"/>
                         </div>
                     </div>
                     
@@ -487,16 +559,11 @@
                         <p class="special-detail-p2"><span>结论</span><span :class="addClass(item.conclusion)">{{ _.get(_.find( configs.conclusionOptions, {value : item.conclusion}), 'label') }}</span></p>
                         <div class="special-detail-remark clearfix">
                             <p>备注:</p>
-                            <p class="content">{{ item.remark_content }}</p>
+                            <p class="content">{{ item.remark_content ? item.remark_content : '无'}}</p>
                         </div>
                         <div class="special-detail-images clearfix">
                             <div>图片:</div>
-                            <div class="content">
-                                <p v-for="(item,index) in item.files" :key="index+'-detail-images'">
-                                    <img :src="item && item.url" alt="">
-                                    <span>{{ item.name }}</span>
-                                </p>
-                            </div>
+                            <ShowFile :file-list="item.files"/>
                         </div>
                     </div>    
                 </div>
@@ -525,14 +592,15 @@
                                 </div>
                             </div>
                             <div class="appendix-sampl-table-bottom clearfix">
-                                <p v-for="(item,index) in item.files" :key="index+'appendix-sampl'">
+                                <ShowFile :file-list="item.files"/>
+                                <!-- <p v-for="(item,index) in item.files" :key="index+'appendix-sampl'">
                                     <img :src="item && item.url" alt="">
                                     <span>{{ item.name }}</span>
-                                </p>
+                                </p> -->
                             </div>
                         </div>
                     </div>
-                    <p class="appendix-p3"><span>附录Ⅰ</span><span>测量及测试仪器记录</span></p>
+                    <p class="appendix-p3"><span>附录Ⅱ</span><span>测量及测试仪器记录</span></p>
                     <div class="appendix-table">
                          <table cellspacing="0" cellpadding="0" width="100%" height="100%">
                             <tr height="60px">
@@ -543,20 +611,21 @@
                                 <td width="260px">来源</td>
                             </tr>
                             <tr height="60px" v-for="(item,index) in _.get(appendixData, 'tools', [])" :key="index+'-appendix-table'">
-                                <td>{{ _.get(_.find( _.get(configs.appendix, 'tools' ,[]), {value : item.name}), 'label') }}</td>
-                                <td>{{ item.number }}</td>
-                                <td>{{ item.calibrated_at }}</td>
-                                <td>{{ item.effected_at }}</td>
-                                <td>{{ item.source }}</td>
+                                <td>{{ _.get(_.find( _.get(configs, 'toolOptions' ,[]), {value : item.name}), 'label') }}</td>
+                                <td>{{ item.order_number }}</td>
+                                <td>{{ item.calibrated_at | moment("YYYY-MM-DD") }}</td>
+                                <td>{{ item.effected_at | moment("YYYY-MM-DD")}}</td>
+                                <td>{{ _.get(_.find( _.get(configs, 'sourceOptions' ,[]), {value : item.source}), 'label') }}</td>
                             </tr>
                         </table>
                     </div>
-                    <p class="appendix-p4"><span>附录Ⅱ</span><span>其他图片( 廉政声明、工厂大门，仓储，测量图标，包装清单等)</span></p>
+                    <p class="appendix-p4"><span>附录Ⅲ</span><span>其他图片( 廉政声明、工厂大门，仓储，测量图标，包装清单等)</span></p>
                     <div class="appendix-otherImages clearfix">
-                        <p v-for="(item,index) in _.get(appendixData, 'files', [])" :key="index+'-otherImages'">
+                        <ShowFile :file-list=" _.get(appendixData, 'files', [])"/>
+                        <!-- <p v-for="(item,index) in _.get(appendixData, 'files', [])" :key="index+'-otherImages'">
                             <img :src="item && item.url" alt="">
                             <span>{{ item.name }}</span>
-                        </p>
+                        </p> -->
                     </div>
                 </div>
                 <!-- 提交报告按钮 -->
@@ -616,15 +685,22 @@
 
 
 <script>
+const moment = require('moment')
 import {getReportSelf,reportsubmit} from '@/api/reportManagement'
+import ShowFile300_225 from '@/components/ShowFile300_225'
 export default {
     name: 'inspectionReport',
-    components: {},
+    components: {
+        'ShowFile': ShowFile300_225,
+    },
     data(){
         return{
             //基础信息table数据
             baseInfoData: [],
-
+            ClonebStatu: '',
+            CloneCStatu: '',
+            CloneDStatu: '',
+            CloneFStatu: '',
             baseImg: [],     //imgUrl
             
             //检验结论table数据
@@ -708,7 +784,10 @@ export default {
                     
                     //接收configs数据
                     this.configs = response.data.configs
-                    console.log(this.configs)
+                    this.jundgeB(this.packageLogoData.packing.products,this.packageLogoData.marking.products)
+                    this.jundgeC(this.goodsInfoData.products)
+                    this.jundgeD(this.gaugeData.checkitems)
+                    this.jundgeF(this.specialData.products)
                 }
             })
             // console.log(this.$route.params.accountApi)
@@ -735,12 +814,69 @@ export default {
         back(){
             this.$router.go(-1)
         },
+        // 判断包装/标识/标签
+        jundgeB(Array1,Array2){
+            let Array = [...Array1,...Array2]
+            if(Array.findIndex(t=>t.conclusion==2)!=-1){
+                this.ClonebStatu = 1
+                return false
+            }else if(Array.findIndex(t=>t.conclusion==3)!=-1){
+                this.ClonebStatu = 2
+                return false
+            }else{
+                this.ClonebStatu = 3
+                return  false
+            }
+        },
+        // 判断产品符合性
+        jundgeC(Array){
+            console.log(Array)
+            if(Array.findIndex(t=>t.conclusion==2)!=-1){
+                this.CloneCStatu = 1
+                return false
+            }else if(Array.findIndex(t=>t.conclusion==3)!=-1){
+                this.CloneCStatu = 2
+                return false
+            }else{
+                this.CloneCStatu = 3
+                return  false
+            }
+        },
+        // 判断数据测量
+        jundgeD(Array){
+            if(Array.findIndex(t=>t.conclusion==2)!=-1){
+                this.CloneDStatu = 1
+                return false
+            }else if(Array.findIndex(t=>t.conclusion==3)!=-1){
+                this.CloneDStatu = 2
+                return false
+            }else{
+                this.CloneDStatu = 3
+                return  false
+            }
+        },
+        // 判断特别注意点
+        jundgeF(Array){
+            if(Array.findIndex(t=>t.conclusion==2)!=-1){
+                this.CloneFStatu = 1
+                return false
+            }else if(Array.findIndex(t=>t.conclusion==3)!=-1){
+                this.CloneFStatu = 2
+                return false
+            }else{
+                this.CloneFStatu = 3
+                return  false
+            }
+        },
         reportsubmit(){
             reportsubmit(this.id, this.configs).then(res => {
                 if (res.data.code == 0) {
 
                 }
             })
+        },
+        sum(Array,key){
+            return this._.sum(this._.map(Array, key))
         }
 
     },
@@ -787,8 +923,7 @@ export default {
                 li:nth-child(2){
                     float:left;
                     height:52px;
-                    font-size:36px;
-                    font-family:MicrosoftYaHei;
+                    font-size:32px;
                     color:rgba(51,51,51,1);
                     line-height:52px;
                     margin-left:438px;
@@ -810,15 +945,13 @@ export default {
             }
             p{
                 height:47px;
-                font-size:20px;
-                font-family:MicrosoftYaHei;
+                font-size:18px;
                 color:rgba(80,104,140,1);
                 border-bottom:2px solid rgba(255,168,0,1);
                 margin-bottom:25px;
             }
             .interface-baseInfo-table{
                 width:1460px;
-                height:732px;
                 background:rgba(255,255,255,1);
                 border-radius:4px;
                 border:1px solid rgba(215,220,227,1);
@@ -843,26 +976,31 @@ export default {
                     border-bottom:none; 
                     }
                     tr td:nth-child(1){
+                        // display:inline-block;
                         background:rgba(127,143,164,1);
                         text-align: center;
-                        font-size:16px;
-                        font-family:MicrosoftYaHei;
+                        font-size:14px;
+                        width:240px;
                         color:rgba(255,255,255,1);
                     }
                     tr td:nth-child(2){
+                        width:618px;
                         line-height: 60px;
-                        font-size:16px;
+                        font-size:14px;
                         color:rgba(80,104,140,1);
                         padding-left:32px;
                     }
                     tr:nth-child(9){
                         td:nth-child(2){
-                            span:nth-child(1){
-                                margin-right:16px;
+                            span{
+                               margin-right:16px; 
                             }
-                            span:nth-child(2){
-                                margin-right:16px;
-                            }
+                            // span:nth-child(1){
+                            //     margin-right:16px;
+                            // }
+                            // span:nth-child(2){
+                            //     margin-right:16px;
+                            // }
                         }
                     }
                 }
@@ -875,7 +1013,7 @@ export default {
                     border-top-right-radius:4px;
                     border-bottom-right-radius:4px;
                     overflow: hidden;
-                    background:#ccc;
+                    // background:#ccc;
                     img{
                         width:100%;
                         height:100%;
@@ -888,8 +1026,7 @@ export default {
             margin-bottom:40px;
             P:nth-child(1){
                 height:47px;
-                font-size:20px;
-                font-family:MicrosoftYaHei;
+                font-size:18px;
                 color:rgba(80,104,140,1);
                 border-bottom:2px solid rgba(255,168,0,1);
                 margin-bottom:25px;
@@ -950,20 +1087,20 @@ export default {
                         td:nth-child(1){
                             width:270px;
                             background:rgba(127,143,164,1);
-                            font-size:16px;
+                            font-size:14px;
                             color:rgba(255,255,255,1);
                             text-align: center;
                         }
                         td:nth-child(2){
                             border-left:1px solid rgba(215,220,227,1);
-                            font-size:18px;
+                            font-size:14px;
                             color:rgba(125,200,85,1);
                             text-align: center;
                         }
                     }
                     tr:nth-child(2){
                         td{
-                            font-size:16px;
+                            font-size:14px;
                             color:rgba(80,104,140,1);
                             text-align: center;
                             vertical-align: middle;
@@ -971,13 +1108,13 @@ export default {
                         td:nth-child(1){
                             width:270px;
                             background:rgba(127,143,164,1);
-                            font-size:16px;
+                            font-size:14px;
                             color:rgba(255,255,255,1);
                             text-align: center;
                             vertical-align: middle;
                         }
                         td:nth-child(2){
-                            font-size:18px;
+                            font-size:16px;
                             color:rgba(80,104,140,1);
                             text-align: center;
                             vertical-align: middle;
@@ -985,7 +1122,7 @@ export default {
                     }
                     tr:nth-child(3),tr:nth-child(4){
                         td{
-                            font-size:16px;
+                            font-size:14px;
                             color:rgba(80,104,140,1);
                             text-align: center;
                             vertical-align: middle;
@@ -993,7 +1130,7 @@ export default {
                     }
                     tr:nth-child(5){
                         td{
-                            font-size:16px;
+                            font-size:14px;
                             color:rgba(80,104,140,1);
                             text-align: center;
                             vertical-align: middle;
@@ -1001,7 +1138,7 @@ export default {
                         td:nth-child(1){
                             width:270px;
                             background:rgba(127,143,164,1);
-                            font-size:16px;
+                            font-size:14px;
                             color:rgba(255,255,255,1);
                             text-align: center;
                             vertical-align: middle;
@@ -1009,7 +1146,7 @@ export default {
                         td:nth-child(2){
                             text-align: center;
                             vertical-align: middle;
-                            font-size:18px;
+                            font-size:16px;
                             color:rgba(80,104,140,1);
                         }
                     }
@@ -1046,12 +1183,19 @@ export default {
                 overflow: hidden;
                 border-collapse: collapse;
                 margin-bottom:24px;
+                
                 .conclusion-element-tableB{
+                    .wrongText{
+                        color:#EF3535;
+                    }
+                    .trueText{
+                        color:#7DC855;
+                    }
                     tr{
                         border-bottom:1px solid rgba(215,220,227,1);
                         td{
                             border-left:1px solid rgba(215,220,227,1);
-                            font-size:16px;
+                            font-size:14px;
                             color:rgba(22,64,97,1);
                             vertical-align: middle;
                             text-align: center;
@@ -1073,7 +1217,7 @@ export default {
             }
             .conclusion-remark{
                 height:26px;
-                font-size:20px;
+                font-size:18px;
                 color:rgba(80,104,140,1);
                 line-height:26px;
                 margin-bottom:16px;
@@ -1115,8 +1259,7 @@ export default {
             margin-bottom:44px;
             .Quantity-p1{
                 height:47px;
-                font-size:20px;
-                font-family:MicrosoftYaHei;
+                font-size:18px;
                 color:rgba(80,104,140,1);
                 border-bottom:2px solid rgba(255,168,0,1);
                 margin-bottom:25px;
@@ -1189,8 +1332,7 @@ export default {
                     tr:last-child{
                         border-bottom:none;
                         td:nth-child(1){
-                            font-size:18px;
-                            font-family:MicrosoftYaHei;
+                            font-size:16px;
                             color:rgba(80,104,140,1);
                             text-align: right;
                             padding-right:32px;
@@ -1203,7 +1345,7 @@ export default {
                 font-size:16px;
                 color:rgba(80,104,140,1);
                 line-height:21px;
-                margin-bottom:16px;
+                margin-bottom:24px;
                 span:nth-child(1){
                     margin-right:24px;
                 }
@@ -1234,7 +1376,7 @@ export default {
                     width:1408px;
                     border-radius:4px;
                     border:1px solid rgba(215,220,227,1);
-                    padding:17px 24px 15px;
+                    padding:15px 24px;
                     font-size:14px;
                     color:rgba(80,104,140,1);
                     vertical-align: middle;
@@ -1286,7 +1428,7 @@ export default {
             margin-bottom:45px;
             .packageLogo-p1{
                 height:47px;
-                font-size:20px;
+                font-size:18px;
                 font-family:MicrosoftYaHei;
                 color:rgba(80,104,140,1);
                 border-bottom:2px solid rgba(255,168,0,1);
@@ -1296,7 +1438,7 @@ export default {
             }
             .packageLogo-p2{
                 height:26px;
-                font-size:20px;
+                font-size:16px;
                 font-family:MicrosoftYaHei;
                 color:rgba(255,168,0,1);
                 line-height:26px;
@@ -1307,7 +1449,7 @@ export default {
                 // height:812px;
                 border-radius:8px;
                 border:1px solid rgba(194,194,194,1);
-                padding:24px 40px 0;
+                padding:24px 40px;
                 margin-bottom:24px;
                 .packageInfo1-p1{
                     height:21px;
@@ -1362,7 +1504,7 @@ export default {
                                 border-left:1px solid rgba(215,220,227,1);
                                 vertical-align: middle;
                                 text-align: center;
-                                font-size:16px;
+                                font-size:14px;
                                 color:rgba(80,104,140,1);
                             }
                             td:nth-child(1){
@@ -1431,7 +1573,7 @@ export default {
                         width:1320px;
                         border-radius:4px;
                         border:1px solid rgba(215,220,227,1);
-                        padding:17px 24px 15px;
+                        padding:15px 24px;
                         font-size:14px;
                         color:rgba(80,104,140,1);
                         vertical-align: middle;
@@ -1480,7 +1622,7 @@ export default {
             }
             .packageLogo-p3{
                 height:46px;
-                font-size:20px;
+                font-size:16px;
                 color:rgba(255,168,0,1);
                 line-height:26px;
                 margin:0 0 24px;
@@ -1491,7 +1633,8 @@ export default {
                 // height:492px;
                 border-radius:8px;
                 border:1px solid rgba(194,194,194,1);
-                padding:24px 40px 0;
+                padding:24px 40px;
+                margin-bottom:24px;
                 .identify-p1{
                     height:21px;
                     font-size:16px;
@@ -1544,7 +1687,7 @@ export default {
                         width:1320px;
                         border-radius:4px;
                         border:1px solid rgba(215,220,227,1);
-                        padding:17px 24px 15px;
+                        padding:15px 24px;
                         font-size:14px;
                         color:rgba(80,104,140,1);
                         vertical-align: middle;
@@ -1596,7 +1739,7 @@ export default {
             margin-bottom:40px;
             .goodsInfo-p1{
                 height:47px;
-                font-size:20px;
+                font-size:18px;
                 font-family:MicrosoftYaHei;
                 color:rgba(80,104,140,1);
                 border-bottom:2px solid rgba(255,168,0,1);
@@ -1606,7 +1749,7 @@ export default {
             }
             .goodsInfo-p2{
                 height:26px;
-                font-size:20px;
+                font-size:16px;
                 font-family:MicrosoftYaHei;
                 color:rgba(255,168,0,1);
                 line-height:26px;
@@ -1617,7 +1760,7 @@ export default {
                 // height:492px;
                 border-radius:8px;
                 border:1px solid rgba(194,194,194,1);
-                padding:24px 40px 0;
+                padding:24px 40px;
                 margin-bottom:24px;
                 .detail-p1{
                     height:21px;
@@ -1672,7 +1815,7 @@ export default {
                         width:1320px;
                         border-radius:4px;
                         border:1px solid rgba(215,220,227,1);
-                        padding:17px 24px 15px;
+                        padding:15px 24px;
                         font-size:14px;
                         color:rgba(80,104,140,1);
                         vertical-align: middle;
@@ -1724,7 +1867,7 @@ export default {
             margin-bottom:40px;
             .gauge-p1{
                 height:47px;
-                font-size:20px;
+                font-size:18px;
                 font-family:MicrosoftYaHei;
                 color:rgba(80,104,140,1);
                 border-bottom:2px solid rgba(255,168,0,1);
@@ -1755,11 +1898,7 @@ export default {
                             border-left:none;
                         }
                         td:last-child{
-                            font-size:16px;
-                            color:rgba(103,194,58,1);
-                            color:rgba(230,92,92,1);
-                            color:rgba(244,179,71,1);
-                            color:rgba(74,144,226,1);
+                            font-size:14px;
                         }
                     }
                     tr:nth-child(1){
@@ -1790,7 +1929,7 @@ export default {
                         width:1403px;
                         border-radius:4px;
                         border:1px solid rgba(215,220,227,1);
-                        padding:17px 24px 15px;
+                        padding:15px 24px;
                         font-size:14px;
                         color:rgba(80,104,140,1);
                         vertical-align: middle;
@@ -1841,7 +1980,7 @@ export default {
             margin-bottom:44px;
             .exterior-p1{
                 height:47px;
-                font-size:20px;
+                font-size:18px;
                 font-family:MicrosoftYaHei;
                 color:rgba(80,104,140,1);
                 border-bottom:2px solid rgba(255,168,0,1);
@@ -1851,9 +1990,9 @@ export default {
             }
             .exterior-table{
                 width:1460px;
-                height:429px;
+                // height:429px;
                 border-radius:4px;
-                border:1px solid rgba(215,220,227,1);
+                // border:1px solid rgba(215,220,227,1);
                 overflow: hidden;
                 border-collapse: collapse;
                 margin-bottom:32px;
@@ -1942,7 +2081,7 @@ export default {
                         width:1403px;
                         border-radius:4px;
                         border:1px solid rgba(215,220,227,1);
-                        padding:17px 24px 15px;
+                        padding:15px 24px;
                         font-size:14px;
                         color:rgba(80,104,140,1);
                         vertical-align: middle;
@@ -1995,7 +2134,7 @@ export default {
             margin-bottom:56px;
             .special-p1{
                 height:47px;
-                font-size:20px;
+                font-size:18px;
                 font-family:MicrosoftYaHei;
                 color:rgba(80,104,140,1);
                 border-bottom:2px solid rgba(255,168,0,1);
@@ -2057,7 +2196,7 @@ export default {
                         width:1320px;
                         border-radius:4px;
                         border:1px solid rgba(215,220,227,1);
-                        padding:17px 24px 15px;
+                        padding:15px 24px;
                         font-size:14px;
                         color:rgba(80,104,140,1);
                         vertical-align: middle;
@@ -2109,7 +2248,7 @@ export default {
             padding-bottom:60px;
             .appendix-p1{
                 height:47px;
-                font-size:20px;
+                font-size:18px;
                 font-family:MicrosoftYaHei;
                 color:rgba(80,104,140,1);
                 border-bottom:2px solid rgba(255,168,0,1);
@@ -2122,7 +2261,7 @@ export default {
                 line-height:26px;
                 margin-bottom:24px;
                 span{
-                    font-size:20px;
+                    font-size:16px;
                     color:rgba(255,168,0,1);
                 }
                 span:nth-child(1){
@@ -2183,7 +2322,7 @@ export default {
                                 margin-bottom:24px;
                             }
                             p:nth-child(6){
-                                height:42px;
+                                // height:42px;
                                 
                                 span:nth-child(2){
                                     width:384px;
@@ -2293,7 +2432,7 @@ export default {
                 line-height:26px;
                 margin-bottom:24px;
                 span{
-                    font-size:20px;
+                    font-size:16px;
                     color:rgba(255,168,0,1);
                 }
                 span:nth-child(1){
@@ -2340,7 +2479,7 @@ export default {
                 line-height:26px;
                 margin-bottom:24px;
                 span{
-                    font-size:20px;
+                    font-size:16px;
                     color:rgba(255,168,0,1);
                 }
                 span:nth-child(1){
@@ -2475,6 +2614,46 @@ export default {
                 }
             }
         }
+    }
+    .tc-table {
+      border: 1px solid #D7DCE3;
+      margin-bottom:24px;
+      %background-1 {
+    background-color: #7F8FA4;
+    color: #FFF;
+  }
+  $color-1: #FFA800;
+
+  .background-gray {
+    @extend %background-1
+  }
+      th {
+        border-color: #D7DCE3;
+        background-color: #7F8FA4;
+        color: #FFF;
+        font-weight: normal;
+        
+      }
+      td, th {
+        border: 1px solid #D7DCE3;
+        color: #50688C;
+        padding: 0 10px;
+        text-align: center;
+        vertical-align: middle;
+        .el-form-item {
+          margin: 20px 0;
+        }
+      }
+      .el-form-item__label {
+        margin-bottom: 0;
+      }
+      .el-form-item__content {
+        margin-left: 10px !important;
+        margin-right: 20px !important;
+      }
+      .el-input__inner {
+        text-align: left !important;
+      }
     }
     //公共样式 结论字体颜色
     .conslusionAccord{

@@ -5,7 +5,7 @@
         <div class="orderNumber clearfix">
           <span>订单号: {{ fundamentalState.number }}</span>
           <span class="greencolor orderstate">({{ fundamentalState.marking_name }})</span>
-          <div class="copyIcon closeIcon">
+          <div class="copyIcon closeIcon" @click="chargeback" v-if="fundamentalState.marking_name!='完成'">
             <i class="iconfont icon-fuzhi"/>
             <p>退单</p>
           </div>
@@ -61,7 +61,7 @@
                 <span style="margin-right:8px;">{{ fundamentalState.system_contact.nickname }}</span>
                 <span>{{ fundamentalState.system_contact.mobile_phone }}</span>
               </el-form-item>
-              <el-form-item label="其他验货员" prop="name">
+              <el-form-item label="其他验货员" prop="name" v-if="vacancy_num!=0">
                 <p v-for="(item,index) in fundamentalState.relations" :key="index">
                   <span v-if="item.real_name!=null">
                     <span style="margin-right:8px;" v->{{ item.real_name }}{{ item.phone_number }}</span>
@@ -109,19 +109,22 @@
           <p>其它要求</p>
           <div class="otherRequirementsContent">
             <el-form ref="item" label-width="120px" class="demo-ruleForm">
-              <el-form-item label="手机号码" prop="name">
-                <span>{{ fundamentalState.order.description }}</span>
+              <el-form-item label="要求内容">
+                <span>{{ fundamentalState.order.description == null ? '无' : fundamentalState.order.description}}</span>
               </el-form-item>
-              <el-form-item label="检验资料" prop="name">
-                <ShowFile :file-list="files"/>
+              <el-form-item label="检验资料">
+                <div v-if="fundamentalState.order.files.length == 0">
+                  无
+                </div>
+                <div v-if="fundamentalState.order.files.length>0">
+                  <ShowFile :file-list="files"/>
+                </div>              
               </el-form-item>
-              <!-- <div><span class="requirementText">要求内容</span><span>{{fundamentalState.order.description}}</span></div>
-                  <div>
-                      <span class="requirementText">检验资料</span>
-                      <ShowFile :fileList="files"></ShowFile>
-              </div>-->
             </el-form>
           </div>
+          <!-- <div class="otherRequirementsContent" v-if="fundamentalState.order.files.length == 0  && fundamentalState.order.description == null" >
+            无
+          </div> -->
         </div>
       </el-col>
     </el-row>
@@ -133,9 +136,10 @@
           <div>
             <el-form ref="item" label-width="100px" class="demo-ruleForm">
               <div
-                v-for="(item,index) in this.fundamentalState.order.mailings"
+                v-for="(item,index) in fundamentalState.order.mailings"
                 :key="index"
                 class="sampleReferenceContent"
+                v-if="fundamentalState.order.mailings.length>0"
               >
                 <el-form-item label="参考样品">
                   <span>{{ item.name }}</span>
@@ -146,6 +150,9 @@
                 <el-form-item label="参考图片">
                   <ShowFile :file-list="item.files"/>
                 </el-form-item>
+              </div>
+              <div class="sampleReferenceContent"  v-if="fundamentalState.order.mailings.length==0">
+                无
               </div>
             </el-form>
           </div>
@@ -163,6 +170,7 @@
                 v-for="(item,index) in fundamentalState.order.sampling_information"
                 :key="index"
                 class="sampleIntelligenceContent"
+                v-if="fundamentalState.order.sampling_information.length>0"
               >
                 <el-form-item label="取样数量">
                   <span>{{ item.sampling_quantity }}</span>
@@ -188,6 +196,10 @@
                   <span v-else>无</span>
                 </el-form-item>
               </div>
+              <div class="sampleIntelligenceContent" v-if="fundamentalState.order.sampling_information.length==0">
+                无
+              </div>
+
             </el-form>
           </div>
         </div>
@@ -427,14 +439,56 @@
         </el-table>
       </el-dialog>
     </div>
+    <!-- 确认退单弹出层 -->
+    <div class="chargeBackDialog">
+      <el-dialog
+        :visible.sync="chargeBackDialogVisible"
+        width="400px"
+        center >
+        <p class='title'>{{chargeBackText}}</p>
+        <p class='cutTip' v-if="cut100">查看扣款规则</p>
+        <span slot="footer" class="dialog-footer">
+          <el-button style="width:80px;height:40px;" @click="chargeBackDialogVisible = false">否</el-button>
+          <el-button  style="width:80px;height:40px;background:#FFA800;border:none" type="primary" @click="submitChargeBack">是</el-button>
+        </span>
+      </el-dialog>
+    </div>
+     <!-- 退单成功 -->
+    <div class="chargeBackDialog">
+      <el-dialog
+        :visible.sync="successBackDialogVisible"
+        width="400px"
+        center >
+        <i class="iconfont icon-Fill4"></i>
+        <p class='text'>退单成功</p>
+        <span slot="footer" class="dialog-footer">
+          <el-button  style="width:200px;height:40px;background:#FFA800;border:none" type="primary" @click="successBackDialogVisible = false">确认</el-button>
+        </span>
+      </el-dialog>
+    </div>
+    <!-- 需联系工作人员退单 -->
+    <div class="chargeBackDialog">
+      <el-dialog
+        :visible.sync="phoneChargeBackDialogVisible"
+        width="400px"
+        center >
+        <p class='title'>验货中退款需联系测库工作人员</p>
+        <p class='chargePhone'>测库电话:{{fundamentalState.system_contact.mobile_phone }}</p>
+        <span slot="footer" class="dialog-footer">
+          <el-button style="width:200px;height:40px;background:#FFA800;border:none" type="primary" @click="phoneChargeBackDialogVisible = false">确认</el-button>
+        </span>
+      </el-dialog>
+    </div>
+    
 
   </div>
 </template>
 
 <script>
+const moment = require('moment')
 import ShowFile from '../../components/showfile'
 // import { getOrderList } from "@/api/order";
-import { orderDetail } from '@/api/dashboard'
+import { orderDetail , chargeBack} from '@/api/dashboard'
 export default {
   components: {
     ShowFile
@@ -479,18 +533,18 @@ export default {
         //   address: "上海市普陀区金沙江路 1516 弄"
         // }
       ],
-      fundamentalState: {
-        reports: [
-          {
-            bool: true,
-            spreadtext: '展开'
-          },
-          {
-            bool: false,
-            spreadtext: '展开'
-          }
-        ]
-      },
+      // fundamentalState: {
+      //   reports: [
+      //     {
+      //       bool: true,
+      //       spreadtext: '展开'
+      //     },
+      //     {
+      //       bool: false,
+      //       spreadtext: '展开'
+      //     }
+      //   ]
+      // },
       editableTabs2: [
         {
           number: '22300188497563',
@@ -527,7 +581,8 @@ export default {
         other_fee: '',
         order: '',
         system_contact: '',
-        inspection_address: ''
+        inspection_address: '',
+        inspection_first_date:''
       },
       cn_num: '',
       en_num: '',
@@ -535,12 +590,20 @@ export default {
       spreadtext: '收起',
       productInformationContentShow: false,
       dialogTableVisible: false,
-      gridData: []
+      gridData: [],
+      chargeBackDialogVisible:false,
+      phoneChargeBackDialogVisible:false,
+      successBackDialogVisible:false,
+      // 电话退单
+      canPhoneChargeBack:false,
+      chargeBackText:'是否退单？',
+      cut100:false,
     }
   },
   computed: {},
   created() {
     this.getOrderList()
+    
   },
   mounted() {},
   methods: {
@@ -551,6 +614,7 @@ export default {
       }).then(response => {
         if (response.data.code == 0) {
           this.fundamentalState = response.data.data
+          this.jundgeTime()
           this.cn_num = this.fundamentalState.reports.filter(
             t => t.locale_name == '简体中文'
           ).length
@@ -578,6 +642,49 @@ export default {
           name: item
         }
       })
+    },
+    // 确认退单弹窗出现
+    chargeback(){
+       console.log(this.canPhoneChargeBack);
+      // 没有超过验货前一天10点
+      if((this.fundamentalState.marking_name == '已抢待审核' || this.jundgeTime()) && this.canPhoneChargeBack == false ){
+        this.chargeBackDialogVisible = true
+        return false
+      }
+      // 超过验货前一天10点不到验货时间
+     
+      else if( this.jundgeTime() == false && this.canPhoneChargeBack == false){
+        this.chargeBackDialogVisible = true
+        this.chargeBackText = '现在退单将扣款¥100您确定退单吗?'
+        this.cut100 = true
+         return false
+      }else if(this.canPhoneChargeBack){
+        this.phoneChargeBackDialogVisible = true
+        return false
+      }
+      
+      
+    },
+    // 确认退单
+    submitChargeBack(){
+      // if(this.fundamentalState.marking_name == '已抢待审核' || this.jundgeTime){
+        chargeBack(`/v1/inspector/service/${this.orderId}/refund`).then(res=>{
+          if(res.data.code == 0){
+            this.successBackDialogVisible = true
+          }
+        })
+      // }    
+    },
+    // 判断当前时间跟验货时间第一天前一天10点对比
+    jundgeTime(){
+      let checkproduct = moment(this.fundamentalState.inspection_first_date,'YYYY-MM-DD').valueOf()
+      
+      if(new Date().getTime() > moment(this.fundamentalState.inspection_first_date,'YYYY-MM-DD').valueOf()){
+        this.canPhoneChargeBack = true
+      }else{
+        this.canPhoneChargeBack = false
+      }
+      return new Date().getTime() > checkproduct-86400000 + 86400000/24*10 ? false : true 
     }
   }
 }
@@ -642,27 +749,37 @@ export default {
   .el-form-item__label {
     text-align: left;
   }
-}
-.productBorder{
+  .productBorder{
   .el-table th {
     background:inherit;
     height: inherit;
     color: inherit;
+  }
+ .el-dialog__header{
+    text-align: center;
+    background:rgba(230,234,238,1);
+    padding: 20px 20px 15px;
+  }
+  .el-dialog__title{
+    color: #164061;
+    font-size: 14px;
+    font-weight: bold;
+  }
+  
+  .el-dialog--center .el-dialog__body{
+      padding: 0;
+      text-align: center;
+    }
 }
-.el-dialog__header{
-  text-align: center;
-  background:rgba(230,234,238,1);
-  padding: 20px 20px 15px;
+  .chargeBackDialog{
+    .el-dialog__body{
+      padding: 20px 25px 30px;
+      color:#7C8FA6;
+    }
+  }
 }
-.el-dialog__title{
-  color: #164061;
-  font-size: 14px;
-  font-weight: bold;
-}
-.el-dialog__body{
-  padding: 0;
-}
-}
+
+
 </style>
 <style rel="stylesheet/scss" lang="scss" scoped>
 
@@ -670,6 +787,37 @@ export default {
   margin: 32px 120px 0 100px;
   .greencolor {
     color: #ffc500;
+  }
+  .chargeBackDialog{
+    .title{
+      display:block;
+      text-align:center;
+      color:#7C8FA6;
+      font-size:16px;
+    }
+    .cutTip{
+      font-size:16px;
+      color:#E65C5C;
+      margin-top:8px;
+      text-align:center
+    }
+    .chargePhone{
+      text-align:center;
+      font-size:16px;
+      color:#4A90E2;
+      margin-top:10px;
+    }
+    i{
+      font-size:80px;
+      display:block;
+      text-align:center;
+      color:#67C23A;
+    }
+    .text{
+      color:#50688C;
+      text-align:center;
+      font-size:16px;
+    }
   }
   .orderNumber {
     width: 1000px;
@@ -819,7 +967,7 @@ export default {
     }
     .sampleReferenceContent {
       background-color: #ffffff;
-      padding: 20px 40px 10px;
+      padding: 20px 40px;
       color: #50688c;
       margin-bottom: 24px;
     }
@@ -835,7 +983,7 @@ export default {
     }
     .sampleIntelligenceContent {
       background-color: #ffffff;
-      padding: 20px 40px 10px;
+      padding: 20px 40px;
       color: #50688c;
       margin-bottom: 24px;
     }

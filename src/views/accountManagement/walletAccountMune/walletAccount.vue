@@ -47,9 +47,16 @@
                   label="创建时间"
                   sortable
                 />
-                <el-table-column :filters="[{ text: '转入保证金', value: '转入保证金' }, { text: '验货收入', value: '验货收入' },{ text: '余额提现', value: '余额提现' }]" :filter-method="filterTag" prop="type" label="类型" filter-placement="bottom-end">
+                <el-table-column :filters="[{ text: '手续费', value: '5' }, { text: '提现', value: '4' },{ text: '提现退款', value: '6' },{ text: '手续费退款', value: '7' },{ text: '验货员收入', value: '8' },{ text: '保证金', value: '9' },{ text: '其他费用', value: '10' },{ text: '保证金扣除', value: '11' }]" :filter-method="filterTag" prop="type" label="类型" filter-placement="bottom-end">
                   <template slot-scope="scope">
-                    <span :type="scope.row.tag === '家' ? 'primary' : 'success'" disable-transitions>{{ scope.row.tag }}</span>
+                    <span v-if="scope.row.type=='4'" disable-transitions>提现</span>
+                    <span v-if="scope.row.type=='5'" disable-transitions>手续费</span>
+                    <span v-if="scope.row.type=='6'" disable-transitions>提现退款</span>
+                    <span v-if="scope.row.type=='7'" disable-transitions>手续费退款</span>
+                    <span v-if="scope.row.type=='8'" disable-transitions>验货收入</span>
+                    <span v-if="scope.row.type=='9'" disable-transitions>保证金</span>
+                    <span v-if="scope.row.type=='10'" disable-transitions>其他费用</span>
+                    <span v-if="scope.row.type=='11'" disable-transitions>保证金扣除</span>
                   </template>
                 </el-table-column>
                 <el-table-column
@@ -177,7 +184,7 @@
                 <el-table-column
                   label="操作">
                   <template slot-scope="scope">
-                    <el-button type="text">详情</el-button>
+                    <el-button type="text" @click="withdrawRecord(scope.row)">详情</el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -423,7 +430,7 @@ export default {
       }
     },
     filterTag(value, row) {
-      return row.tag === value
+      return row.type === value
     },
     // 跳转提现
     goWithDrawCash() {
@@ -485,6 +492,14 @@ export default {
     goDetail(row) {
       this.$router.push({
         path: 'walletDetail',
+        query: {
+          id: row.id
+        }
+      })
+    },
+    withdrawRecord(row){
+      this.$router.push({
+        path: 'withdrawRecord',
         query: {
           id: row.id
         }

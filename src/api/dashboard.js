@@ -30,6 +30,13 @@ export function orderDetail(data) {
     method: 'get'
   })
 }
+// 确认退单
+export function chargeBack(data) {
+  return request({
+    url: data,
+    method: 'post'
+  })
+}
 // 重置密码
 export function resetPassword(data) {
   return request({
@@ -73,6 +80,19 @@ export function userRegister(data) {
     url: '/v1/inspector',
     method: 'post',
     data
+  })
+}
+
+// 用户注册
+export function qualification(data) {
+  // const data = {
+  //   // username,
+  //   // password
+  // }
+  return request({
+    url: '/v1/inspector/console_grab',
+    method: 'get',
+    params: data
   })
 }
 

@@ -62,4 +62,33 @@ export function getOrderList(data) {
       method: 'get',
     //   params:data
     })
-  }      
+  }   
+  // 获取报告详情（模板）
+  export function fetchReport(id) {
+    return request({
+      url: '/v1/inspector/report/' + id,
+      method: 'get'
+    })
+  }
+  //提交报告
+  export function storeRow(url, data) {
+    return request({
+      url: url,
+      method: 'post',
+      data: data,
+      paramsSerializer: function(params) {
+        return qs.stringify(params, { indices: true })
+      }
+    })
+  }
+
+  export function updateRow(url, data) {
+    return request({
+      url: url,
+      method: 'put',
+      data: data,
+      paramsSerializer: function(params) {
+        return qs.stringify(params, { indices: true })
+      }
+    })
+  }

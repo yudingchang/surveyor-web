@@ -74,6 +74,13 @@ export function walletDetail(query) {
   })
 }
 
+export function withdrawRecordDetail(query) {
+  return request({
+    url: '/v1/inspector/withdraw/' + query.id,
+    method: 'GET'
+  })
+}
+
 export function getBankList() {
   return request({
     url: '/v1/config/info',

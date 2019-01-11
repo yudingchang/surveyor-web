@@ -3,6 +3,7 @@ import request from '@/utils/request'
 export function getReportList(data) {
   return request({
     url: '/v1/inspector/report',
-    method: 'get'
+    method: 'get',
+    params: data
   })
 }

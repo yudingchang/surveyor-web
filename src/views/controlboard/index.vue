@@ -95,31 +95,36 @@
               <el-button class="btn" @click="goProfessiondData()">立即完善</el-button>
             </div>
             <div v-if="informationComplete" class="completeMessage clearfix">
-               <div class="informationContent fl">
+               <div class="informationContent fl" v-if="qualification.main_assist_order.length!=0">
                  <p class="informationTitle">可抢主辅单</p>
                  <p class="informationList clearfix">
-                   <span class="fl">辅单(不能写报告)</span>
-                   <span class="fr">主单(能写报告)</span>
+                   <span class="fl" :class="{'noneStyle':getBool(qualification.main_assist_order,2) && qualification.main_assist_order.length==1}" v-if="getBool(qualification.main_assist_order,2)">辅单(不能写报告)</span>
+                   <span class="fr" :class="{'noneStyle':getBool(qualification.main_assist_order,1) && qualification.main_assist_order.length==1}" v-if="getBool(qualification.main_assist_order,1)">主单(能写报告)</span>
                  </p>
                </div>
-               <div class="line fl"></div>
-               <div class="informationContent fl">
+               <div class="line fl" v-if="qualification.main_assist_order.length!=0"></div>
+               <div class="informationContent fl" v-if="qualification.report_language.length!=0">
                  <p class="informationTitle">可抢报告语言订单</p>
                  <p class="informationList clearfix">
-                   <span class="fl">中文报告</span>
-                   <span class="fr">英文报告</span>
+                   <span class="fl" :class="{'noneStyle':getBool(qualification.report_language,'zh_CN') && qualification.report_language.length==1}" v-if="getBool(qualification.report_language,'zh_CN')">中文报告</span>
+                   <span class="fr" :class="{'noneStyle':getBool(qualification.report_language,'en') && qualification.report_language.length==1}" v-if="getBool(qualification.report_language,'en')">英文报告</span>
                  </p>
                </div>
-               <div class="line fl"></div>
-               <div class="informationContent fl">
+               <div class="line fl" v-if="qualification.report_language.length!=0"></div>
+               <div class="informationContent fl" style="width:340px;">
                  <p class="informationTitle">可抢产品分类</p>
                  <p class="informationList clearfix">
-                   <span class="fl">
+                   <span class="fl" v-if="Object.keys(qualification.category_tags.electronics).length != 0">
                      电子电器
-                     <i class="iconfont icon-IconCopy"></i>
+                     <i class="iconfont icon-IconCopy" @click="getProductDetail(qualification.category_tags.electronics.category_arr)"></i>
                    </span>
-                   <span class="fl">轻工产品</span>
-                   <span class="fr">纺织品</span>
+                   <span class="fl" v-if="Object.keys(qualification.category_tags.light_industry).length != 0">
+                     轻工产品
+                     <i class="iconfont icon-IconCopy" @click="getProductDetail(qualification.category_tags.light_industry.category_arr)"></i>
+                     </span>
+                   <span class="fl" v-if="Object.keys(qualification.category_tags.textile).length != 0">纺织品
+                      <i class="iconfont icon-IconCopy" @click="getProductDetail(qualification.category_tags.textile.category_arr)"></i>
+                   </span>
                  </p>
                </div>
             </div>
@@ -209,7 +214,7 @@
   </div>
 </template>
 <script>
-import { grabSheet, confirmgrabSheet } from '@/api/dashboard'
+import { grabSheet, confirmgrabSheet , qualification} from '@/api/dashboard'
 import { getWallet } from '@/api/walletDetail'
 import { getReportList } from '@/api/report'
 export default {
@@ -230,7 +235,8 @@ export default {
       canConfirm: false,
       canChase: false,
       // 资料完善度
-      informationComplete:true
+      informationComplete:true,
+      qualification:{}
     }
   },
   computed: {
@@ -239,6 +245,7 @@ export default {
     this.getgrabSheet()
     this.getWallet()
     this.getReportList()
+    this.getQualification()
   },
   mounted() {
     // console.log(this.$route.fullPath)
@@ -338,7 +345,28 @@ export default {
       this.$router.push({
         path: '/orderManagement/reporteManager'
       })
+    },
+    // 获取抢单资格
+    getQualification(){
+      qualification().then(res=>{
+        if (res.data.code == 0) {
+          this.qualification = res.data.data
+          // this.tableData2 = res.data.data
+        }
+      })
+    },
+    getBool(Array,number){
+      return Array.indexOf(number)>=0 ? true : false
+    },
+    getProductDetail(Array){
+      this.dialogTableVisible = true
+      this.gridData = Array.map((item, index) => {
+        return {
+          name: item.name
+        }
+      })
     }
+    
   }
 }
 </script>
@@ -482,10 +510,15 @@ $TotleLeft:500px;
                     font-size:16px;
                     margin-top: 16px;
                 }
+                .noneStyle{
+                  float:none;
+                  display:block;
+                  text-align:center;
+                }
                 .completeMessage{
                   padding:34px 38px;
                   .informationContent{
-                    width: 240px;
+                    width: 220px;
                     .informationTitle{
                       text-align:center;
                       color:#4A90E2;
@@ -503,13 +536,16 @@ $TotleLeft:500px;
                       &>span:nth-child(2){
                         margin-left:39px;
                       }
+                      &>span:nth-child(3){
+                        margin-left:39px;
+                      }
                     }
                   }
                   .line{
                     width: 1px;
                     height: 50px;
                     background:#DFE3E9;
-                    margin:10px 40px 0;
+                    margin:10px 30px 0;
                   }
                 }
             }
