@@ -105,13 +105,25 @@ export default {
     },
     // 删掉银行卡
     removeCard(item) {
-      removeCard({
+      this.$confirm('是否删除',{
+        confirmButtonText: '是',
+        cancelButtonText: '否',
+        center: true
+      }).then(()=>{
+        removeCard({
         id: item.id
       }).then(res => {
         if (res.data.code == 0) {
           this.getCardList()
         }
+      }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });          
+        });
       })
+      
     },
     // 设置默认卡
     setDefalt(item) {
@@ -138,9 +150,27 @@ export default {
     .el-form-item__label{
         color:#7C8FA6;
     }
+    
 
 }
-
+.el-message-box__content{
+      padding: 30px 15px;
+      text-align: center;
+      color:#7C8FA6;
+      font-size: 16px;
+    }
+  .el-message-box__btns{
+    button:first-child{
+      width: 98px;
+      height: 40px;
+    }
+    .el-button--primary{
+      width: 98px;
+      height: 40px;
+      background: #FFA800;
+      border:none;
+    }
+  }
 </style>
 
 <style rel="stylesheet/scss" lang="scss" scoped>

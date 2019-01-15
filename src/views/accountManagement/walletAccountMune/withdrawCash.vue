@@ -9,7 +9,7 @@
             <span class="moneyText">¥{{ balance }}</span>
             <span>元</span>
           </span>
-          <el-button style="float:right;margin-top:5px;" type="success" icon="el-icon-plus">添加银行卡</el-button>
+          <el-button style="float:right;margin-top:5px;" @click="addCard()" type="success" icon="el-icon-plus">添加银行卡</el-button>
         </div>
       </el-col>
     </el-row>
@@ -23,11 +23,10 @@
                 <span>{{ item.bank_account }}</span>
                 <span v-if="item.is_default == 1">(默认卡)</span>
               </div>
-              <el-select v-model="item.status" placeholder="管理" class="cardSelect">
-                <el-option label="管理" value="1"/>
+              <el-select v-model="item.status" placeholder="管理" class="cardSelect" @change="manage(item)">
+                <el-option label="管理" value="1" />
                 <el-option label="设为默认" value="2"/>
-                <el-option label="编辑" value="3"/>
-                <el-option label="删除" value="4"/>
+                <el-option label="删除" value="3"/>
               </el-select>
             </el-radio>
           </div>
@@ -61,7 +60,9 @@ import {
   getBalanceList,
   getCashList,
   getDepositList,
-  withdrawOperation
+  withdrawOperation,
+  setDefalt,
+  removeCard
 } from '@/api/walletDetail' // 列表请求数据
 
 export default {
@@ -138,8 +139,52 @@ export default {
     // 判断是否每月1.15号
     judgeDay() {
       const day = new Date().getDate()
-      this.isdisabled = !((day == 1 || day == 11))
-    }
+      this.isdisabled = !((day == 1 || day == 15))
+    },
+    // 跳转添加银行卡页面
+    addCard(){
+      this.$router.push({
+          path: 'addCard'
+        })
+    },
+    // 管理银行卡
+    manage(item){
+      console.log(item)
+      switch (item.status)
+      {
+      case '1':
+        this.$router.push({
+          path: 'cardManagement'
+        })
+        break;
+      case '2': 
+      this.setDefalt(item)
+        break;
+      case '3':
+        this.removeCard(item)
+        break;
+      }
+    },
+    // 设置默认卡
+    setDefalt(item) {
+      setDefalt({
+        id: item.id
+      }).then(res => {
+        if (res.data.code == 0) {
+          this.getCardList()
+        }
+      })
+    },
+    removeCard(item) {
+      removeCard({
+        id: item.id
+      }).then(res => {
+        if (res.data.code == 0) {
+          this.getCardList()
+        }
+      })
+    },
+
   }
 }
 </script>

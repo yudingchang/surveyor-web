@@ -71,3 +71,12 @@ export function getUserInfo(token) {
   })
 }
 
+export function getConfigs() {
+  return request({
+    url: '/v1/config/info',
+    method: 'get'
+  })
+}
+
+
+

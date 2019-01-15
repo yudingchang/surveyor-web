@@ -70,7 +70,7 @@
                 <el-table-column
                   label="钱包余额">
                   <template slot-scope="scope">
-                    <span>¥{{ jsonGetName(scope.row.currency_data,'CNY') }}</span>
+                    <span>¥{{ scope.row.after_snapshot_price}}</span>
                   </template>
                 </el-table-column>
                 <el-table-column
@@ -153,9 +153,9 @@
                 <el-table-column
                   label="提现金额">
                   <template slot-scope="scope">
-                    <span v-if="scope.row.plus_minus==true">+</span>
-                    <span v-if="scope.row.plus_minus==false">-</span>
-                    <span>¥{{ scope.row.total_price }}</span>
+                    <!-- <span v-if="scope.row.plus_minus==true">+</span>
+                    <span v-if="scope.row.plus_minus==false">-</span> -->
+                    <span>-¥{{ scope.row.total_price }}</span>
                   </template>
                 </el-table-column>
                 <el-table-column
@@ -277,54 +277,8 @@ export default {
           isBool: false
         }
       ],
-      tableData: [{
-        date: '2016-05-02',
-        name: '王小虎',
-        tag: '转入保证金',
-        address: '上海市普陀区金沙江路 1518 弄'
-      }, {
-        date: '2016-05-04',
-        name: '王小虎',
-        tag: '验货收入',
-        address: '上海市普陀区金沙江路 1517 弄'
-      }, {
-        date: '2016-05-01',
-        name: '王小虎',
-        tag: '验货收入',
-        address: '上海市普陀区金沙江路 1519 弄'
-      }],
-      tableData2: [{
-        date: '2016-05-02',
-        name: '王小虎',
-        tag: '钱包转入',
-        address: '上海市普陀区金沙江路 1518 弄'
-      }, {
-        date: '2016-05-04',
-        name: '王小虎',
-        tag: '验货扣款',
-        address: '上海市普陀区金沙江路 1517 弄'
-      }, {
-        date: '2016-05-01',
-        name: '王小虎',
-        tag: '退单扣款',
-        address: '上海市普陀区金沙江路 1519 弄'
-      }],
-      tableData3: [{
-        date: '2016-05-02',
-        name: '王小虎',
-        tag: '成功',
-        address: '上海市普陀区金沙江路 1518 弄'
-      }, {
-        date: '2016-05-04',
-        name: '王小虎',
-        tag: '处理中',
-        address: '上海市普陀区金沙江路 1517 弄'
-      }, {
-        date: '2016-05-01',
-        name: '王小虎',
-        tag: '失败',
-        address: '上海市普陀区金沙江路 1519 弄'
-      }],
+      tableData: [],
+      tableData2: [],
       num: 0,
       balance: '',
       freeze: ''

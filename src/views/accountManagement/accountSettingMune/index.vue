@@ -71,10 +71,13 @@
       <el-form :model="form" ref='form'>
         <el-form-item class="modifyPhone" prop="phone_number" :rules="[{ required: true, message: '请输入手机号', trigger: 'blur' }]">
           <el-input placeholder="请输入手机号" v-model="form.phone_number" class="input-with-select">
-            <el-select v-model="select" slot="prepend" placeholder="请选择" style="width:180px">
-              <el-option label="餐厅名" value="1"></el-option>
-              <el-option label="订单号" value="2"></el-option>
-              <el-option label="用户电话" value="3"></el-option>
+            <el-select v-model="form.phone_number_code" slot="prepend" placeholder="请选择" style="width:180px">
+              <el-option
+                v-for="item in options"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
             </el-select>
           </el-input>
         </el-form-item>
@@ -180,6 +183,7 @@ export default {
     return{
       form:{
         phone_number:'',
+        phone_number_code:'+86',
         verification_code:'',
         sendMaDisabled:false,
         dialogFormVisible:false,
@@ -219,6 +223,8 @@ export default {
     ])
   },
   created(){
+    let Configs = JSON.parse(window.localStorage.getItem('Configs'))
+    this.options = Configs.phone_number_codes
     // this.getAccountInfoData()
     // console.log(new Date)
   },

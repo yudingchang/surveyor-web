@@ -15,7 +15,7 @@
         <p class="textTitle">手机号码登录</p>
         <el-form-item prop="username" class="phone-email clearfloat">
           <span class="phone-style">
-            {{ areaselect }}
+            {{ phoneLoginForm.phone_number_code?phoneLoginForm.phone_number_code:'中国大陆 +86' }}
           </span>
           <span class="arrow-next" @click="getpopover()"/>
           <el-input
@@ -27,7 +27,7 @@
           />
           <div v-show="popoverShow" class="popover">
             <ul>
-              <li v-for="(item,index) in area" :key="index" @click="selected(item)">{{ item }}</li>
+              <li v-for="(item,index) in Configs.phone_number_codes" :key="index" @click="selected(item)">{{ item.label }}</li>
             </ul>
             <div class="popper-arrow"/>
           </div>
@@ -40,7 +40,7 @@
             v-model="phoneLoginForm.password"
             placeholder="请输入登录密码"
             name="username"
-            type="text"
+            type="password"
             class="email-content"
           />
         </el-form-item>
@@ -124,7 +124,7 @@
         <p class="textTitle">手机号码注册</p>
         <el-form-item prop="username" class="phone-email clearfloat">
           <span class="phone-style">
-            {{ areaselect }}
+            {{ phoneRegisterForm.phone_number_code?phoneRegisterForm.phone_number_code:'中国大陆 +86' }}
           </span>
           <span class="arrow-next" @click="getpopover()"/>
           <el-input
@@ -136,7 +136,7 @@
           />
           <div v-show="popoverShow" class="popover">
             <ul>
-              <li v-for="(item,index) in area" :key="index" @click="selected(item)">{{ item }}</li>
+              <li v-for="(item,index) in Configs.phone_number_codes" :key="index" @click="registerselected(item)">{{ item.label }}</li>
             </ul>
             <div class="popper-arrow"/>
           </div>
@@ -299,9 +299,9 @@
         </el-form>
 
         <el-form v-if="secondStepPhoneShow" :model="secondStepFormPhone" class="login-form ma-content">
-          <el-form-item prop="username" class="email clearfloat secondStepPhone">
+          <el-form-item prop="username" class="email phone-email clearfloat secondStepPhone">
             <span class="phone-style">
-              {{ areaselect }}
+              {{ secondStepFormPhone.phone_number_code?secondStepFormPhone.phone_number_code:'中国大陆 +86' }}
             </span>
             <span class="arrow-next" @click="getpopover()"/>
             <el-input
@@ -313,10 +313,11 @@
             />
             <div v-show="popoverShow" class="popover">
               <ul>
-                <li v-for="(item,index) in area" :key="index" @click="selected(item)">{{ item }}</li>
+                <li v-for="(item,index) in Configs.phone_number_codes" :key="index" @click="forgotselected(item)">{{ item.label }}</li>
               </ul>
-              <div class="popper-arrow"/>
-            </div>
+              <div class="popper-arrow">
+              </div>
+            </div>  
           </el-form-item>
           <el-form-item prop="username" class="email">
             <span>
@@ -401,7 +402,7 @@ import {
 } from '@/api/login'
 import LangSelect from '@/components/LangSelect'
 import SocialSign from './socialsignin'
-
+import { getConfigs } from '@/api/login'
 export default {
   name: 'Login',
   components: { LangSelect, SocialSign },
@@ -421,6 +422,7 @@ export default {
       }
     }
     return {
+      Configs:{},
       thirdStepForm: {
         password: '',
         confirmpassword: '',
@@ -446,6 +448,7 @@ export default {
       },
       phoneLoginForm: {
         phone_number: '',
+        phone_number_code: '',
         type: 'phone_number',
         password: ''
       },
@@ -556,6 +559,7 @@ export default {
     }
   },
   created() {
+    this.getConfigs()
     // window.addEventListener('hashchange', this.afterQRScan)
   },
   destroyed() {
@@ -887,7 +891,15 @@ export default {
       if (this.active++ > 2) this.active = 1
     },
     selected(item) {
-      this.areaselect = item
+      this.phoneLoginForm.phone_number_code = item.value
+      this.popoverShow = false
+    },
+    forgotselected(item){
+      this.secondStepFormPhone.phone_number_code = item.value
+      this.popoverShow = false
+    },
+    registerselected(item){
+      this.phoneRegisterForm.phone_number_code = item.value
       this.popoverShow = false
     },
     tab(item, index) {
@@ -999,6 +1011,14 @@ export default {
         console.log(index)
         if (index < 6) this.ipt[index].focus()
       }
+    },
+    // 加载配置文件
+    getConfigs(){
+      getConfigs().then(res=>{
+        if (res.data.code == 0){
+          this.Configs = res.data.data
+        }
+      })
     }
   }
 }

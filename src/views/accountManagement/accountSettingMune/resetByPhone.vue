@@ -82,7 +82,8 @@ export default {
       secondStepText:'获取验证码',
       sendMaDisabled:false,
       form:{
-        password:''
+        password:'',
+        phone:''
       }
     }
   },

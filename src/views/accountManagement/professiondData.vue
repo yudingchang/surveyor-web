@@ -1436,11 +1436,15 @@ export default {
     },
     // 英语相关证书
     handleRemove(index, file, fileList) {
+      const newIndex = this._.findIndex(this.technicalCompetenceForm.technicalCompetenceFormArray[
+        index
+      ].en_images, { id: file.id })
       this.technicalCompetenceForm.technicalCompetenceFormArray[
         index
-      ].en_images = fileList
+      ].en_images[newIndex].detach = true
     },
     handleSuccess(index, res, file) {
+      console.log(index)
       this.technicalCompetenceForm.technicalCompetenceFormArray[
         index
       ].en_images.push(res.data)
@@ -1448,9 +1452,10 @@ export default {
     },
     // 验货相关证书
     handleRemoveCertificate(index, file, fileList) {
+      const newIndex = this._.findIndex(this.technicalCompetenceForm.technicalCompetenceFormArray[index].certificate_images, { id: file.id })
       this.technicalCompetenceForm.technicalCompetenceFormArray[
         index
-      ].certificate_images = fileList
+      ].certificate_images[newIndex].detach = true
     },
     handleSuccessCertificate(index, res, file) {
       this.technicalCompetenceForm.technicalCompetenceFormArray[

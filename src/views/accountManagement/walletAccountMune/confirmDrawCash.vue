@@ -87,6 +87,9 @@ export default {
             message: '提现成功',
             type: 'success'
           })
+          this.$router.push({
+            path: 'withdrawCash'
+          })
         } else {
           this.$message({
             message: `${res.data.message}`

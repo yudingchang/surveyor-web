@@ -353,8 +353,8 @@ export default {
 <style rel="stylesheet/scss" lang="scss">
 /* 修复input 背景不协调 和光标变色 */
 /* Detail see https://github.com/PanJiaChen/vue-element-admin/pull/927 */
-
-.el-dialog__header {
+.examineGoods{
+  .el-dialog__header {
   padding: 50px 20px 10px;
 }
 .el-dialog__title {
@@ -364,13 +364,12 @@ export default {
   color: #909399;
   font-weight: normal;
 }
-.examineGoods .el-table th {
+.el-table th {
   background-color: #ffffff;
   font-size: 14px;
   color: #50688C;
 }
-
-.examineGoods .el-table td {
+.el-table td {
   font-size: 12px;
 }
 .el-button--text {
@@ -414,7 +413,12 @@ export default {
   padding: 20px 20px 15px;
   font-size: 14px;
   color: #164061;
+  }
+  .el-range-separator{
+    width: 20px;
+  }
 }
+
 .tc-separate {
 span + span {
 &::before {

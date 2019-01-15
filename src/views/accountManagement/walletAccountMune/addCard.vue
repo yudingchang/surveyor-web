@@ -6,7 +6,7 @@
     <div class="addCardContent">
       <el-form ref="cardMessage" :rules="rules" :model="cardMessage" label-width="150px">
         <el-form-item label="持卡人姓名" prop="cardholder">
-          <span>{{ cardMessage.cardholder }}</span>
+          <span>{{ name }}</span>
         </el-form-item>
         <el-form-item label="开户银行" prop="open_bank">
           <el-autocomplete
@@ -32,17 +32,20 @@
         <el-form-item label="手机号码" prop="phone_number">
           <div>
             <el-input v-model="cardMessage.phone_number" placeholder="请输入手机号" class="input-with-select" style="width:400px;">
-              <el-select slot="prepend" v-model="select" placeholder="请选择区号" style="width:180px;color:#FFA500">
-                <el-option label="餐厅名" value="1"/>
-                <el-option label="订单号" value="2"/>
-                <el-option label="用户电话" value="3"/>
+              <el-select slot="prepend" v-model="cardMessage.area_phone_number" placeholder="中国大陆 +86" style="width:180px;color:#FFA500">
+                <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
+                </el-option>
               </el-select>
             </el-input>
           </div>
         </el-form-item>
         <el-form-item label="验证码" prop="verification_code">
           <el-input v-model="cardMessage.verification_code" placeholder="请输入验证码" class="input-with-select" style="width:400px;">
-            <el-button slot="append" style="width:120px;color:#FFA500;" :disabled="sendMaDisabled" @click="secondStepSendMa()">{{ secondStepText }}</el-button>
+            <el-button slot="append" style="width:120px;color:#FFA500;" :disabled="sendMaDisabled==true ||  cardMessage.phone_number==''" @click="secondStepSendMa()">{{ secondStepText }}</el-button>
           </el-input>
         </el-form-item>
         <el-form-item label=" ">
@@ -52,8 +55,8 @@
     </div>
   </div>
 </template>
-
 <script>
+import { mapGetters } from 'vuex'
 import { addCard , getBankList , sendMa } from '@/api/walletDetail'// 列表请求数据
 export default {
   name: '',
@@ -78,12 +81,12 @@ export default {
         label: '北京烤鸭'
       }],
       value: '',
+      sendMaDisabled: false,
       secondStepText: '发送验证码',
       cardMessage: {
-        cardholder: '狗子',
         open_bank: '',
         bank_code: 'ICBC',
-        area_phone_number:'0086',
+        area_phone_number:'+86',
         bank_branch: '',
         bank_account: '',
         phone_number: '',
@@ -111,6 +114,16 @@ export default {
       }
     }
   },
+  computed: {
+    ...mapGetters([
+      'real_name',
+      'name'
+    ])
+  },
+  created(){
+    let Configs = JSON.parse(window.localStorage.getItem('Configs'))
+    this.options = Configs.phone_number_codes
+  },
   methods: {
     // 第二步发送验证码
     secondStepSendMa() {
@@ -133,12 +146,10 @@ export default {
     },
     // 输入式查询银行
     querySearchAsync(queryString, cb) {
-      getBankList()
-        .then(res => {
-          let restaurants  = res.data.data.bankList;
-          let results = queryString ? restaurants.filter(this.createFilter(queryString)) : restaurants;
-          cb(results);
-        });
+      let Configs = JSON.parse(window.localStorage.getItem('Configs'))
+      let restaurants  = Configs.bankList
+      let results = queryString ? restaurants.filter(this.createFilter(queryString)) : restaurants;
+      cb(results);
     },
     // 过滤符合条件的筛选项
     createFilter(queryString) {
@@ -164,13 +175,17 @@ export default {
       this.$refs['cardMessage'].validate((valid) => {
         if (valid) {
           addCard({
-            ...this.cardMessage
+            ...this.cardMessage,
+            cardholder: this.name
           }).then(res => {
             if (res.data.code == 0) {
               this.$message({
                 message: '银行卡添加成功',
                 type: 'success'
-              });
+              })
+              this.$router.push({
+                path: 'cardManagement'
+              })
             }
           })
         }
@@ -206,7 +221,7 @@ export default {
         color:#50688C;
     }
     .addCardContent{
-        padding:32px 0 0 70px;
+        padding:32px 0 32px 70px;
         .inputLength{
             width: 400px;
         }

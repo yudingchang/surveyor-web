@@ -147,13 +147,13 @@
         label="订单号"
         width="180">
         <template slot-scope="scope">
-          <el-button type="text" class="btnText">{{ scope.row.service.number }}</el-button>
+          <el-button type="text" class="btnText"  @click="goOrderDetail(scope.row)">{{ scope.row.service.number }}</el-button>
         </template>
       </el-table-column>
       <el-table-column
-        label="报告单号"/>
+        label="报告单号" prop="number"/>
       <el-table-column
-        label="验货开始日期"/>
+        label="验货开始日期" prop="service.inspection_first_date"/>
       <el-table-column
         label="验货地名称">
         <template slot-scope="scope">
@@ -182,11 +182,11 @@
       <el-table-column
         label="操作">
         <template slot-scope="scope">
-          <el-button type="text" class="orangeText" v-if="(scope.row.type == 'offline')&&(scope.row.service.marking == 'WAIT_INSPECT')" @click="goReportDetail(scope.row)">下载模版</el-button>
-          <el-button type="text" class="orangeText" v-if="(scope.row.type == 'offline')&&(scope.row.service.marking == 'INSPECTING')" @click="goReportDetail(scope.row)">上传报告</el-button> 
+          <el-button type="text" class="orangeText" v-if="(scope.row.type == 'offline')&&((scope.row.service.marking == 'WAIT_INSPECT') || (scope.row.service.marking == 'INSPECTING'))" @click="goReportDetail(scope.row)"> 下载模版</el-button>
+          <el-button type="text" class="orangeText" v-if="(scope.row.type == 'offline')&&(scope.row.service.marking == 'INSPECTING')" @click="uploadReport(scope.row)">上传报告</el-button> 
           <el-button type="text" class="orangeText" v-if="(scope.row.type == 'online')&&(scope.row.service.marking == 'INSPECTING')&& (scope.row.marking == 'WAIT_MODIFY')" @click="goReportDetail(scope.row)">修改报告</el-button>
           <el-button type="text" class="orangeText" v-if="(scope.row.type == 'online')&&(scope.row.service.marking=='INSPECTING')&& (scope.row.marking == 'WAIT_MODIFY')" @click="goReportDetail(scope.row)">查看原因</el-button>
-          <el-button type="text" class="orangeText" v-if="(scope.row.type == 'online')&&(scope.row.service.marking=='INSPECTING')&& (scope.row.marking == 'WAIT_WRITE')" @click="goReportDetail(scope.row)">写报告</el-button>
+          <el-button type="text" class="orangeText" v-if="(scope.row.type == 'online')&&(scope.row.service.marking == 'INSPECTING')&& (scope.row.marking == 'WAIT_WRITE')" @click="goReportDetail(scope.row)">写报告</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -365,7 +365,11 @@ export default {
           name: item.name
         }
       })
-    }
+    },
+    // 去订单详情
+    goOrderDetail(row) {
+      this.$router.push({ path: '/orderManagement/orderDetails', query: { orderId: row.service.id }})
+    },
     
   }
 }

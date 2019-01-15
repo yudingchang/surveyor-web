@@ -1,4 +1,4 @@
-import { loginByUsername, logout, getUserInfo } from '@/api/login'
+import { loginByUsername, logout, getUserInfo, getConfigs } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 
 const user = {
@@ -82,7 +82,11 @@ const user = {
             reject('error')
           }
           const data = response.data.data
-
+          getConfigs().then(response => {
+            if(response.data.code == 0){
+              window.localStorage.setItem('Configs', JSON.stringify(response.data.data))
+            }
+          })
           if (data.roles && data.roles.length > 0) { // 验证返回的roles是否是一个非空数组
             commit('SET_ROLES', data.roles)
           } else {
