@@ -11,7 +11,7 @@
     <!-- 登录界面主体 -->
     <el-form v-if="loginShow" class="login-form-box">
       <!-- 手机号登录 -->
-      <el-form :model="phoneLoginForm" class="login-form">
+      <el-form :model="phoneLoginForm" class="login-form" autocomplete="off">
         <p class="textTitle">手机号码登录</p>
         <el-form-item prop="username" class="phone-email clearfloat">
           <span class="phone-style">
@@ -24,6 +24,7 @@
             name="username"
             type="text"
             class="phone-email-content"
+            autocomplete="new-password"
           />
           <div v-show="popoverShow" class="popover">
             <ul>
@@ -42,6 +43,7 @@
             name="username"
             type="password"
             class="email-content"
+            auto-complete="new-password"
           />
         </el-form-item>
         <p class="text1" @click="forgetPassword()">忘记密码?</p>
@@ -1141,6 +1143,13 @@ $body_padding: 13px;
     // border-radius: 5px;
     // color: #454545;
   }
+  input:-webkit-autofill , textarea:-webkit-autofill, select:-webkit-autofill {
+      -webkit-box-shadow: 0 0 0px 1000px none inset;
+      // border: 1px solid #CCC!important;
+    }
+  // input:-internal-autofill-previewed, input:-internal-autofill-selected, textarea:-internal-autofill-previewed, textarea:-internal-autofill-selected, select:-internal-autofill-previewed, select:-internal-autofill-selected{
+  //   background-color:transprant !important;
+  // }
 }
 </style>
 

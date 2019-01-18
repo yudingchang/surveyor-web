@@ -948,6 +948,25 @@
       <el-col :span="24" class="bottom">
         <el-button class="submitBtn" @click="submitBtn()">提交</el-button>
       </el-col>
+      <!-- 绑定电子邮箱 -->
+      <el-dialog :title="emailForm.emailText" :visible.sync="emailForm.dialogFormVisible" width="400px" center>
+        <el-form :model="emailForm" ref='emailForm'>
+          <el-form-item class="modify2" prop="email" :rules="[{ required: true, message: '请输入验证码', trigger: 'blur' }]">
+            <el-input placeholder="请输入电子邮箱" v-model="emailForm.email" class="input-with-select">
+              <i class="iconfont icon-dianziyouxiangzhongzhi" slot="prepend"></i>
+            </el-input>
+          </el-form-item>
+          <el-form-item class="modify2" prop="verification_code" :rules="[{ required: true, message: '请输入验证码', trigger: 'blur' }]">
+            <el-input placeholder="请输入验证码" v-model="emailForm.verification_code" class="input-with-select">
+              <i class="iconfont icon-yanzhengma" slot="prepend"></i>
+              <el-button slot="append" :disabled="emailForm.email=='' || emailForm.sendMaDisabled == true" @click="emailSendMa()" style="width:120px;text-align:center;color:#ffffff">{{emailForm.secondStepText}}</el-button>
+            </el-input>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button style="background:#FFA800;border:none;width:140px;" type="primary" @click="email_submit()">确 定</el-button>
+        </div>
+      </el-dialog>
     </el-row>
   </div>
 </template>
@@ -958,7 +977,8 @@ import { grabSheet } from '@/api/dashboard'
 import { getToken } from '@/utils/auth'
 import { getPersonalAuthentication } from '@/api/professiondData'
 import InspectionTarget from '@/components/InspectionTarget'
-import store from '../../store/'
+import { mapGetters } from 'vuex'
+import store from '@/store/'
 import {
   fetchList,
   fetchCounty,
@@ -972,6 +992,8 @@ import {
   savemultiCascaderIndustrys,
   saveAllMessage
 } from '@/api/fetch'
+import { sendMa } from '@/api/walletDetail'
+import { changeUserInfo } from '@/api/accountSetting'
 export default {
   name: '',
   components: {
@@ -988,6 +1010,15 @@ export default {
       form: {
         isp: []
       },
+      emailForm:{
+        email:'',
+        verification_code:'',
+        sendMaDisabled:false,
+        dialogFormVisible:false,
+        secondStepText:'获取验证码',
+        emailText:'绑定电子邮箱',
+        reviseMailSuccess:false,
+      },  
       personalCertificateFormShow: false,
       text: '展开',
       examineGoodsFormShow: false,
@@ -1242,6 +1273,9 @@ export default {
     }
   },
   computed: {
+    ...mapGetters([    
+      'email',
+    ]),
     uploadUrl() {
       return process.env.BASE_API + 'v1/upload'
     },
@@ -1754,7 +1788,16 @@ export default {
       })
     },
     // 提交所有信息
-    submitBtn() {
+    submitBtn(){
+      console.log(this.email)
+      if(this.email != null ){
+        this.submitConfirmBtn()
+      }else{
+        this.emailForm.dialogFormVisible = true      
+      }
+    },
+    // 提交所有信息
+    submitConfirmBtn() {
       let changeList
       const tempetchangeList = [
         ...this.identificationImagesList,
@@ -1771,21 +1814,72 @@ export default {
           ...this.personalCertificateForm,
           country_id: this.supplier.country_id,
           location_ids: this.supplier.location_ids,
-          identification_images:
-            this.identificationImagesList.length == 0
-              ? [this.front, this.back, this.handheld]
-              : changeList
+          identification_images:this.identificationImagesList.length == 0 ? [this.front, this.back, this.handheld] : changeList
         },
         inspector_serve: this.examineGoodsForm,
         industry: this.multiCascaderIndustrysForm,
         education_info: this.educationForm.educationFormArray,
         work_experience: this.experienceForm.experienceFormArray,
-        training_experience: this.trainingExperienceForm
-          .trainingExperienceFormArray,
-        technical_skills: this.technicalCompetenceForm
-          .technicalCompetenceFormArray
+        training_experience: this.trainingExperienceForm.trainingExperienceFormArray,
+        technical_skills: this.technicalCompetenceForm.technicalCompetenceFormArray
       }).then(res => {
         if (res.data.code == 0) {
+          this.$router.push({
+            path:'dataAudite'
+          })
+          // if(this.email == null ){
+          //   this.emailForm.dialogFormVisible = true
+          // }else{
+            
+          // }
+        }
+      })
+    },
+    // email绑定验证码
+    emailSendMa(){
+      this.sendMa2();
+      const TIME_COUNT = 60
+      //   this.sendMaDisabled = true
+      this.emailForm.secondStepText = TIME_COUNT
+      clearInterval(this.timer)
+      this.timer = setInterval(() => {
+        if (this.emailForm.secondStepText > 0 && this.emailForm.secondStepText <= TIME_COUNT) {
+          this.emailForm.sendMaDisabled = true
+         this.emailForm.secondStepText--
+        }else {
+          this.emailForm.sendMaDisabled = false
+          this.emailForm.secondStepText = '发送验证码'
+          clearInterval(this.timer)
+          this.timer = null
+        }
+      }, 1000)
+    },
+     // 邮箱发送验证码
+    sendMa2(){
+      sendMa({
+        to:this.emailForm.email,
+        type:'email'
+      }).then(res=>{
+        if(res.data.code == 0){
+
+        }
+      })
+    },
+    // 确认绑定邮箱
+    email_submit(){
+      this.$refs.emailForm.validate(valid => {
+        if (valid) {
+          changeUserInfo({
+            verification_code:this.emailForm.verification_code,
+            type:'email',
+            email:this.emailForm.email
+          }).then(res =>{
+            if(res.data.code == 0){
+              this.emailForm.dialogFormVisible = false
+              this.emailForm.reviseMailSuccess = true
+              store.dispatch('GetUserInfo')
+            }
+          })
         }
       })
     },
@@ -1918,12 +2012,35 @@ export default {
   .el-radio__input.is-checked + .el-radio__label {
     color: #ffa500;
   }
-  //  .el-tree-node__content {
-  //   height: 48px;
-  //   .el-tree-node__content {
-  //     height: 12px;
-  //   }
-  // }
+  .modify2 {
+    .el-input-group__prepend{
+      background-color:inherit;
+      border-right:none; 
+      padding: 0 10px;
+    }
+
+    .el-input__inner{
+      border-left:none;
+      &:hover{
+        border:1px solid #dcdfe6;
+        border-left:none; 
+      }
+    }   
+    .el-input-group__append{
+      background-color: #FFA800;
+      color:#ffffff;
+      .el-button {
+        &:hover{
+          background-color: #FFA800;
+          color:#ffffff;
+          border: none;
+        }
+      }     
+    }
+    .is-error .el-input__inner{
+      border-color: #dcdfe6 !important;
+    }
+  }
 }
 </style>
 

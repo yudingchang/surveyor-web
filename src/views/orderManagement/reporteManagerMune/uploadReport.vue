@@ -9,7 +9,7 @@
             <el-form-item label="上传附件">
               <tc-upload
               :files="data.files.inspector_reports"
-              :mimes="['application/pdf']"
+              :mimes="['application/pdf','image/png']"
               :size="10*1024*1024"
               @upload="handleUploadResource"
               @remove="handleRemoveResource"/>

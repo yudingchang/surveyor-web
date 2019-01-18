@@ -572,6 +572,13 @@ export const asyncRouterMap = [
         component: () => import('@/views/accountManagement/professiondData'),
         name: 'professiondData',
         meta: { title: '专业资料' }
+      },
+      {
+        path: 'dataAudite',
+        component: () => import('@/views/accountManagement/dataAudite'),
+        name: 'dataAudite',
+        hidden: true,
+        meta: { title: '专业资料' }
       }
     ]
   },

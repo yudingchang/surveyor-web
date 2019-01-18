@@ -51,7 +51,7 @@
         ¥{{ form.price }}
         </el-form-item>
       <el-form-item label="钱包余额">
-         {{jsonGetName(form.currency_data,'CNY') }}
+         {{ jsonGetName(form.currency_data,'CNY') }}
         </el-form-item>
         <el-form-item label="说明">
           {{form.remark ? form.remark : '无'}}

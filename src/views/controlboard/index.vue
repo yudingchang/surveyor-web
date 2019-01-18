@@ -90,16 +90,16 @@
             <span class="left">抢单资格</span>
           </div>
           <div class="grabContent">
-            <div v-if="!informationComplete">
-               <p class="number">您的专业资料未完善，无法抢单！</p>
+            <div v-if="qualification.main_assist_order.length==0 && qualification.report_language.length==0 && qualification.category_tags.electronics.category_arr.length==0 && qualification.category_tags.light_industry.category_arr.length==0 && qualification.category_tags.textile.category_arr.length==0">
+              <p class="number">您的专业资料未完善，无法抢单！</p>
               <el-button class="btn" @click="goProfessiondData()">立即完善</el-button>
             </div>
-            <div v-if="informationComplete" class="completeMessage clearfix">
+            <div  class="completeMessage clearfix">
                <div class="informationContent fl" v-if="qualification.main_assist_order.length!=0">
                  <p class="informationTitle">可抢主辅单</p>
                  <p class="informationList clearfix">
                    <span class="fl" :class="{'noneStyle':getBool(qualification.main_assist_order,2) && qualification.main_assist_order.length==1}" v-if="getBool(qualification.main_assist_order,2)">辅单(不能写报告)</span>
-                   <span class="fr" :class="{'noneStyle':getBool(qualification.main_assist_order,1) && qualification.main_assist_order.length==1}" v-if="getBool(qualification.main_assist_order,1)">主单(能写报告)</span>
+                   <span class="fr" style="margin-left:0" :class="{'noneStyle':getBool(qualification.main_assist_order,1) && qualification.main_assist_order.length==1}" v-if="getBool(qualification.main_assist_order,1)">主单(能写报告)</span>
                  </p>
                </div>
                <div class="line fl" v-if="qualification.main_assist_order.length!=0"></div>
@@ -111,7 +111,7 @@
                  </p>
                </div>
                <div class="line fl" v-if="qualification.report_language.length!=0"></div>
-               <div class="informationContent fl" style="width:340px;">
+               <div class="informationContent fl" style="width:340px;" v-if="qualification.category_tags.electronics.category_arr.length!=0 && qualification.category_tags.light_industry.category_arr.length!=0 && qualification.category_tags.textile.category_arr.length!=0">
                  <p class="informationTitle">可抢产品分类</p>
                  <p class="informationList clearfix">
                    <span class="fl" v-if="Object.keys(qualification.category_tags.electronics).length != 0">

@@ -190,7 +190,12 @@ export default {
       cloneB: '',
       cloneC:'',
       cloneD:'',
-      cloneE: {},
+      cloneE: {
+        sampling:{
+          params:{}
+        },
+        
+      },
       cloneF:'',
       ClonebStatu:'',
       CloneCStatu:'',
@@ -205,12 +210,17 @@ export default {
   methods: {
     setData(data, Deepclone) {
       if (data) {
-        
+        console.log(data)
         this.data = this._.cloneDeep(data)
-        this.data = this.data.hasOwnProperty("conclusion") ? this.data : this.$set(this.data,'conclusion',{}) 
-      
+        if (!this._.has(this.data, 'conclusion')) {
+          this.data.conclusion = {}
+
+        }
+        // this.data = this.data.hasOwnProperty("conclusion") ? this.data : this.$set(this.data,'conclusion',{}) 
+        // console.log(this.data)
         
-        console.log(this.data) 
+        
+        console.log('xxx') 
       } else {
         const _data = this._.cloneDeep(defaultData)
         this.data = _data

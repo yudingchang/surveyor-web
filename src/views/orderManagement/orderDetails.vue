@@ -486,7 +486,7 @@
 
 <script>
 const moment = require('moment')
-import ShowFile from '../../components/showfile'
+import ShowFile from '@/components/showfile'
 // import { getOrderList } from "@/api/order";
 import { orderDetail , chargeBack} from '@/api/dashboard'
 export default {

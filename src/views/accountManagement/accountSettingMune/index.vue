@@ -64,6 +64,14 @@
             <span v-else @click="modifyPayWord()">重置</span>
           </p>
         </div>
+        <!-- 注销账户 -->
+        <div class="Setting-info-loginPassword">
+          <p>注销账户</p>
+          <p>
+            <span class="accountCancel" @click="accountCancel()">销户</span>
+            <!-- <span @click="resetLoginpass">重置</span> -->
+          </p>
+        </div>
       </el-col>
     </el-row>
     <!-- 修改手机号码 -->
@@ -163,6 +171,30 @@
         <el-button style="background:#FFA800;border:none;width:140px;" type="primary" @click="modifyPaySubmit()">确 定</el-button>
       </div>
     </el-dialog>
+    <!-- 账户注销失败 -->
+    <el-dialog :visible.sync="accountCancelForm.failDialogFormVisible" width="500px" center>
+      <div class="dialogContent">
+        <i class="iconfont icon-hebingxingzhuang9" style="color:#EF3535"></i>
+        <p class="text1">无法注销</p>
+        <p class="text2">您有进行中的订单未完成</p>
+        <p class="text2">您有纠纷订单未处理完成</p>
+        <p class="text2">您完成的订单时间未满30天</p>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button style="background:#FFA800;border:none;width:140px;" type="primary" @click="goOrderList()">确 定</el-button>
+      </div>
+    </el-dialog>
+    <!-- 账户注销成功 -->
+    <el-dialog :visible.sync="accountCancelForm.successDialogFormVisible" width="500px" center>
+      <div class="dialogContent">
+        <i class="iconfont icon-hebingxingzhuang8" style="color:#EF3535"></i>
+        <p class="text1">账号注销后，您将无法在测库继续接单，<br/> 请确保您在钱包账户中的银行信息正确。</p>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button style="color:#909399;width:140px;" @click="accountCancelForm.successDialogFormVisible=false">取 消</el-button>
+        <el-button style="background:#FFA800;border:none;width:140px;" type="primary" @click="confirmAccountCancel()">确 定</el-button>
+      </div>
+    </el-dialog>
 
 
   </div>
@@ -170,7 +202,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import store from '../../../store/'
+import store from '@/store/'
 import { sendMa } from '@/api/walletDetail'
 import { changeUserInfo , set_password} from '@/api/accountSetting'
 
@@ -207,6 +239,10 @@ export default {
         emailText:'设置支付密码',
         reviseMailSuccess:false,
       }, 
+      accountCancelForm:{
+        failDialogFormVisible:false,
+        successDialogFormVisible:false
+      },
       imageUrl:'',     
       
     }
@@ -491,20 +527,27 @@ export default {
 
     },
     handleAvatarSuccess(res, file) {
-        this.imageUrl = URL.createObjectURL(file.raw);
-      },
-      beforeAvatarUpload(file) {
-        const isJPG = file.type === 'image/jpeg';
-        const isLt2M = file.size / 1024 / 1024 < 2;
+      this.imageUrl = URL.createObjectURL(file.raw);
+    },
+    beforeAvatarUpload(file) {
+      const isJPG = file.type === 'image/jpeg';
+      const isLt2M = file.size / 1024 / 1024 < 2;
 
-        if (!isJPG) {
-          this.$message.error('上传头像图片只能是 JPG 格式!');
-        }
-        if (!isLt2M) {
-          this.$message.error('上传头像图片大小不能超过 2MB!');
-        }
-        return isJPG && isLt2M;
+      if (!isJPG) {
+        this.$message.error('上传头像图片只能是 JPG 格式!');
       }
+      if (!isLt2M) {
+        this.$message.error('上传头像图片大小不能超过 2MB!');
+      }
+      return isJPG && isLt2M;
+    },
+    accountCancel(){
+      this.accountCancelForm.failDialogFormVisible = true
+    },
+    goOrderList(){
+      this.accountCancelForm.failDialogFormVisible = false
+      this.$router.push({name: 'examineGood'})
+    }
 
   },
 }
@@ -1193,6 +1236,10 @@ export default {
         height:24px;
         line-height: 24px;
         margin-bottom:45px;
+        .accountCancel{
+          color: #ffa800 !important;
+          cursor: pointer;
+        }
         p{
           float:left;
           height:24px;
@@ -1229,6 +1276,7 @@ export default {
       .Setting-info-payPassword{
         height:24px;
         line-height: 24px;
+        margin-bottom:45px;
         p{
           float:left;
           height:24px;
@@ -1261,6 +1309,9 @@ export default {
             cursor: pointer;
           }
         }
+      }
+      .Setting-info-unsubscribe{
+
       }
   }
 }

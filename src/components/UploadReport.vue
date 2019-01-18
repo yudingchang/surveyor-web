@@ -82,6 +82,7 @@ export default {
       return prettyFileIcons.getIcon(url)
     },
     handleBeforeUpload(file) {
+      console.log(file.type)
       if (this.mimes && !this.mimes.includes(file.type)) {
         this.$message.error(`上传图片只能是 ${this.mimes.join(',')} 格式!`)
         return false
@@ -130,7 +131,7 @@ export default {
   @include clearfix;
   .file-icon {
     font-size: 56px;
-    margin-top:22px;
+    margin-top:22px;   
   }
   .image-uploader {
     width: 60%;

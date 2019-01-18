@@ -2,7 +2,9 @@
   <div>
       <ul class="fileList">
           <li v-for="(item,index) in fileList" :key="index"> 
-                <img :src="item.url" alt="">
+                <div>
+                    <svg-icon :icon-class="getFileExtensions('_.'+item.extension)" class-name="file-icon"/>
+                </div>
                 <p class="bottom">{{item.name}}</p>
           </li>
       </ul>
@@ -10,6 +12,7 @@
 </template>
 
 <script>
+import prettyFileIcons from 'pretty-file-icons'
 export default {
   name: '',
   props:{
@@ -27,6 +30,11 @@ export default {
   },
   mounted(){
     // console.log(this.$route.fullPath) 
+  },
+  methods: {
+      getFileExtensions(url) {
+      return prettyFileIcons.getIcon(url)
+    },
   }
 }
 </script>
@@ -45,12 +53,19 @@ export default {
             width: 100%;
             height: 100%;
         }
+        .file-icon {
+            font-size: 56px;
+            margin-top:22px;
+            text-align: center;
+            display:block;
+            margin: 0 auto;
+        }
         .bottom{
             width: 120px;
             white-space:nowrap;
             text-overflow:ellipsis;
             overflow:hidden;
-            position: absolute;
+            // position: absolute;
             background: #FFFFFF;
             opacity: 0.8;
             bottom: 0;
