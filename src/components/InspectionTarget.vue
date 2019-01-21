@@ -2,6 +2,8 @@
   <el-form ref="targetForm" :model="target" class="targetForm">
     <el-form-item style="width:428px;">
       <!-- 选择国家 -->
+      <!-- {{target.location_ids}} -->
+      <!-- {{locationOptions}} -->
       <el-col :span="8">
         <el-form-item
           :rules="[{ required: true, message: $t('rules.required.country'), trigger: 'blur' }]"
@@ -72,16 +74,20 @@ export default {
     }
   },
   watch: {
-    'target.country_id'(newValue, oldValue) {
+    'target.country_id' : {
       // if (newValue && newValue != oldValue) {
       //   this.fillLocationOptions(newValue)
       // }
-      this.fillLocationOptions(newValue)
+      handler(val, oldVal) {
+        this.fillLocationOptions(val);
+      },
+      deep: true
     }
   },
   created() {
     //   console.log(this.countryOptions)
     this.getCountryOptions()
+    this.fillLocationOptions(this.target.country_id);
   },
   methods: {
     // 查找国家
@@ -105,20 +111,20 @@ export default {
       return country ? country.chinese_name : ''
     },
     // 查找地址
-    filterLocationLabel(val) {
-      let address = ''
-      let current = this.locationOptions
-      this.lodash.each(val, id => {
-        const i = this.lodash.find(current, location => {
-          return location.id == id
-        })
-        if (i) {
-          address += i.chinese_name
-        }
-        current = i.children_simple ? i.children_simple : []
-      })
-      return address
-    },
+    // filterLocationLabel(val) {
+    //   let address = ''
+    //   let current = this.locationOptions
+    //   this.lodash.each(val, id => {
+    //     const i = this.lodash.find(current, location => {
+    //       return location.id == id
+    //     })
+    //     if (i) {
+    //       address += i.chinese_name
+    //     }
+    //     current = i.children_simple ? i.children_simple : []
+    //   })
+    //   return address
+    // },
     handleMapDialogOpened() {
       const that = this
       const location = this.target.position

@@ -236,7 +236,21 @@ export default {
       canChase: false,
       // 资料完善度
       informationComplete:true,
-      qualification:{}
+      qualification:{
+        main_assist_order:'',
+        report_language:'',
+        category_tags:{
+          electronics : {
+            category_arr : ''
+          },
+          light_industry :{
+            category_arr : ''
+          },
+          textile : {
+            category_arr : ''
+          }
+        }
+      }
     }
   },
   computed: {

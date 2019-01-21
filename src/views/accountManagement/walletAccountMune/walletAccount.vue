@@ -279,6 +279,7 @@ export default {
       ],
       tableData: [],
       tableData2: [],
+      tableData3 : [],
       num: 0,
       balance: '',
       freeze: ''
@@ -425,11 +426,10 @@ export default {
       // this.filters.currentpage = val;
       this.getCashList()
     },
-    handleCurrentChange(val) {
+    CashCurrentChange(val){
       this.Cashfilters.page = val
       this.Cashfilters.currentpage = val
       this.getCashList()
-      // console.log(`当前页: ${val}`);
     },
     DepositSizeChange(val) {
       this.Cashfilters.rows = val

@@ -422,13 +422,15 @@
                   :prop="'experienceFormArray.' + index + '.company_nature'"
                   label="公司性质"
                 >
-                  <span>{{ jsonGetName(inspectorCompanyNatureArr,item.company_nature) }}</span>
+                <!-- jsonGetName(inspectorCompanyNatureArr,item.company_nature)  -->
+                  <span>{{ _.get(inspectorCompanyNatureArr,item.company_nature,'')}}</span>
                 </el-form-item>
                 <el-form-item
                   :prop="'experienceFormArray.' + index + '.company_scale'"
                   label="公司规模"
                 >
-                  <span>{{ jsonGetName(inspectorCompanyScaleArr,item.company_scale) }}</span>
+                <!-- jsonGetName(inspectorCompanyScaleArr,item.company_scale) -->
+                  <span>{{ _.get(inspectorCompanyScaleArr,item.company_scale,'')  }}</span>
                 </el-form-item>
                 <el-form-item
                   :prop="'experienceFormArray.' + index + '.is_full_time'"
@@ -569,7 +571,7 @@
                   label="学历"
 
                 >
-                  <span>{{ jsonGetName(inspectorEducationArr,item.education) }}</span>
+                  <span>{{  _.get(inspectorEducationArr,item.education,'') }}</span>
                 </el-form-item>
                 <el-form-item
                   :prop="'educationFormArray.' + index + '.is_full_time'"
@@ -1004,6 +1006,7 @@ export default {
     return {
       tableData: [],
       supplier: {
+        country_id:13
         //    location_ids:['247','4171','4190'],
         //    country_id:7
       },

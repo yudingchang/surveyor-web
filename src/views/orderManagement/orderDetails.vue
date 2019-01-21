@@ -579,7 +579,11 @@ export default {
       editableTabsValue2: 'tab1',
       fundamentalState: {
         other_fee: '',
-        order: '',
+        order: {
+          files : '',
+          mailings : '',
+          sampling_information : ''
+        },
         system_contact: '',
         inspection_address: '',
         inspection_first_date:''
