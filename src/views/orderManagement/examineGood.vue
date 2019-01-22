@@ -341,7 +341,7 @@ export default {
     //跳转报告管理
     viewReport(row){
       this.$router.push({
-        path:'reporteManager',
+        path:'reporteManager/index',
         query:{
           number:row.number
         }

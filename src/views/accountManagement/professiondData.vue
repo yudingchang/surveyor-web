@@ -422,15 +422,13 @@
                   :prop="'experienceFormArray.' + index + '.company_nature'"
                   label="公司性质"
                 >
-                <!-- jsonGetName(inspectorCompanyNatureArr,item.company_nature)  -->
-                  <span>{{ _.get(inspectorCompanyNatureArr,item.company_nature,'')}}</span>
+                  <span>{{ (_.get(inspectorCompanyNatureArr,item.company_nature,{label:''})).label}}</span>
                 </el-form-item>
                 <el-form-item
                   :prop="'experienceFormArray.' + index + '.company_scale'"
                   label="公司规模"
                 >
-                <!-- jsonGetName(inspectorCompanyScaleArr,item.company_scale) -->
-                  <span>{{ _.get(inspectorCompanyScaleArr,item.company_scale,'')  }}</span>
+                  <span>{{ (_.get(inspectorCompanyScaleArr,item.company_scale,{label:''})).label  }}</span>
                 </el-form-item>
                 <el-form-item
                   :prop="'experienceFormArray.' + index + '.is_full_time'"
@@ -571,7 +569,7 @@
                   label="学历"
 
                 >
-                  <span>{{  _.get(inspectorEducationArr,item.education,'') }}</span>
+                  <span>{{  (_.get(inspectorEducationArr,item.education,{label:''})).label }}</span>
                 </el-form-item>
                 <el-form-item
                   :prop="'educationFormArray.' + index + '.is_full_time'"
@@ -687,7 +685,6 @@
               <el-form-item
                 :prop="'technicalCompetenceFormArray.' + index + '.level_attained'"
                 label="英语水平"
-
                 label-width="100px"
               >
                 <span v-if="item.level_attained == 1">一般</span>
@@ -1006,7 +1003,7 @@ export default {
     return {
       tableData: [],
       supplier: {
-        country_id:13
+        // country_id:13
         //    location_ids:['247','4171','4190'],
         //    country_id:7
       },
@@ -1900,11 +1897,11 @@ export default {
       // }).join(' , ') : 2
     },
     // 去对象里面的key
-    jsonGetName(item, key) {
-      return item.find(t =>
-        t.id == key
-      ).label
-    }
+    // jsonGetName(item, key) {
+    //   return item.find(t =>
+    //     t.id == key
+    //   ).label
+    // }
   }
 }
 </script>

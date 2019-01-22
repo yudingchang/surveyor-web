@@ -84,7 +84,7 @@ export const constantRouterMap = [
         path: 'dashboard',
         component: () => import('@/views/controlboard/index'),
         name: 'Dashboard',
-        meta: { title: '控制台', icon: 'dashboard', noCache: true }
+        meta: { title: '控制台', icon: 'desk', noCache: true }
       },
       {
         path: 'grabList',
@@ -311,7 +311,7 @@ export const asyncRouterMap = [
     name: 'orderManagement',
     meta: {
       title: '订单管理',
-      icon: 'excel'
+      icon: 'good'
     },
     children: [
       {
@@ -388,7 +388,7 @@ export const asyncRouterMap = [
     name: 'accountManagement',
     meta: {
       title: '账户信息',
-      icon: 'excel'
+      icon: 'account'
     },
     children: [
       {
@@ -445,6 +445,15 @@ export const asyncRouterMap = [
             name: 'walletDetail',
             meta: {
               title: '钱包详情'
+            }
+          },
+          {
+            path: 'bailDetail',
+            hidden: true,
+            component: () => import('@/views/accountManagement/walletAccountMune/bailDetail'),
+            name: 'bailDetail',
+            meta: {
+              title: '保证金详情'
             }
           },
           {

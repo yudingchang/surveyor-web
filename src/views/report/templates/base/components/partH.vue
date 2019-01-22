@@ -22,15 +22,23 @@
                     第<el-input-number v-model="data.number" :min="1" controls-position="right" style="width: 120px; margin: 0 7px;"/>次检验
                   </el-form-item>
                 </td>
-                <td rowspan="12" style="width: 450px;">
+                <td rowspan="12" style="width:450px;position:relative" >
                   <el-upload
                     :action="uploadUrl"
                     :headers="uploadHeaders"
                     :show-file-list="false"
                     :on-success="handleSuccess"
-                    :before-upload="handleBeforeUpload">
+                    :on-remove="handleRemove"
+                    :before-upload="handleBeforeUpload"
+                    style="position:absolute;top:0;right:0;width:100%"
+                    >
                     <img v-if="data.file" :src="data.file.url" class="avatar">
-                    <i v-else class="el-icon-plus avatar-uploader-icon"/>
+                    <!-- <i v-else class="el-icon-plus avatar-uploader-icon"/> -->
+                    <div class="noFileStyle" v-else>
+                      <i class="iconfont icon-IconCopy1"></i>
+                      <p>上传图片</p>
+                      <p>图片大小≤10M，格式jpg/png</p>
+                    </div>
                   </el-upload>
                 </td>
               </tr>
@@ -286,12 +294,41 @@ export default {
           url: response.data.url
         }
       }
-    }
+    },
+    // 移除图片
+    handleRemove(file, fileList) {
+      console.log(file, fileList);
+    },
   }
 }
 </script>
 
-<style>
+<style lang="scss">
+.tc-report-card {
+  .noFileStyle{
+    padding-top:300px;
+    i{
+      color:#FFA800;
+      font-size: 36px;
+    }
+    p:nth-child(2){
+      font-size:22px;
+      color:#7F8FA4;
+    }
+    p:nth-child(3){
+      font-size:16px;
+      color:#EF3535;
+      margin-top:25px;
+    }
+
+  }
+  .el-upload {
+    width: 80%;
+    .avatar{
+      width: 100%;
+    }
+  }
+}
   /* .avatar-uploader .el-upload {
     width: 450px;
     border-radius: 6px;

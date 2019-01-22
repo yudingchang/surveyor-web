@@ -74,6 +74,13 @@ export function walletDetail(query) {
   })
 }
 
+export function bailDetail(query) {
+  return request({
+    url: '/v1/inspector/freeze/' + query.id,
+    method: 'GET'
+  })
+}
+
 export function withdrawRecordDetail(query) {
   return request({
     url: '/v1/inspector/withdraw/' + query.id,

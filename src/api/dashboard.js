@@ -96,6 +96,14 @@ export function qualification(data) {
   })
 }
 
+// 一键下载
+export function download(data) {
+  return request({
+    url: '/v1/inspector/service/' + data + '/package',
+    method: 'get'
+  })
+}
+
 export function logout() {
   return request({
     url: '/login/logout',

@@ -445,6 +445,11 @@ $TotleLeft:500px;
             color: #F5A623;
         }
     }
+    .orangeText{
+      color:#FFA800;
+      font-size:12px !important;
+      display: inline-block;
+    }
     // 抢单列表
     .grabSheet{
         margin-top: 16px;

@@ -117,7 +117,8 @@
                   无
                 </div>
                 <div v-if="fundamentalState.order.files.length>0">
-                  <ShowFile :file-list="files"/>
+                  <ShowFile :file-list="files" :canDownLoad="true"/>
+                  <el-button @click="download()" type="success" style="margin-top:24px;" icon="el-icon-download">一键下载</el-button>
                 </div>              
               </el-form-item>
             </el-form>
@@ -488,7 +489,7 @@
 const moment = require('moment')
 import ShowFile from '@/components/showfile'
 // import { getOrderList } from "@/api/order";
-import { orderDetail , chargeBack} from '@/api/dashboard'
+import { orderDetail , chargeBack , download} from '@/api/dashboard'
 export default {
   components: {
     ShowFile
@@ -689,6 +690,14 @@ export default {
         this.canPhoneChargeBack = false
       }
       return new Date().getTime() > checkproduct-86400000 + 86400000/24*10 ? false : true 
+    },
+    // 一键下载
+    download(){
+      download(this.orderId).then(res =>{
+        if(res.data.code == 0){
+          window.location.href = res.data.data.url
+        }
+      })
     }
   }
 }

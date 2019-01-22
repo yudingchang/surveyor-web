@@ -102,9 +102,11 @@
                   label="创建时间"
                   sortable
                 />
-                <el-table-column :filters="[{ text: '钱包转入', value: '钱包转入' }, { text: '验货扣款', value: '验货扣款' },{ text: '退单扣款', value: '退单扣款' }]" :filter-method="filterTag" prop="tag" label="类型" filter-placement="bottom-end">
+                <el-table-column :filters="[{ text: '验货扣款', value: '1' }, { text: '退单扣款', value: '2' },{ text: '钱包转入', value: '3' }]" :filter-method="filterstatus" prop="status" label="类型" filter-placement="bottom-end">
                   <template slot-scope="scope">
-                    <span :type="scope.row.tag === '家' ? 'primary' : 'success'" disable-transitions>{{ scope.row.tag }}</span>
+                    <span v-if="scope.row.status=='1'" disable-transitions>验货扣款</span>
+                    <span v-if="scope.row.status=='2'" disable-transitions>退单扣款</span>
+                    <span v-if="scope.row.status=='3'" disable-transitions>钱包转入</span>
                   </template>
                 </el-table-column>
                 <el-table-column
@@ -132,7 +134,7 @@
                 <el-table-column
                   label="操作">
                   <template slot-scope="scope">
-                    <el-button type="text">详情</el-button>
+                    <el-button type="text"  @click="goBailDetail(scope.row)">详情</el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -387,6 +389,9 @@ export default {
     filterTag(value, row) {
       return row.type === value
     },
+    filterstatus(value, row) {
+      return row.status === value
+    },
     // 跳转提现
     goWithDrawCash() {
       this.$router.push({
@@ -446,6 +451,15 @@ export default {
     goDetail(row) {
       this.$router.push({
         path: 'walletDetail',
+        query: {
+          id: row.id
+        }
+      })
+    },
+    // 保证金明细
+    goBailDetail(row){
+      this.$router.push({
+        path: 'bailDetail',
         query: {
           id: row.id
         }

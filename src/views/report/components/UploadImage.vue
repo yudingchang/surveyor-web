@@ -78,14 +78,14 @@ export default {
       return prettyFileIcons.getIcon(url)
     },
     handleBeforeUpload(file) {
-      if (!['image/jpeg', 'image/png'].includes(file.type)) {
-        this.$message.error('上传图片只能是 JPG/PNG 格式!')
-        return false
-      }
-      if (file.size / 1024 / 1024 > 10) {
-        this.$message.error('上传图片大小不能超过 10MB!')
-        return false
-      }
+      // if (!['image/jpeg', 'image/png'].includes(file.type)) {
+      //   this.$message.error('上传图片只能是 JPG/PNG 格式!')
+      //   return false
+      // }
+      // if (file.size / 1024 / 1024 > 10) {
+      //   this.$message.error('上传图片大小不能超过 10MB!')
+      //   return false
+      // }
       file.percent = 0
       this.uploadingFiles.push(file)
     },
@@ -125,6 +125,9 @@ export default {
   .image-uploader {
       width: 60%;
       float: left;
+  }
+  .el-progress{
+    margin-top: 67px;
   }
   .image-preview {
     position: relative;

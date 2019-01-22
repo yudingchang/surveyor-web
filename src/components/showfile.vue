@@ -2,10 +2,13 @@
   <div>
       <ul class="fileList">
           <li v-for="(item,index) in fileList" :key="index"> 
-                <div>
-                    <svg-icon :icon-class="getFileExtensions('_.'+item.extension)" class-name="file-icon"/>
-                </div>
-                <p class="bottom">{{item.name}}</p>
+            <div>
+                <svg-icon :icon-class="getFileExtensions('_.'+item.extension)" class-name="file-icon"/>
+            </div>
+            <p class="bottom">{{item.name}}</p>
+            <span class="bgcover" v-if="canDownLoad == true">
+                <i class="el-icon-download" @click="download(item.url)"></i>
+            </span>
           </li>
       </ul>
   </div>
@@ -16,10 +19,19 @@ import prettyFileIcons from 'pretty-file-icons'
 export default {
   name: '',
   props:{
-      fileList: Array,
-      required: true
+      fileList:{
+        type:Array,
+        'default': null
+      },
+      canDownLoad:{
+        type:Boolean,
+        'default': false
+      }
   },
   components: {  },
+  created(){
+
+  },
   computed: {
     // cachedViews() {
     //   return this.$store.state.tagsView.cachedViews
@@ -35,6 +47,9 @@ export default {
       getFileExtensions(url) {
       return prettyFileIcons.getIcon(url)
     },
+    download(row){
+        window.location.href = row
+    }
   }
 }
 </script>
@@ -42,10 +57,13 @@ export default {
 <style rel="stylesheet/scss" lang="scss" scoped>
 .fileList{
     overflow: hidden;
+    >li:hover .bgcover{
+        display: block;
+    }
     >li{
         float: left;
         width: 120px;
-        height: 120px;
+        // height: 120px;
         margin-left: 16px;
         position: relative;                                                     
         >img{                                       
@@ -54,7 +72,7 @@ export default {
             height: 100%;
         }
         .file-icon {
-            font-size: 56px;
+            font-size: 40px;
             margin-top:22px;
             text-align: center;
             display:block;
@@ -70,15 +88,36 @@ export default {
             opacity: 0.8;
             bottom: 0;
             left: 0;       
-            height: 24px;
+            height: 21px;
             text-align: center;
-            line-height: 24px;
+            line-height: 21px;
             color: #164061;
+            margin-top:6px;
+        }
+        .bgcover{
+            display: none;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 4px;
+            left: 0;
+            top: 0;
+            cursor: pointer;
+            text-align: center;
+            color: #fff;
+            /* opacity: 0; */
+            font-size: 20px;
+            background-color: rgba(0,0,0,.5);
+            transition: opacity .3s;
+            i{
+                line-height: 67px;
+            }
         }
     }
     >li:first-child{
         margin-left: 0;
     }
+    
 }
 </style>
 

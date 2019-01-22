@@ -607,6 +607,9 @@ export default {
       
     }
   }
+  .el-form-item.is-success .el-input__inner{
+    border-color: #dcdfe6; 
+}
   .modify2.is-error .el-input__inner{
       border-color: #dcdfe6 !important;
     }
