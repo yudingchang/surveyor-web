@@ -21,7 +21,6 @@
         <div class="Setting-info-Mobile">
           <p>手机号码</p>
           <p>
-            
             <span v-if="phonenumber == ''">未绑定</span>
             <span v-else>{{phonenumber}}</span>
             <span  v-if="phonenumber == ''">立即绑定</span>
@@ -77,15 +76,16 @@
     <!-- 修改手机号码 -->
     <el-dialog title="修改手机号码" :visible.sync="form.dialogFormVisible" width="400px" center>
       <el-form :model="form" ref='form'>
-        <el-form-item class="modifyPhone" prop="phone_number" :rules="[{ required: true, message: '请输入手机号', trigger: 'blur' }]">
-          <el-input placeholder="请输入手机号" v-model="form.phone_number" class="input-with-select">
-            <el-select v-model="form.phone_number_code" slot="prepend" placeholder="请选择" style="width:180px">
-              <el-option
-                v-for="item in options"
+        <el-form-item class="modifyPhone" prop="phone_number" :rules="[{ required: true, message: '请输入手机号码', trigger: 'blur' }]">
+          <el-input placeholder="请输入手机号码" v-model="form.phone_number" class="input-with-select">
+            <el-select disabled   slot="prepend" placeholder="中国大陆 +86" style="width:180px">
+              <!-- <el-option
+                v-for="item in configs.phone_number_codes"
                 :key="item.value"
                 :label="item.label"
                 :value="item.value">
-              </el-option>
+              </el-option> -->
+              <el-option>中国大陆 +86</el-option> 
             </el-select>
           </el-input>
         </el-form-item>
@@ -255,14 +255,11 @@ export default {
       'email',
       'is_paypassword',
       'avatar',
-      'device'
+      'device',
+      'configs'
     ])
   },
   created(){
-    let Configs = JSON.parse(window.localStorage.getItem('Configs'))
-    this.options = Configs.phone_number_codes
-    // this.getAccountInfoData()
-    // console.log(new Date)
   },
   methods:{
     //打开页面获取账户信息
@@ -275,6 +272,11 @@ export default {
     },
     modifyPhone(){
       this.form.dialogFormVisible = true
+      this.form.phone_number = ''
+      this.form.verification_code = ''
+      this.$refs['form'].resetFields()
+      // this.form = {}
+
     },
      modifyEmail(){
        if(this.email == null){
@@ -283,6 +285,9 @@ export default {
          this.emailForm.emailText = '修改电子邮箱'
        }
       this.emailForm.dialogFormVisible = true
+      this.emailForm.email = ''
+      this.emailForm.verification_code = ''
+      this.$refs['emailForm'].resetFields()
     },
   // 手机号绑定验证码
     secondStepSendMa() {

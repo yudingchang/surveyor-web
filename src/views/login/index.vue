@@ -7,6 +7,10 @@
         400-627-8168
       </span>
     </div>
+    <!-- 底部 -->
+    <div class="loginBottom">
+      © 2016 测库 · 移动应用 · 联系我们 · 浙 ICP 备 16028323 号-1
+    </div>  
 
     <!-- 登录界面主体 -->
     <el-form v-if="loginShow" class="login-form-box">
@@ -15,16 +19,20 @@
         <p class="textTitle">手机号码登录</p>
         <el-form-item prop="username" class="phone-email clearfloat">
           <span class="phone-style">
-            {{ phoneLoginForm.phone_number_code?phoneLoginForm.phone_number_code:'中国大陆 +86' }}
+            中国大陆 +86
+            <!-- {{ phoneLoginForm.phone_number_code?phoneLoginForm.phone_number_code:'中国大陆 +86' }} -->
           </span>
-          <span class="arrow-next" @click="getpopover()"/>
+          <!--  @click="getpopover()" -->
+          <span class="arrow-next"/>
           <el-input
             v-model="phoneLoginForm.phone_number"
-            placeholder="请输入电话号码"
+            placeholder="请输入手机号码"
             name="username"
             type="text"
             class="phone-email-content"
             autocomplete="new-password"
+            maxlength='20'
+            @keyup.enter.native="loginByPhone"
           />
           <div v-show="popoverShow" class="popover">
             <ul>
@@ -33,7 +41,7 @@
             <div class="popper-arrow"/>
           </div>
         </el-form-item>
-        <el-form-item prop="username" class="email">
+        <el-form-item prop="username" class="email" style="margin-bottom:0">
           <span>
             <img src="/static/image/password.png" alt="">
           </span>
@@ -43,10 +51,12 @@
             name="username"
             type="password"
             class="email-content"
+            maxlength='20'
             auto-complete="new-password"
+            @keyup.enter.native="loginByPhone"
           />
         </el-form-item>
-        <p class="text1" @click="forgetPassword()">忘记密码?</p>
+        <p class="text1"> <span @click="forgetPassword()">忘记密码?</span> </p>
         <el-button :disabled="(phoneLoginForm.phone_number=='') || (phoneLoginForm.password=='')" :class="{disabled:(phoneLoginForm.phone_number=='') || (phoneLoginForm.password==''),isactive:(phoneLoginForm.phone_number!='') && (phoneLoginForm.password!='')}" type="primary" @click="loginByPhone()">登录</el-button>
         <p class="tip">还没加入测库? <a @click="toregister">立即注册</a></p>
       </el-form>
@@ -128,7 +138,8 @@
           <span class="phone-style">
             {{ phoneRegisterForm.phone_number_code?phoneRegisterForm.phone_number_code:'中国大陆 +86' }}
           </span>
-          <span class="arrow-next" @click="getpopover()"/>
+          <!-- @click="getpopover()" -->
+          <span class="arrow-next" />
           <el-input
             v-model="phoneRegisterForm.phone_number"
             placeholder="请输入手机号码"
@@ -154,9 +165,9 @@
             type="text"
             class="ma-input email-content"
           />
-          <div :class="{sendma:true,changeColor:sendMaDisabled}" :disabled="sendMaDisabled" @click="sendMa()" >
+          <el-button :class="{sendma:true,changeColor:sendMaDisabled}" :disabled="sendMaDisabled" @click="sendMa()" >
             {{ secondStepText }}
-          </div>
+          </el-button>
         </el-form-item>
         <el-form-item prop="username" class="email">
           <span>
@@ -189,17 +200,18 @@
             class="email-content"
           />
         </el-form-item>
+        <el-button type="primary" style="margin-top:18px;" :disabled = "(phoneRegisterForm.phone_number=='')||( phoneRegisterForm.verification_code=='')||( phoneRegisterForm.password=='')||(phoneRegisterForm.confirmpassword=='')" :class="{'disabled':((phoneRegisterForm.phone_number=='') || (phoneRegisterForm.verification_code=='') || (phoneRegisterForm.password=='') || (phoneRegisterForm.confirmpassword=='')),'isactive':((phoneRegisterForm.phone_number!='') && (phoneRegisterForm.verification_code!='') && (phoneRegisterForm.password!='') && (phoneRegisterForm.confirmpassword!=''))}"  @click="userRegister()">注册</el-button>
+        <el-button type="primary" class="btnreturn margin16" @click="goLogin">返回登录</el-button>
+        <p class="tip"><el-checkbox v-model="checked"/><span class="agreement">我已阅读并同意<a href="">《用户协议》</a></span></p>
         <!-- <el-button type="primary"  class="isactive margin40">注册</el-button>
         <el-button type="primary"  class="btnreturn margin16">返回登录</el-button>
         <p class="tip"><el-checkbox v-model="checked"></el-checkbox><span class="agreement">我已阅读并同意<a href="">《用户协议》</a></span></p> -->
       </el-form>
-      <el-button type="primary" class="isactive" @click="userRegister()">注册</el-button>
-      <el-button type="primary" class="btnreturn margin16" @click="goLogin">返回登录</el-button>
-      <p class="tip"><el-checkbox v-model="checked"/><span class="agreement">我已阅读并同意<a href="">《用户协议》</a></span></p>
+      
       <!-- 注册报错信息报文 -->
       <div v-if="registerwrongPump" class="errorPump">
         <div class="error-content">{{ registerWrongMessage }}</div>
-        <div class="errorPump-arrow"/>
+        <div class="errorPump-arrow" />
       </div>
     </el-form>
 
@@ -268,7 +280,7 @@
         <div class="btn-recovery-return margin70" @click="goLogin()">返回登录</div>
       </div> -->
       <div v-if="secondStepShow" class="second-step" >
-        <el-form v-if="secondStepEmailShow" :model="secondStepForm" class="login-form ma-content">
+        <!-- <el-form v-if="secondStepEmailShow" :model="secondStepForm" class="login-form ma-content">
           <el-form-item prop="username" class="email">
             <span>
               <img src="/static/image/email.png" alt="">
@@ -292,20 +304,21 @@
               type="text"
               class="ma-input email-content"
             />
-            <div :class="{sendma:true,changeColor:sendMaDisabled}" :disabled="sendMaDisabled" @click="secondStepSendMa()" >
+            <el-button :class="{sendma:true,changeColor:sendMaDisabled}" :disabled="sendMaDisabled" @click="secondStepSendMa()" >
               {{ secondStepText }}
-            </div>
+            </el-button>
           </el-form-item>
-          <el-button :disabled="secondStepForm.email==''|| secondStepForm.verification_code==''" class="btn-next" @click="goThirdStep()">下一步</el-button>
+          <el-button :class="{disabled:(secondStepForm.phone_number=='') || (phoneLoginForm.password==''),isactive:(phoneLoginForm.phone_number!='') && (phoneLoginForm.password!='')}" :disabled="secondStepForm.email==''|| secondStepForm.verification_code==''" class="btn-next" @click="goThirdStep()">下一步</el-button>
           <el-button class="btn-return-sm" @click="backFirstStep()">返回</el-button>
-        </el-form>
+        </el-form> -->
 
         <el-form v-if="secondStepPhoneShow" :model="secondStepFormPhone" class="login-form ma-content">
           <el-form-item prop="username" class="email phone-email clearfloat secondStepPhone">
             <span class="phone-style">
               {{ secondStepFormPhone.phone_number_code?secondStepFormPhone.phone_number_code:'中国大陆 +86' }}
             </span>
-            <span class="arrow-next" @click="getpopover()"/>
+            <!-- @click="getpopover()" -->
+            <span class="arrow-next"/>
             <el-input
               v-model="secondStepFormPhone.phone_number"
               placeholder="请输入电话号码"
@@ -332,11 +345,11 @@
               type="text"
               class="ma-input email-content"
             />
-            <div :class="{sendma:true,changeColor:sendMaDisabled}" @click="secondStepSendMa()">
+            <el-button :class="{sendma:true,changeColor:sendMaDisabled}" :disabled="sendMaDisabled || secondStepFormPhone.phone_number==''" @click="secondStepSendMa()">
               {{ secondStepText }}
-            </div>
+            </el-button>
           </el-form-item>
-          <el-button :disabled="secondStepFormPhone.phone_number==''|| secondStepFormPhone.verification_code==''" class="btn-next" @click="goThirdStep()">下一步</el-button>
+          <el-button :class="{disabled:(secondStepFormPhone.phone_number=='') || (secondStepFormPhone.verification_code==''),isactive:(secondStepFormPhone.phone_number!='') && (secondStepFormPhone.verification_code!='')}" :disabled="secondStepFormPhone.phone_number==''|| secondStepFormPhone.verification_code==''"  @click="goThirdStep()">下一步</el-button>
           <el-button class="btn-return-sm" @click="backFirstStep()">返回</el-button>
         </el-form>
 
@@ -352,7 +365,7 @@
               placeholder="输入登录密码"
               name="username"
               type="password"
-              class="email-content"
+              class="password-content"
             />
           </el-form-item>
           <el-form-item prop="username" class="email">
@@ -364,10 +377,10 @@
               placeholder="确认输入登录密码"
               name="username"
               type="password"
-              class="email-content"
+              class="password-content"
             />
           </el-form-item>
-          <el-button :disabled="thirdStepForm.password=='' || thirdStepForm.confirmpassword==''" class="btn-next" @click="goFourStep()">下一步</el-button>
+          <el-button :class="{'disabled':(thirdStepForm.password=='') || (thirdStepForm.confirmpassword==''),'isactive':(thirdStepForm.password!='') && (thirdStepForm.confirmpassword!='')}" :disabled="thirdStepForm.password=='' || thirdStepForm.confirmpassword==''"  @click="goFourStep()">下一步</el-button>
           <el-button class="btn-return-sm" @click="backSecondStep()">返回</el-button>
 
         </el-form>
@@ -450,7 +463,7 @@ export default {
       },
       phoneLoginForm: {
         phone_number: '',
-        phone_number_code: '',
+        phone_number_code: 86,
         type: 'phone_number',
         password: ''
       },
@@ -572,7 +585,9 @@ export default {
   },
   methods: {
     goFourStep() {
-      resetPassword({
+      
+      if(this.thirdStepForm.password == this.thirdStepForm.confirmpassword){
+        resetPassword({
         type: 'phone_number',
         verification_code: this.secondStepFormPhone.verification_code,
         phone_number: this.secondStepFormPhone.phone_number,
@@ -586,6 +601,13 @@ export default {
           //  this.registerWrongMessage =
         }
       })
+      }else{
+        this.$message({
+          message: '密码不一致',
+          type: 'warning'
+        });
+      }
+      
 
       // this.active--
     },
@@ -620,6 +642,7 @@ export default {
         'type': 'phone_number'
       }).then(response => {
         if (response.data.code == 0) {
+          this.countDown()
           this.registerwrongPump = false
         }
       })
@@ -634,6 +657,23 @@ export default {
           //  this.registerWrongMessage =
         }
       })
+    },
+    // 注册验证码倒计时
+    countDown() {
+      const TIME_COUNT = 60
+      this.sendMaDisabled = true
+      this.secondStepText = TIME_COUNT
+      clearInterval(this.timer)
+      this.timer = setInterval(() => {
+        if (this.secondStepText > 0 && this.secondStepText <= TIME_COUNT) {
+          this.secondStepText--
+        } else {
+          this.sendMaDisabled = false
+          this.secondStepText = '发送验证码'
+          clearInterval(this.timer)
+          this.timer = null
+        }
+      }, 1000)
     },
     // 第二步发送验证码
     secondStepSendMa() {
@@ -875,16 +915,21 @@ export default {
     },
     // 手机号注册
     userRegister() {
-      userRegister({
-        ...this.phoneRegisterForm
-        // verification_code: this.pwdList.join("")
-      }).then(response => {
-        if (response.data.code == 0) {
-          this.registerResultShow = true
-          this.verifyEmail = false
-          this.registerShow = false
-        }
-      })
+      if(this.phoneRegisterForm.password != this.phoneRegisterForm.confirmpassword){
+        this.registerWrongMessage = '密码不一致'
+        this.registerwrongPump = true
+      }else{
+         userRegister({
+          ...this.phoneRegisterForm
+          // verification_code: this.pwdList.join("")
+        }).then(response => {
+          if (response.data.code == 0) {
+            this.registerResultShow = true
+            this.verifyEmail = false
+            this.registerShow = false
+          }
+        })
+      }   
     },
     getpopover() {
       this.popoverShow = true
@@ -1235,6 +1280,7 @@ $light_gray: #eee;
   height: 100%;
   width: 100%;
   background: url("/static/image/homebackground.png") no-repeat 100% 100%;
+  background-size: cover;
   // 注册成功弹窗
   .registerResult {
     position: absolute;
@@ -1277,13 +1323,13 @@ $light_gray: #eee;
   .password-recovery {
     position: absolute;
     width: 600px;
-    height: 600px;
-    padding: 120px 60px 80px;
+    // height: 500px;
+    padding: 60px;
     background: rgba(255, 255, 255, 0.2);
     left: 50%;
     top: 50%;
     margin-left: -300px;
-    margin-top: -300px;
+    margin-top: -250px;
     .first-step {
       margin-top: 70px;
       .recovery-style {
@@ -1344,6 +1390,7 @@ $light_gray: #eee;
       .ma-content {
         padding: 0;
         .secondStepPhone {
+          padding:0 0 10px 5px;
           .phone-style {
             float: left;
             font-size: 16px;
@@ -1372,16 +1419,38 @@ $light_gray: #eee;
             font-size: 16px;
           }
         }
+        .email{
+          padding: 0 0 10px 5px;
+          span{
+            position: relative;
+            float: left;
+            bottom: -6px;
+          }
+          .password-content{
+            width: 80%;
+            // float: left;
+            // margin-left: 20px;
+            // border: none;
+            // background-color: transparent;
+            font-size: 16px;
+            color: #cfcfcf;
+          }
+        }
         .ma-input {
-          width: 200px;
+          width: 260px;
           border-right: 1px solid #D8D8D8;
+          font-size: 16px;
         }
         .sendma {
           float: right;
-          padding: 0 16px;
+          padding: 0 20px 0 0;
+          height:28px;
+          line-height:28px;
           font-size: 16px;
           color: #ffa800;
           cursor: pointer;
+          background:transparent;
+          border:none;
         }
       }
       .btn-next {
@@ -1579,6 +1648,7 @@ $light_gray: #eee;
       }
     }
   }
+  // 头部
   .hometop {
     width: 80%;
     margin: 40px auto 0 auto;
@@ -1596,6 +1666,15 @@ $light_gray: #eee;
       color: #c0c4cc;
       vertical-align: middle;
     }
+  }
+  // 尾部
+  .loginBottom{
+    position: absolute;
+    bottom: 20px;
+    width: 400px;
+    left: 50%;
+    margin-left: -200px;
+    color:#C0C4CC;
   }
   .login-form-box {
     // position: relative;
@@ -1651,20 +1730,24 @@ $light_gray: #eee;
     }
     .text1 {
       text-align: right;
-      margin:0 5px 30px 0;
+      margin:10px 5px 30px 0;
       font-size: 16px;
       color: #bbbbbb;
-      cursor: pointer;
+      cursor:auto;
+      span{
+        cursor:pointer;
+      }
     }
-    position: absolute;
-    left: 50%;
-    margin-left: -250px;
-    top: 50%;
-    width: 500px;
-    margin-top: -200px;
+     .login-form {
+    position:absolute;
+    width:500px;
+    left:50%;
+    padding: 40px 50px 30px;
+    height:400px;
+    margin-top:-200px;
+    margin-left:-250px;
+    top:50%;
     background-color: rgba(255, 255, 255, 0.2);
-  }
-  .login-form {
     .textTitle{
       font-size:20px;
       color:#ffffff;
@@ -1676,10 +1759,14 @@ $light_gray: #eee;
     }
     .sendma {
       float: right;
-      padding: 0 16px;
+      padding: 0 20px 0 0;
       font-size: 16px;
       color: #ffa800;
       cursor: pointer;
+      height:28px;
+      line-height:28px;
+      background-color:transparent;
+      border:none;
     }
     .phone-email {
       padding: 0 0 10px 5px;
@@ -1796,7 +1883,7 @@ $light_gray: #eee;
         }
       }
     }
-    padding: 40px 50px 30px;
+    
     .tip {
       text-align: center;
       font-size: 14px;
@@ -1811,6 +1898,21 @@ $light_gray: #eee;
       }
     }
   }
+    // position: absolute;
+    // left: 50%;
+    // margin-left: -250px;
+    // top: 50%;
+    // width: 500px;
+
+    
+  }
+  .register-form-box{
+    .login-form{
+      height:550px;
+      margin-top: -275px;
+    }
+  }
+ 
   .tips {
     font-size: 14px;
     color: #fff;

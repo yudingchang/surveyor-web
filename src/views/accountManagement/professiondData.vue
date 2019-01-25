@@ -209,7 +209,7 @@
           >
             <el-form-item label="验货期望地" prop="locations" label-width="100px">
               <ele-multi-cascader
-                :options="optionList"
+                :options="configs.multiCascaderLocations"
                 v-model="examineGoodsForm.locations"
                 style="width:428px;"
                 placeholder="选择运营商"
@@ -338,7 +338,7 @@
                 >
                   <el-select v-model="item.company_nature" placeholder="请选择" class="normalInput">
                     <el-option
-                      v-for="item in inspectorCompanyNatureArr"
+                      v-for="item in configs.inspectorCompanyNatureArr"
                       :key="item.id"
                       :label="item.label"
                       :value="item.id"
@@ -353,7 +353,7 @@
                 >
                   <el-select v-model="item.company_scale" placeholder="请选择" class="normalInput">
                     <el-option
-                      v-for="item in inspectorCompanyScaleArr"
+                      v-for="item in configs.inspectorCompanyScaleArr"
                       :key="item.id"
                       :label="item.label"
                       :value="item.id"
@@ -422,13 +422,13 @@
                   :prop="'experienceFormArray.' + index + '.company_nature'"
                   label="公司性质"
                 >
-                  <span>{{ (_.get(inspectorCompanyNatureArr,item.company_nature,{label:''})).label}}</span>
+                  <span>{{ (_.get(configs.inspectorCompanyNatureArr,item.company_nature,{label:''})).label}}</span>
                 </el-form-item>
                 <el-form-item
                   :prop="'experienceFormArray.' + index + '.company_scale'"
                   label="公司规模"
                 >
-                  <span>{{ (_.get(inspectorCompanyScaleArr,item.company_scale,{label:''})).label  }}</span>
+                  <span>{{ (_.get(configs.inspectorCompanyScaleArr,item.company_scale,{label:''})).label  }}</span>
                 </el-form-item>
                 <el-form-item
                   :prop="'experienceFormArray.' + index + '.is_full_time'"
@@ -508,7 +508,7 @@
                 >
                   <el-select v-model="item.education" placeholder="请输入学历" class="normalInput">
                     <el-option
-                      v-for="item in inspectorEducationArr"
+                      v-for="item in configs.inspectorEducationArr"
                       :key="item.id"
                       :label="item.label"
                       :value="item.id"
@@ -569,7 +569,7 @@
                   label="学历"
 
                 >
-                  <span>{{  (_.get(inspectorEducationArr,item.education,{label:''})).label }}</span>
+                  <span>{{  (_.get(configs.inspectorEducationArr,item.education,{label:''})).label }}</span>
                 </el-form-item>
                 <el-form-item
                   :prop="'educationFormArray.' + index + '.is_full_time'"
@@ -631,7 +631,7 @@
                 <el-upload
                   :action="uploadUrl"
                   :headers="uploadHeaders"
-                  :file-list="item.en_images"
+                  :file-list="_.filter(item.en_images, { detach: false })"
                   :on-remove="handleRemove.bind(this,index)"
                   :on-success="handleSuccess.bind(this,index)"
                   list-type="picture-card"
@@ -652,7 +652,7 @@
                 <el-upload
                   :action="uploadUrl"
                   :headers="uploadHeaders"
-                  :file-list="item.certificate_images"
+                  :file-list="_.filter(item.certificate_images, { detach: false })"
                   :on-remove="handleRemoveCertificate.bind(this,index)"
                   :on-success="handleSuccessCertificate.bind(this,index)"
                   list-type="picture-card"
@@ -733,7 +733,7 @@
                 <el-tree
                   v-show="num == 0"
                   ref="electronics"
-                  :data="multiCascaderIndustrys.electronics"
+                  :data="configs.multiCascaderIndustrys.electronics"
                   :default-checked-keys="multiCascaderIndustrysForm.electronics.category_ids"
                   :props="defaultProps"
                   show-checkbox
@@ -742,7 +742,7 @@
                 <el-tree
                   v-show="num == 1"
                   ref="light_industry"
-                  :data="multiCascaderIndustrys.light_industry"
+                  :data="configs.multiCascaderIndustrys.light_industry"
                   :default-checked-keys="multiCascaderIndustrysForm.light_industry.category_ids"
                   :props="defaultProps"
                   show-checkbox
@@ -751,7 +751,7 @@
                 <el-tree
                   v-show="num == 2"
                   ref="textile"
-                  :data="multiCascaderIndustrys.textile"
+                  :data="configs.multiCascaderIndustrys.textile"
                   :default-checked-keys="multiCascaderIndustrysForm.textile.category_ids"
                   :props="defaultProps"
                   show-checkbox
@@ -1090,7 +1090,6 @@ export default {
           { required: true, message: '请输入培训描述', trigger: 'blur' }
         ]
       },
-      multiCascaderIndustrys: {},
       multiCascaderIndustrysForm: {
         electronics: {
           category_ids: [],
@@ -1275,6 +1274,7 @@ export default {
   computed: {
     ...mapGetters([    
       'email',
+      'configs'
     ]),
     uploadUrl() {
       return process.env.BASE_API + 'v1/upload'
@@ -1297,30 +1297,30 @@ export default {
   },
   created() {
     // this.getgrabSheet()
-    this.getConfigInfo()
+    // this.getConfigInfo()
     this.getPersonalAuthentication()
     this.fillLocationOptions()
   },
   mounted() {},
   methods: {
-    getConfigInfo() {
-      getConfigInfo().then(response => {
-        if (response.data.code == 0) {
-          const {
-            inspectorCompanyNatureArr,
-            inspectorCompanyScaleArr,
-            inspectorEducationArr,
-            multiCascaderLocations,
-            multiCascaderIndustrys
-          } = response.data.data
-          this.inspectorCompanyNatureArr = inspectorCompanyNatureArr
-          this.inspectorCompanyScaleArr = inspectorCompanyScaleArr
-          this.inspectorEducationArr = inspectorEducationArr
-          this.optionList = multiCascaderLocations
-          this.multiCascaderIndustrys = multiCascaderIndustrys
-        }
-      })
-    },
+    // getConfigInfo() {
+    //   getConfigInfo().then(response => {
+    //     if (response.data.code == 0) {
+    //       const {
+    //         inspectorCompanyNatureArr,
+    //         inspectorCompanyScaleArr,
+    //         inspectorEducationArr,
+    //         multiCascaderLocations,
+    //         multiCascaderIndustrys
+    //       } = response.data.data
+    //       // this.inspectorCompanyNatureArr = inspectorCompanyNatureArr
+    //       // this.inspectorCompanyScaleArr = inspectorCompanyScaleArr
+    //       // this.inspectorEducationArr = inspectorEducationArr
+    //       // this.optionList = multiCascaderLocations
+    //       // this.multiCascaderIndustrys = multiCascaderIndustrys
+    //     }
+    //   })
+    // },
     getgrabSheet() {
       grabSheet({}).then(response => {
         if (response.data.code == 0) {
@@ -1920,6 +1920,8 @@ export default {
     border: 1px solid rgba(192, 196, 204, 1);
     border-radius: 4px;
     cursor: pointer;
+    width: 240px;
+    height: 135px;
     position: relative;
     overflow: hidden;
   }
@@ -1945,8 +1947,8 @@ export default {
     color: rgba(144, 147, 153, 1);
   }
   .avatar {
-    width: 240px;
-    height: 135px;
+    width: 100%;
+    // height: 135px;
     display: block;
   }
   .el-form-item__label {
@@ -1994,6 +1996,10 @@ export default {
     color: rgba(127, 143, 164, 1);
     line-height: 1;
     margin-top: 10px;
+  }
+  .el-upload-list--picture-card .el-upload-list__item-thumbnail{
+    width: 100%;
+    height:auto;
   }
   .tip2 {
     color: #7f8fa4;
@@ -2126,7 +2132,7 @@ export default {
       .showImg{
         img{
           width: 240px;
-          height: 135px;
+          // height: 135px;
           display: inline-block;
           margin-right:20px;
         }

@@ -22,6 +22,15 @@ import './errorLog' // error log
 import './permission' // permission control
 import './mock' // simulation data
 import EleMultiCascader from 'ele-multi-cascader'
+import pusher from 'vue-pusher'
+
+Vue.use(pusher, {
+  api_key: '1add4044f09c27600208',
+  options: {
+    cluster: 'ap3',
+    forceTLS: true
+  }
+})
 Vue.use(EleMultiCascader)
 import * as filters from './filters' // global filters
 

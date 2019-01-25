@@ -1,4 +1,4 @@
-import { loginByUsername, logout, getUserInfo, getConfigs } from '@/api/login'
+import { loginByUsername, logout, getUserInfo } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 
 const user = {
@@ -12,6 +12,7 @@ const user = {
     token: getToken(),
     name: '',
     avatar: '',
+    channel: '',
     introduction: '',
     roles: [],
     setting: {
@@ -52,6 +53,9 @@ const user = {
     },
     SET_ROLES: (state, roles) => {
       state.roles = roles
+    },
+    SET_CHANNEL: (state, channel) => {
+      state.channel = channel
     }
   },
 
@@ -82,11 +86,6 @@ const user = {
             reject('error')
           }
           const data = response.data.data
-          getConfigs().then(response => {
-            if(response.data.code == 0){
-              window.localStorage.setItem('Configs', JSON.stringify(response.data.data))
-            }
-          })
           if (data.roles && data.roles.length > 0) { // 验证返回的roles是否是一个非空数组
             commit('SET_ROLES', data.roles)
           } else {
@@ -96,6 +95,7 @@ const user = {
           commit('SET_NAME', data.real_name)
           commit('SET_PHONENUMBER', data.phone_number)
           commit('SET_EMAIL', data.email)
+          commit('SET_CHANNEL', data.channel)
           commit('SET_PAYPASSWORD', data.is_paypassword)
           commit('SET_AVATAR', data.avatar)
           commit('SET_INTRODUCTION', data.introduction)

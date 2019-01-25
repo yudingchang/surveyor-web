@@ -13,7 +13,7 @@
             v-model="data.password"
               placeholder="请输入登录密码"
               name="username"
-              type="text" 
+              type="password" 
             />
           </el-form-item> 
           <el-button @click="goActiveTwo()" class="next">下一步</el-button>
@@ -27,7 +27,7 @@
             v-model="data.new_password"
               placeholder="请输入登录密码"
               name="username"
-              type="text" 
+              type="password" 
             />
           </el-form-item> 
           <el-form-item prop="repeat_new_password" :rules="[{ required: true, message: '请确认输入登录密码', trigger: 'blur' }]">
@@ -36,7 +36,7 @@
             v-model="data.repeat_new_password"
               placeholder="请确认登录密码"
               name="username"
-              type="text" 
+              type="password" 
             />
           </el-form-item> 
           <el-button @click="goActiveThree()" class="next">确认</el-button>

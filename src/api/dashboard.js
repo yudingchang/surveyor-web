@@ -104,6 +104,15 @@ export function download(data) {
   })
 }
 
+// 一键下载
+export function getMessageList(data) {
+  return request({
+    url: '/v1/inspector/message',
+    method: 'get',
+    params: data
+  })
+}
+
 export function logout() {
   return request({
     url: '/login/logout',

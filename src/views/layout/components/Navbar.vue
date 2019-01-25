@@ -5,10 +5,10 @@
     <div class="right-menu">
       <template v-if="device!=='mobile'">
         <span class="phone">
-          <span/>
+          <span></span>
         </span>
-        <span class="news">
-          <span/>
+        <span class="news" @click="getMessageList()">
+          <span></span>
         </span>
         <span style="font-size:14px;color:#ffffff;">欢迎您，</span>
         <span class="userName">{{ name }}</span>
@@ -95,8 +95,22 @@ export default {
       'sidebar',
       'name',
       'avatar',
-      'device'
+      'device',
+      'channel'
     ])
+  },
+  created(){
+    console.log(this)
+    const channel = this.$pusher.subscribe(this.$store.getters.channel)
+    channel.bind('notification',data =>{
+      this.has_message = true
+      this.$notify.info({
+        title:'收到一条消息',
+        position:'bottom-right',
+        message:data.message,
+        duration:20000
+      })
+    })
   },
   methods: {
     toggleSideBar() {
@@ -105,6 +119,11 @@ export default {
     logout() {
       this.$store.dispatch('LogOut').then(() => {
         location.reload()// In order to re-instantiate the vue-router object to avoid bugs
+      })
+    },
+    getMessageList(){
+      this.$router.push({
+        path:'/messageList'
       })
     }
   }

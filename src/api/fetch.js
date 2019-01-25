@@ -1,7 +1,7 @@
 import request from '@/utils/request'
 import qs from 'qs'
 
-export function fetchList(url, query) {
+export function fetchList(query) {
   return request({
     url: 'v1/location/list/all_country',
     method: 'get',
@@ -22,11 +22,11 @@ export function fetchCounty(query) {
     }
   })
 }
-export function getConfigInfo(query) {
+export function getConfigInfo() {
   return request({
     url: 'v1/config/info',
     method: 'get',
-    params: query,
+    // params: query,
     paramsSerializer: function(params) {
       return qs.stringify(params, { indices: true })
     }

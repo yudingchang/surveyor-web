@@ -94,6 +94,13 @@ export const constantRouterMap = [
         hidden: true
       },
       {
+        path: 'messageList',
+        name: 'messageList',
+        component: () => import('@/views/controlboard/messageList'),
+        meta: { title: '消息列表', noCache: true },
+        hidden: true
+      },
+      {
         path: 'checkoutSuccess',
         component: () => import('@/views/controlboard/checkoutSuccess'),
         hidden: true
@@ -489,7 +496,6 @@ export const asyncRouterMap = [
             component: () => import('@/views/accountManagement/accountSettingMune'),
             name: 'index',
             meta: {
-
             }
           },
           {

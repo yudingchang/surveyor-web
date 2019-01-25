@@ -34,7 +34,7 @@
             <el-input v-model="cardMessage.phone_number" placeholder="请输入手机号" class="input-with-select" style="width:400px;">
               <el-select slot="prepend" v-model="cardMessage.area_phone_number" placeholder="中国大陆 +86" style="width:180px;color:#FFA500">
                 <el-option
-                  v-for="item in options"
+                  v-for="item in configs.phone_number_codes"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value">
@@ -117,12 +117,11 @@ export default {
   computed: {
     ...mapGetters([
       'real_name',
-      'name'
+      'name',
+      'configs'
     ])
   },
   created(){
-    let Configs = JSON.parse(window.localStorage.getItem('Configs'))
-    this.options = Configs.phone_number_codes
   },
   methods: {
     // 第二步发送验证码
@@ -146,8 +145,7 @@ export default {
     },
     // 输入式查询银行
     querySearchAsync(queryString, cb) {
-      let Configs = JSON.parse(window.localStorage.getItem('Configs'))
-      let restaurants  = Configs.bankList
+      let restaurants  = this.configs.bankList
       let results = queryString ? restaurants.filter(this.createFilter(queryString)) : restaurants;
       cb(results);
     },

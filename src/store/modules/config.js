@@ -1,6 +1,6 @@
-import { fetchList } from '@/api/fetch'
+import { getConfigInfo } from '@/api/fetch'
 
-const url = '/v1/location/list/all_country'
+// const url = '/v1/location/list/all_country'
 const callback = (name, state, dispatch) => {
   return new Promise((resolve, reject) => {
     if (!state.configs) {
@@ -70,9 +70,9 @@ const config = {
   actions: {
     loadConfigs({ commit }) {
       return new Promise((resolve, reject) => {
-        fetchList(url, {}).then(response => {
-          commit('SET_CONFIGS', response.data)
-          resolve(response.data)
+        getConfigInfo().then(response => {
+          commit('SET_CONFIGS', response.data.data)
+          resolve(response.data.data)
         }).catch(error => {
           reject(error)
         })
