@@ -241,6 +241,10 @@ export default {
     handleComfirm() {
       this.$refs.form.validate(valid => {
         if (valid) {
+          this.$message({
+            message: '附录保存成功',
+            type: 'success'
+          })
           this.$emit('save', this.data, 'appendix')
         }
       })

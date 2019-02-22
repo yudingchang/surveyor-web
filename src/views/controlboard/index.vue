@@ -11,7 +11,7 @@
       empty-text="暂无待抢订单"
     >
       <el-table-column
-        label="服务单号"
+        label="订单号"
         width="230">
         <template slot-scope="scope">
           <span v-if="scope.row.is_main == true" class="numberBg">主</span><span v-if="scope.row.is_main == false" class="numberBg">辅</span> <el-button type="text" class="btnText" @click="goOrderDetail(scope.row)">{{ scope.row.number }}</el-button>
@@ -46,8 +46,8 @@
         width="200"
         label="产品名称">
         <template slot-scope="scope">
-          <span v-if="scope.row.products.length==1">{{ scope.row.products[0] }}</span>
-          <span v-else-if="scope.row.products.length>1" style="display:inline-block;"><span style="display:inline-block;width:120px;">{{ scope.row.products[0] }}...</span><i style="display:inline-block;" class="iconfont icon-IconCopy" @click="getDetail(scope.row)"/></span>
+          <span v-if="scope.row.products.length==1">{{ scope.row.products[0].name}}</span>
+          <span v-else-if="scope.row.products.length>1" style="display:inline-block;"><span style="display:inline-block;width:120px;">{{ scope.row.products[0].name }}...</span><i style="display:inline-block;" class="iconfont icon-IconCopy" @click="getDetail(scope.row)"/></span>
         </template>
       </el-table-column>
       <el-table-column
@@ -90,11 +90,19 @@
             <span class="left">抢单资格</span>
           </div>
           <div class="grabContent">
-            <div v-if="qualification.main_assist_order.length==0 && qualification.report_language.length==0 && qualification.category_tags.electronics.category_arr.length==0 && qualification.category_tags.light_industry.category_arr.length==0 && qualification.category_tags.textile.category_arr.length==0">
+            <div v-if="inspector.inspector_status==0">
               <p class="number">您的专业资料未完善，无法抢单！</p>
               <el-button class="btn" @click="goProfessiondData()">立即完善</el-button>
             </div>
-            <div  class="completeMessage clearfix">
+            <div v-if="inspector.inspector_status==1">
+              <p class="number">您的专业资料在待审核中，请耐心等待</p>
+              <el-button class="btn" @click="goProfessiondData()">查看资料</el-button>
+            </div>
+            <div v-if="inspector.inspector_status==-2">
+              <p class="number">您的专业资料审核未通过<a style="color:#E65C5C">查看原因</a></p>
+              <el-button class="btn" @click="goProfessiondData()">修改资料</el-button>
+            </div>
+            <div v-if="inspector.inspector_status==2" class="completeMessage clearfix">
                <div class="informationContent fl" v-if="qualification.main_assist_order.length!=0">
                  <p class="informationTitle">可抢主辅单</p>
                  <p class="informationList clearfix">
@@ -214,6 +222,7 @@
   </div>
 </template>
 <script>
+import { mapGetters } from 'vuex'
 import { grabSheet, confirmgrabSheet , qualification} from '@/api/dashboard'
 import { getWallet } from '@/api/walletDetail'
 import { getReportList } from '@/api/report'
@@ -222,6 +231,7 @@ export default {
   components: { },
   data() {
     return {
+      orderInformation:{},
       balance: '0',
       tableData: [
       ],
@@ -254,6 +264,9 @@ export default {
     }
   },
   computed: {
+    ...mapGetters([
+      'inspector'
+    ])
   },
   created() {
     this.getgrabSheet()
@@ -295,16 +308,14 @@ export default {
     getDetail(row) {
       this.dialogTableVisible = true
       this.gridData = row.products.map((item, index) => {
-        return {
-          name: item
-        }
+        return item       
       })
-      console.log(this.gridData)
     },
     // 显示抢单弹框
     showGrabSheetPump(row) {
-      this.orderService = row.id
-      this.grabSheetText = `订单金额￥${Number(row.commission) + Number(row.other_fee)}，需要写${this.getArray(row.reports)}报告您确认抢此订单吗？`
+      this.orderService = row.id   
+      this.orderInformation = _.cloneDeep(row)
+      this.grabSheetText = row.is_main == false ? `此单为辅单，订单金额为￥${Number(row.commission) + Number(row.other_fee)}，您确认抢此订单吗？` : `订单金额￥${Number(row.commission) + Number(row.other_fee)}，需要写${this.getArray(row.reports)}报告您确认抢此订单吗？`
       this.centerDialogVisible = true
       this.canConfirm = row.can.confirm
       this.canChase = row.can.chase
@@ -322,9 +333,15 @@ export default {
       confirmgrabSheet({
         url: `v1/inspector/service/${this.orderService}/${chaseText}`
       }).then(response => {
-        if (response.data.code == 0) {
+        if (response.data.code == 0) {  
           this.centerDialogVisible = false
           this.getgrabSheet()
+          this.$router.push({
+            path: 'SuccessfulSingle',
+            query:{
+              orderInformation:this.orderInformation
+            }
+          })
         }
       })
     },
@@ -382,7 +399,7 @@ export default {
     },
     // 去订单详情
     goOrderDetail(row) {
-      this.$router.push({ path: '/orderManagement/orderDetails', query: { orderId: row.service.id }})
+      this.$router.push({ path: '/orderManagement/orderDetails', query: { orderId:row.id}})
     },
     
   }
@@ -394,8 +411,8 @@ export default {
         font-size:12px;
         color:#50688C;
     }
-    .controlboard .el-dialog--center .el-dialog__body {
-        text-align: center;
+    .el-dialog--center .el-dialog__body {
+        text-align: center ;
         color:rgba(124,143,166,1);
         font-size:16px;
     }
@@ -416,6 +433,7 @@ export default {
         font-weight: bold;
         }
         .el-dialog__body{
+          text-align: center;
         padding: 0;
         }
     }

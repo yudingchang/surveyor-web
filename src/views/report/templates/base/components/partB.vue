@@ -401,6 +401,10 @@ export default {
     handleComfirm() {
       this.$refs.form.validate(valid => {
         if (valid) {
+          this.$message({
+            message: '包装标识标签保存成功',
+            type: 'success'
+          })
           this.$emit('save', this.data, 'packing_and_marking')
         }
       })

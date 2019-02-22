@@ -10,41 +10,29 @@
                         <li>检验报告</li>
                         <li @click="back()">返回上一页</li>
                     </ul>
+                    <p>检验款</p>
+                    <div class="InspectionSection clearfix">
+                        <div class="fl leftImg">
+                            <img :src="inspection_styles.files[0].url" alt="">
+                        </div>
+                        <div class="fr rightImg">
+                            <img :src="inspection_styles.files[1].url" alt="">
+                        </div>
+                    </div>
                     <p>基本信息</p>
                     <div class="interface-baseInfo-table">
-                           <table border="1" cellspacing="0" cellpadding="0"  height="100%" class="baseInfo-element-table">
-                               <tr height="60px">
-                                   <td>检验类型</td>
-                                   <td>第{{baseInfoData.number}}次验货</td>
-                               </tr>
-                               <tr height="60px">
+                           <table border="1" cellspacing="0" cellpadding="0"  height="100%" class="baseInfo-element-table"  style="width: 100%">
+                                <tr height="60px">
                                    <td>买家名称</td>
                                    <td>{{baseInfoData.user_name}}</td>
-                               </tr>
-                               <tr height="60px">
-                                   <td>供应商名称</td>
-                                   <td>{{baseInfoData.supplier_name}}</td>
-                               </tr>
-                               <tr height="60px">
-                                   <td>工厂名称</td>
-                                   <td>{{baseInfoData.factory_name}}</td>
-                               </tr>
-                               <tr height="60px">
-                                   <td>款号/型号</td>
-                                   <td>{{baseInfoData.product_number}}</td>
-                               </tr>
-                               <tr height="60px">
-                                   <td>产品名称</td>
-                                   <td>{{baseInfoData.product_name}}</td>
-                               </tr>
-                               <tr height="60px">
                                    <td>订单号</td>
                                    <td>{{baseInfoData.order_name}}</td>
                                </tr>
                                <tr height="60px">
-                                   <td>检验服务</td>
-                                   <td>{{ _.get(_.find( configs.inspectionTypes, {value : baseInfoData.inspection_type}), 'label') }}</td>
-                                   <!-- <td>{{ _.get(_.find(configs.inspectionTypes, {value : baseInfoData.inspection_type}), 'label') }}</td> -->
+                                   <td>供应商名称</td>
+                                   <td>{{baseInfoData.supplier_name}}</td>
+                                   <td>款号/型号</td>
+                                   <td>{{baseInfoData.product_number}}</td>
                                </tr>
                                <tr height="60px">
                                    <td style="text-align:center;vertical-align:middle;">检验日期</td>
@@ -53,23 +41,30 @@
                                            {{ item | moment("YYYY.MM.DD")}}
                                        </span>
                                    </td>
+                                   <td>产品名称</td>
+                                   <td>{{baseInfoData.product_name}}</td>
                                </tr>
-                               <tr height="60px">
+                                <tr height="60px">
                                    <td>检验地点</td>
                                    <td>{{baseInfoData.inspection_address}}</td>
-                               </tr>
-                               <tr height="60px">
                                    <td>整批次数量</td>
                                    <td>{{baseInfoData.report_quantity}}</td>
                                </tr>
                                <tr height="60px">
+                                   <td>检验服务</td>
+                                   <td>{{ _.get(_.find( configs.inspectionTypes, {value : baseInfoData.inspection_type}), 'label') }} 第{{baseInfoData.number}}次验货</td>
+                                   <td>是否合并抽样</td>
+                                   <td>{{ baseInfoData.is_merge_sampling==0 ? '否' : '是' }}</td>
+                                   <!-- <td>{{ _.get(_.find(configs.inspectionTypes, {value : baseInfoData.inspection_type}), 'label') }}</td> -->
+                               </tr>
+                              <tr height="60px">
                                    <td>检验依据</td>
-                                   <td>{{ _.get(_.find( configs.inspectionBases, {value : baseInfoData.inspection_basis}), 'label') }}</td>
+                                   <td colspan="3">{{ _.get(_.find( configs.inspectionBases, {value : baseInfoData.inspection_basis}), 'label') }}</td>
                                </tr>
                            </table>
-                           <div class="baseInfo-table-img">
+                           <!-- <div class="baseInfo-table-img">
                               <img class="baseInfo-picture" :src="baseInfoData.file && baseInfoData.file.url" alt="">
-                           </div>
+                           </div> -->
                     </div>
                 </div>
                 <!-- 检验结论 -->
@@ -187,7 +182,7 @@
 
                     <div class="conclusion-tableB">
                         <table cellspacing="0" cellpadding="0" width="100%" height="100%" class="conclusion-element-tableB">
-                            <tr height="60px">
+                            <tr height="50px">
                                 <td width="270px">数量符合性</td>
                                 <td v-if="QuantityData.conclusion==1" style="width: 270px;" class="trueText">符合</td>
                                 <td v-if="QuantityData.conclusion==2" style="width: 270px;" class='wrongText'>不符合</td>
@@ -195,7 +190,7 @@
                                 <td v-if="QuantityData.conclusion==4" style="width: 270px;" class='wrongText'>不适用</td>
                                 <td > <span>{{conclusionData.conclusion.quantityCompliance ? conclusionData.conclusion.quantityCompliance : '无'}}</span></td>
                             </tr>
-                            <tr height="60px">
+                            <tr height="50px">
                                 <td>包装/标识/标签</td>
                                 <td v-if="ClonebStatu == 1" class='wrongText'>不符合</td>
                                 <td v-if="ClonebStatu == 2" class='wrongText'>待定</td>
@@ -204,7 +199,7 @@
                                 <!-- <td :class="addClass(conclusionData.general_conclusion)">{{conclusionData.general_conclusion = 1?'符合':'不符合'}}</td>
                                 <td></td> -->
                             </tr>
-                            <tr height="60px">
+                            <tr height="50px">
                                 <td>产品符合性</td>
                                 <td v-if="CloneCStatu == 1" class='wrongText'>不符合</td>
                                 <td v-if="CloneCStatu == 2" class='wrongText'>待定</td>
@@ -213,7 +208,7 @@
                                 <!-- <td :class="addClass(conclusionData.general_conclusion)">{{conclusionData.general_conclusion = 1?'符合':'不符合'}}</td>
                                 <td></td> -->
                             </tr>
-                            <tr height="60px">
+                            <tr height="50px">
                                 <td>数据测量/现场测试</td>
                                 <td v-if="CloneDStatu == 1" class='wrongText'>不符合</td>
                                 <td v-if="CloneDStatu == 2" class='wrongText'>待定</td>
@@ -221,7 +216,7 @@
                                 <td><span>{{conclusionData.conclusion.measure ? conclusionData.conclusion.measure : '无'}}</span></td>
                             
                             </tr>
-                            <tr height="60px">
+                            <tr height="50px">
                                 <td>特别注意点</td>
                                 <td v-if="CloneFStatu == 1" class='wrongText'>不符合</td>
                                 <td v-if="CloneFStatu == 2" class='wrongText'>待定</td>
@@ -233,7 +228,7 @@
                     <p class="conclusion-remark">备注</p>
                     <div class="conclusion-remark-table">
                         <table cellspacing="0" cellpadding="0" width="100%" height="100%">
-                            <tr height="60px" v-for="(item,index) in conclusionData.remarks" :key="index+'-conclusion'">
+                            <tr height="50px" v-for="(item,index) in conclusionData.remarks" :key="index+'-conclusion'">
                                 <td width="100px">{{index+1}}</td>
                                 <td width="1359px">{{item.remark}}</td>
                             </tr>
@@ -274,7 +269,7 @@
                                 <td>已包装</td>
                                 <td>未包装</td>
                             </tr>
-                            <tr height="60px" v-if="QuantityData.products" v-for="(item,index) in _.get(QuantityData, 'products',[])" :key="index+'Quantity'">
+                            <tr height="40px" v-if="QuantityData.products" v-for="(item,index) in _.get(QuantityData, 'products',[])" :key="index+'Quantity'">
                                 <td>{{item.section_number}}</td>
                                 <td>{{item.order_number}}</td>
                                 <td>{{item.order_quantity}}</td>
@@ -286,7 +281,7 @@
                                 <td>{{item.check_quantity}}</td>
                                 <td>{{item.check_package_quantity}}</td>
                             </tr>
-                            <tr height="60px">
+                            <tr height="40px">
                                 <td colspan="2">总数</td>
                                 <td>{{sum(_.get(QuantityData, 'products'),'order_quantity')}}</td>
                                 <td>{{sum(_.get(QuantityData, 'products'),'shipment_quantity')}}</td>
@@ -455,6 +450,7 @@
                 <!-- E、外观及工艺 -->
                 <div class="Report-interface-exterior">
                     <p class="exterior-p1">E、外观及工艺</p>
+                    
                     <div class="exterior-table">
                         <table cellspacing="0" cellpadding="0" border="0" class="tc-table" style="width: 100%">
                             <tbody>
@@ -514,29 +510,33 @@
                             </tbody>
                         </table>
                     </div>
+                    {{exteriorData}}
+                    <div class="exterior-detail-div">
+                        <table border="1" cellspacing="0" cellpadding="0" width="100%" height="100%">
+                            <tr height="60px">
+                                <td width="220px">缺陷类别</td>
+                                <td width="773px">缺陷明细</td>
+                                <td width="152px">致命缺陷</td>
+                                <td width="152px">严重缺陷</td>
+                                <td width="158px">轻微缺陷</td>
+                            </tr>
+                            <tr height="60px" v-for="(items,index) in  _.get(exteriorData, 'products', [])" :key="index">
+                                <!-- <div v-for="(item,index) in items.defective_items" :key="index+'-detail-div'"> -->
+                                    <td>{{ _.get(_.find( configs.defectiveCategories, {value : item.title}), 'label') }}</td>
+                                    
+                                    <td>{{item.description}}</td>
+                                    <td>{{item.fatal_defect}}</td>
+                                    <td>{{item.serious_defect}}</td>
+                                    <td>{{item.minor_defect}}</td>
+                                <!-- </div> -->
+                            </tr>
+                        </table>
+                    </div>
                     <div class="exterior-detail" v-for="(item,index) in _.get(exteriorData, 'products', [])" :key="index+'-exterior-detail'">
                         <p class="exterior-detail-p">
                             <span>{{index+1}}、{{ item.name }}/型号{{ item.number }}</span>
                             <span>抽样数{{item.check_quantity}}</span>
                         </p>
-                        <div class="exterior-detail-div">
-                            <table border="1" cellspacing="0" cellpadding="0" width="100%" height="100%">
-                                <tr height="60px">
-                                    <td width="220px">缺陷类别</td>
-                                    <td width="773px">缺陷明细</td>
-                                    <td width="152px">致命缺陷</td>
-                                    <td width="152px">严重缺陷</td>
-                                    <td width="158px">轻微缺陷</td>
-                                </tr>
-                                <tr height="60px" v-for="(item,index) in item.defective_items" :key="index+'-detail-div'">
-                                    <td>{{ _.get(_.find( configs.defectiveCategories, {value : item.title}), 'label') }}</td>
-                                    <td>{{item.description}}</td>
-                                    <td>{{item.fatal_defect}}</td>
-                                    <td>{{item.serious_defect}}</td>
-                                    <td>{{item.minor_defect}}</td>
-                                </tr>
-                            </table>
-                        </div>
                         <div class="exterior-remark clearfix">
                             <p>备注:</p>
                             <p class="content">{{item.remark_content?item.remark_content:'无'}}</p>
@@ -701,11 +701,41 @@ export default {
             CloneCStatu: '',
             CloneDStatu: '',
             CloneFStatu: '',
+            order:{},
             baseImg: [],     //imgUrl
             
             //检验结论table数据
-            conclusionData: [],
-
+            defaultconclusionData: {
+                conclusion:{
+                    quantityCompliance:''
+                }
+            },
+            conclusionData:{
+                conclusion:{
+                    quantityCompliance:''
+                }
+            },
+            // 检验款
+            defaultinspection_styles: {
+                files:[
+                    {
+                        url:''
+                    },
+                    {
+                        url:''
+                    }
+                ]
+            },
+            inspection_styles:{
+                 files:[
+                    {
+                        url:''
+                    },
+                    {
+                        url:''
+                    }
+                ]
+            },
             //A、数量符合性table数据
             QuantityData: [],
 
@@ -713,16 +743,34 @@ export default {
 
 
             //B、包装/标识/标签table数据
-            packageLogoData: [],
+            packageLogoData:{},
+            defaultpackageLogoData: {
+                packing:{
+                    products:[]
+                },
+                marking:{
+                    products:[]
+                }
+            },
 
             //C、产品符合性table数据
-            goodsInfoData: [],
+            defaultgoodsInfoData: {
+                products:[]
+            },
 
             //D、数据测量/现场测试table数据
-            gaugeData: [],
+            defaultgaugeData: {
+                checkitems:[]
+            },
+            goodsInfoData:{},
+            gaugeData:{},
 
             //E、外观及工艺table数据
-            exteriorData: [],    
+            exteriorData: {
+                sampling:{
+                    params:''
+                }
+            },    
 
             //F、客户特殊要求table数据
             specialData: [],
@@ -749,8 +797,10 @@ export default {
             getReportSelf(urlValue).then(response => {
                 if(response.data.code == 0){
                     // console.log(response.data.data.review)
+                    // 检验款
+                    this.inspection_styles = response.data.data.review.inspection_styles ? response.data.data.review.inspection_styles : this._.cloneDeep(this.defaultinspection_styles),
                     //接收数据测量数据
-                    this.gaugeData = response.data.data.review.data_measurement
+                    this.gaugeData = response.data.data.review.data_measurement ? response.data.data.review.data_measurement : this._.cloneDeep(this.defaultgaugeData),
                     // console.log(this.gaugeData)
 
                     //接收附录数据
@@ -760,14 +810,14 @@ export default {
                     this.baseInfoData = response.data.data.review.general_information
 
                     //接收检验结论数据
-                    this.conclusionData = response.data.data.review.inspection_results
-                    // console.log(response.data.data.review)
+                    this.conclusionData = response.data.data.review.inspection_results ? response.data.data.review.inspection_results : this._.cloneDeep(this.defaultconclusionData),
+                    console.log(this.conclusionData)
 
                     //接收标识，备注数据
-                    this.packageLogoData = response.data.data.review.packing_and_marking
+                    this.packageLogoData = response.data.data.review.packing_and_marking ? response.data.data.review.packing_and_marking : this._.cloneDeep(this.defaultpackageLogoData),
 
                     //接收产品符合性数据
-                    this.goodsInfoData = response.data.data.review.product_conformity
+                    this.goodsInfoData = response.data.data.review.product_conformity ? response.data.data.review.product_conformity : this._.cloneDeep(this.defaultgoodsInfoData),
 
                     //接收数量符合性数据
                     this.QuantityData = response.data.data.review.quantity_conformity
@@ -778,6 +828,7 @@ export default {
 
                     //接收外观及工艺数据
                     this.exteriorData = response.data.data.review.visual_and_workmanship
+                    // this.defectItem = _
 
                     //接收操作人员数据
                     this.approvalData = response.data.data.review.operator
@@ -897,8 +948,28 @@ export default {
     min-width:1420px;
     background:rgba(255,255,255,1);
     .inspectionReport-interface{
-        padding:0 40px;
+        padding:0 40px;      
         .Report-interface-baseInfo{
+            .InspectionSection{
+                width: 100%;
+                margin-bottom:40px;
+                max-height: 410px;
+                .leftImg{
+                    width: 50%;
+                    max-height: 410px;
+                    img{
+                        width: 100%;
+                    }
+                }
+                .rightImg{
+                    width: 50%;
+                    max-height: 410px;
+                    img{
+                        width: 100%;
+                    }
+                }
+
+            }
             margin-bottom:41px;
             ul{
                 height:116px;
@@ -980,11 +1051,24 @@ export default {
                         background:rgba(127,143,164,1);
                         text-align: center;
                         font-size:14px;
-                        width:240px;
+                        width:160px;
                         color:rgba(255,255,255,1);
                     }
                     tr td:nth-child(2){
-                        width:618px;
+                        width:580px;
+                        line-height: 60px;
+                        font-size:14px;
+                        color:rgba(80,104,140,1);
+                        padding-left:32px;
+                    }
+                    tr td:nth-child(3){
+                        background:rgba(127,143,164,1);
+                        text-align: center;
+                        font-size:14px;
+                        width:160px;
+                        color:rgba(255,255,255,1);
+                    }
+                    tr td:nth-child(4){
                         line-height: 60px;
                         font-size:14px;
                         color:rgba(80,104,140,1);
@@ -1217,7 +1301,7 @@ export default {
             }
             .conclusion-remark{
                 height:26px;
-                font-size:18px;
+                font-size:16px;
                 color:rgba(80,104,140,1);
                 line-height:26px;
                 margin-bottom:16px;
@@ -1235,7 +1319,7 @@ export default {
                         td{
                            border-left:1px solid rgba(215,220,227,1);
                            vertical-align: middle;
-                           font-size:16px;
+                           font-size:14px;
                         }
                         td:nth-child(1){
                             border-left:none;
@@ -1342,7 +1426,7 @@ export default {
             }
             .Quantity-p3{
                 height:21px;
-                font-size:16px;
+                font-size:14px;
                 color:rgba(80,104,140,1);
                 line-height:21px;
                 margin-bottom:24px;
@@ -1368,7 +1452,7 @@ export default {
                 p:nth-child(1){
                     width:36px;
                     margin-right:16px;
-                    font-size:16px;
+                    font-size:14px;
                     color:rgba(80,104,140,1);
                     padding:18px 0 0 0;
                 }
@@ -1565,7 +1649,7 @@ export default {
                     p:nth-child(1){
                         width:36px;
                         margin-right:22px;
-                        font-size:16px;
+                        font-size:14px;
                         color:rgba(80,104,140,1);
                         padding:18px 0 0 0;
                     }
@@ -1584,7 +1668,7 @@ export default {
                         float:left;
                     }
                     div:nth-child(1){
-                        font-size:16px;
+                        font-size:14px;
                         color:rgba(80,104,140,1);
                         padding:15px 0 0 0;
                         margin-right:22px;
@@ -1679,7 +1763,7 @@ export default {
                     p:nth-child(1){
                         width:36px;
                         margin-right:22px;
-                        font-size:16px;
+                        font-size:14px;
                         color:rgba(80,104,140,1);
                         padding:18px 0 0 0;
                     }
@@ -1698,7 +1782,7 @@ export default {
                         float:left;
                     }
                     div:nth-child(1){
-                        font-size:16px;
+                        font-size:14px;
                         color:rgba(80,104,140,1);
                         padding:15px 0 0 0;
                         margin-right:22px;
@@ -1807,7 +1891,7 @@ export default {
                     p:nth-child(1){
                         width:36px;
                         margin-right:22px;
-                        font-size:16px;
+                        font-size:14px;
                         color:rgba(80,104,140,1);
                         padding:18px 0 0 0;
                     }
@@ -1826,7 +1910,7 @@ export default {
                         float:left;
                     }
                     div:nth-child(1){
-                        font-size:16px;
+                        font-size:14px;
                         color:rgba(80,104,140,1);
                         padding:15px 0 0 0;
                         margin-right:22px;
@@ -1921,7 +2005,7 @@ export default {
                     p:nth-child(1){
                         width:36px;
                         margin-right:21px;
-                        font-size:16px;
+                        font-size:14px;
                         color:rgba(80,104,140,1);
                         padding:18px 0 0 0;
                     }
@@ -1940,7 +2024,7 @@ export default {
                     float:left;
                 }
                 div:nth-child(1){
-                    font-size:16px;
+                    font-size:14px;
                     color:rgba(80,104,140,1);
                     padding:15px 0 0 0;
                     margin-right:21px;
@@ -1978,6 +2062,40 @@ export default {
         }
         .Report-interface-exterior{
             margin-bottom:44px;
+            .exterior-detail-div{
+                width:1460px;
+                // height:121px;
+                background:rgba(255,255,255,1);
+                border-radius:4px;
+                border:1px solid rgba(215,220,227,1);
+                overflow: hidden;
+                border-collapse: collapse;
+                margin-bottom:24px;
+                table{
+                    tr{
+                        border-bottom:1px solid rgba(215,220,227,1);
+                        td{
+                            border-left:1px solid rgba(215,220,227,1);
+                            text-align: center;
+                            vertical-align: middle;
+                            font-size:14px;
+                            color:rgba(80,104,140,1);
+                        }
+                        td:nth-child(1){
+                            border-left:none;
+                        }
+                    }
+                    tr:nth-child(1){
+                        background:rgba(127,143,164,1);
+                        td{
+                            color:rgba(255,255,255,1);
+                        }
+                    }
+                    tr:last-child{
+                        border-bottom:none;
+                    }
+                }
+            }
             .exterior-p1{
                 height:47px;
                 font-size:18px;
@@ -2031,40 +2149,7 @@ export default {
                             margin-right:16px;
                         }
                     }
-                    .exterior-detail-div{
-                        width:1460px;
-                        // height:121px;
-                        background:rgba(255,255,255,1);
-                        border-radius:4px;
-                        border:1px solid rgba(215,220,227,1);
-                        overflow: hidden;
-                        border-collapse: collapse;
-                        margin-bottom:24px;
-                        table{
-                            tr{
-                                border-bottom:1px solid rgba(215,220,227,1);
-                                td{
-                                    border-left:1px solid rgba(215,220,227,1);
-                                    text-align: center;
-                                    vertical-align: middle;
-                                    font-size:14px;
-                                    color:rgba(80,104,140,1);
-                                }
-                                td:nth-child(1){
-                                    border-left:none;
-                                }
-                            }
-                            tr:nth-child(1){
-                                background:rgba(127,143,164,1);
-                                td{
-                                    color:rgba(255,255,255,1);
-                                }
-                            }
-                            tr:last-child{
-                                border-bottom:none;
-                            }
-                        }
-                    }
+                    
                     .exterior-remark{
                         margin-bottom:24px;
                     p{
@@ -2073,7 +2158,7 @@ export default {
                     p:nth-child(1){
                         width:36px;
                         margin-right:21px;
-                        font-size:16px;
+                        font-size:14px;
                         color:rgba(80,104,140,1);
                         padding:18px 0 0 0;
                     }
@@ -2092,7 +2177,7 @@ export default {
                         float:left;
                     }
                     div:nth-child(1){
-                        font-size:16px;
+                        font-size:14px;
                         color:rgba(80,104,140,1);
                         padding:15px 0 0 0;
                         margin-right:21px;

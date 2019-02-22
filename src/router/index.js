@@ -104,6 +104,14 @@ export const constantRouterMap = [
         path: 'checkoutSuccess',
         component: () => import('@/views/controlboard/checkoutSuccess'),
         hidden: true
+      },
+      // 抢单成功页面
+      {
+        path: 'SuccessfulSingle',
+        name: 'SuccessfulSingle',
+        component: () => import('@/views/controlboard/SuccessfulSingle'),
+        meta: { title: '抢单成功', noCache: true },
+        hidden: true
       }
     ]
   }

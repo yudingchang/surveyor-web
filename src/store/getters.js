@@ -9,6 +9,7 @@ const getters = {
   avatar: state => state.user.avatar,
   phonenumber: state => state.user.phonenumber,
   email: state => state.user.email,
+  sex: state => state.user.sex,
   name: state => state.user.name,
   is_paypassword: state => state.user.is_paypassword,
   introduction: state => state.user.introduction,
@@ -19,6 +20,7 @@ const getters = {
   addRouters: state => state.permission.addRouters,
   errorLogs: state => state.errorLog.logs,
   configs: state => state.config.configs,
-  channel: state => state.user.channel
+  channel: state => state.user.channel,
+  inspector: state => state.user.inspector
 }
 export default getters

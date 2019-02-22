@@ -7,6 +7,7 @@ const user = {
     status: '',
     code: '',
     email: '',
+    sex: '',
     phonenumber: '',
     is_paypassword: '',
     token: getToken(),
@@ -15,6 +16,7 @@ const user = {
     channel: '',
     introduction: '',
     roles: [],
+    inspector: {},
     setting: {
       articlePlatform: []
     }
@@ -45,6 +47,9 @@ const user = {
     SET_EMAIL: (state, email) => {
       state.email = email
     },
+    SET_SEX: (state, sex) => {
+      state.sex = sex
+    },
     SET_PAYPASSWORD: (state, is_paypassword) => {
       state.is_paypassword = is_paypassword
     },
@@ -56,6 +61,9 @@ const user = {
     },
     SET_CHANNEL: (state, channel) => {
       state.channel = channel
+    },
+    SET_INSPECTOR: (state, inspector) => {
+      state.inspector = inspector
     }
   },
 
@@ -91,10 +99,11 @@ const user = {
           } else {
             reject('getInfo: roles must be a non-null array !')
           }
-
+          commit('SET_INSPECTOR', data.inspector)
           commit('SET_NAME', data.real_name)
           commit('SET_PHONENUMBER', data.phone_number)
           commit('SET_EMAIL', data.email)
+          commit('SET_SEX', data.inspector.sex)
           commit('SET_CHANNEL', data.channel)
           commit('SET_PAYPASSWORD', data.is_paypassword)
           commit('SET_AVATAR', data.avatar)

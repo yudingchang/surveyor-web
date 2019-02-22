@@ -17,6 +17,7 @@
           <el-radio
             v-for="item in configs.conclusionOptions"
             v-model="data.conclusion"
+            @change="resetForm('form')"
             :key="item.value"
             :label="item.value">
             {{ item.label }}
@@ -32,13 +33,13 @@
             style="width: 100%">
             <el-table-column label="款号/型号" align="center">
               <template slot-scope="scope">
-                <el-input v-model="scope.row.section_number"/>
+                <el-input v-model="scope.row.section_number" class="tc-input-number"/>
 
               </template>
             </el-table-column>
             <el-table-column label="订单号码" align="center">
               <template slot-scope="scope">
-                <el-input v-model="scope.row.order_number"/>
+                <el-input v-model="scope.row.order_number" class="tc-input-number"/>
                 <!-- <el-table-column label="订单产品数"></el-table-column> -->
               </template>
             </el-table-column>
@@ -97,10 +98,10 @@
           <el-button type="success" icon="el-icon-plus" @click="handleAddProduct">添加</el-button>
         </el-form-item>
         <el-form-item label="是否有箱号" style="margin-bottom: 0px;">
-          <el-radio v-model="data.has_package_number" :label="0">没有</el-radio>
-          <el-radio v-model="data.has_package_number" :label="1">有</el-radio>
+          <el-radio @change="resetForm('form')" v-model="data.has_package_number" :label="0">没有</el-radio>
+          <el-radio @change="resetForm('form')" v-model="data.has_package_number" :label="1">有</el-radio>
         </el-form-item>
-        <el-form-item>
+        <el-form-item :rules="[1].includes(data.has_package_number) ?  [{ required: true, message: '请填写箱号', trigger: 'blur' }] :[]" prop="packag_number">
           <el-input
             v-if="data.has_package_number == 1"
             :autosize="{ minRows: 3, maxRows: 5}"
@@ -110,19 +111,21 @@
         </el-form-item>
         <el-form-item  label="备注" :rules="[2, 3].includes(data.conclusion) ? [{ required: true, message: '请填写结论', trigger: 'blur' }] : []"
             prop="remark_content">
-
             <div style="margin-bottom:12px;">
               <el-select
-            v-model="data.remark_title"
-            filterable
-            default-first-option
-            style="width: 560px;">
-            <el-option
-              v-for="item in configs.remarkTitles"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"/>
-          </el-select>
+                v-model="data.remark_title"
+                filterable
+                default-first-option
+                style="width: 560px;"
+                 @change="copyRemarks"
+                >
+                <el-option
+               
+                  v-for="item in configs.remarkTitles"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"/>
+              </el-select>
             </div>
           <div>
             <el-input
@@ -224,12 +227,11 @@ export default {
     },
     // 数据统计
     getSummaries(param) {
-      console.log(param, '123123')
       const { columns, data } = param
       const sums = []
       columns.forEach((column, index) => {
         if (index === 0) {
-          sums[index] = '总价'
+          sums[index] = '总数'
           return
         }
         if (index === 1) {
@@ -266,10 +268,20 @@ export default {
     handleComfirm() {
       this.$refs.form.validate(valid => {
         if (valid) {
-          console.log(this.data)
+          this.$message({
+            message: '数量符合性保存成功',
+            type: 'success'
+          })
           this.$emit('save', this.data, 'quantity_conformity')
         }
       })
+    },
+    // 清空表单验证
+    resetForm(formName) {
+      this.$refs[formName].clearValidate();
+    },
+    copyRemarks(val){
+      this.data.remark_content = this.configs.remarkTitles[val-1].label
     }
   }
 }

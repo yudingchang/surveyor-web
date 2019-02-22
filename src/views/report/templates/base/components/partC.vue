@@ -139,6 +139,10 @@ export default {
     handleComfirm() {
       this.$refs.form.validate(valid => {
         if (valid) {
+          this.$message({
+            message: '产品符合性保存成功',
+            type: 'success'
+          })
           this.$emit('save', this.data, 'product_conformity')
         }
       })

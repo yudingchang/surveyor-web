@@ -11,7 +11,7 @@
       mode="vertical"
       background-color="#1D2531"
       text-color="#bfcbd9"
-      active-text-color="#409EFF"
+      active-text-color="#ffa800"
     >
       <sidebar-item v-for="(route,index) in permission_routers" :key="index" :item="route" :base-path="route.path"/>
     </el-menu>

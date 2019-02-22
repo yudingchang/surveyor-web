@@ -5,7 +5,7 @@
         <div class="orderNumber clearfix">
           <span>订单号: {{ fundamentalState.number }}</span>
           <span class="greencolor orderstate">({{ fundamentalState.marking_name }})</span>
-          <div class="copyIcon closeIcon" @click="chargeback" v-if="fundamentalState.marking_name!='完成'">
+          <div class="copyIcon closeIcon" @click="chargeback" v-if="(fundamentalState.marking_name!='完成') || (fundamentalState.marking_name!='待排单')">
             <i class="iconfont icon-fuzhi"/>
             <p>退单</p>
           </div>
@@ -652,7 +652,7 @@ export default {
     chargeback(){
        console.log(this.canPhoneChargeBack);
       // 没有超过验货前一天10点
-      if((this.fundamentalState.marking_name == '已抢待审核' || this.jundgeTime()) && this.canPhoneChargeBack == false ){
+      if((this.fundamentalState.marking_name == '待审核' || this.jundgeTime()) && this.canPhoneChargeBack == false ){
         this.chargeBackDialogVisible = true
         return false
       }
@@ -663,7 +663,7 @@ export default {
         this.chargeBackText = '现在退单将扣款¥100您确定退单吗?'
         this.cut100 = true
          return false
-      }else if(this.canPhoneChargeBack){
+      }else if(this.canPhoneChargeBack == true){
         this.phoneChargeBackDialogVisible = true
         return false
       }
@@ -675,7 +675,10 @@ export default {
       // if(this.fundamentalState.marking_name == '已抢待审核' || this.jundgeTime){
         chargeBack(`/v1/inspector/service/${this.orderId}/refund`).then(res=>{
           if(res.data.code == 0){
-            this.successBackDialogVisible = true
+            this.chargeBackDialogVisible = false
+            this.$router.push({
+              path: 'examineGood'
+            })
           }
         })
       // }    

@@ -189,6 +189,10 @@ export default {
     handleComfirm() {
       this.$refs.form.validate(valid => {
         if (valid) {
+          this.$message({
+            message: '数据测量现场测试保存成功',
+            type: 'success'
+          })
           this.$emit('save', this.data, 'data_measurement')
         }
       })

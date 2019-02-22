@@ -11,11 +11,16 @@
           <span></span>
         </span>
         <span style="font-size:14px;color:#ffffff;">欢迎您，</span>
-        <span class="userName">{{ name }}</span>
-        <span class="gender">
-          <span v-if="male" class="male"/>
-          <span v-if="neuter" class="neuter"/>
-          <span v-if="female" class="female"/>
+        <span class="userName">{{ name ? name : phonenumber }}</span>
+        <span class="gender" @click="goAccountSetting()">   
+          <span v-if="avatar==''">
+            <span v-if="sex==0" class="neuter"/>
+            <span v-else-if="sex==1" class="male"/>
+            <span v-else-if="sex==2" class="female"/>
+          </span> 
+          <span v-if="avatar != ''" class="headShow">
+            <img :src="avatar" alt="">
+          </span>       
         </span>
         <span class="logout" @click="logout">退出</span>
 
@@ -93,7 +98,10 @@ export default {
   computed: {
     ...mapGetters([
       'sidebar',
+      'avatar',
       'name',
+      'phonenumber',
+      'sex',
       'avatar',
       'device',
       'channel'
@@ -125,6 +133,12 @@ export default {
       this.$router.push({
         path:'/messageList'
       })
+    },
+    // 点击头像跳转账户设置
+    goAccountSetting(){
+      this.$router.push({
+        path:'/accountManagement/accountSetting'
+      })
     }
   }
 }
@@ -132,6 +146,12 @@ export default {
 
 <style rel="stylesheet/scss" lang="scss" scoped>
 .navbar {
+  position:relative;
+  // top:0;
+  // // left:300px;
+  // width:100%;
+  // right:0;
+  z-index:10;
   height: 60px;
   line-height: 60px;
   border-radius: 0px !important;
@@ -196,6 +216,18 @@ export default {
        vertical-align: top;
        width: 4px;
        height: 40px;
+      .headShow{
+        width: 36px;
+        height: 36px;
+        display: inline-block;
+        border-radius: 18px;
+        vertical-align: middle;
+        overflow: hidden;
+        img{
+          width: 100%;
+          height: 100%;
+        }
+      }
       .male{
         background: url("/static/image/male.png") no-repeat;
         vertical-align: middle;

@@ -9,11 +9,11 @@
             <el-form-item label="上传附件">
               <tc-upload
               :files="data.files.inspector_reports"
-              :mimes="['application/pdf','image/png']"
-              :size="10*1024*1024"
+              :mimes="['application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/vnd.ms-excel','text/html']"
+              :size="30*1024*1024"
               @upload="handleUploadResource"
               @remove="handleRemoveResource"/>
-              <p class="tip">只支持上传PDF、PPT、Word、Excel、Jpg、jpeg格式,单个附件小于30M</p>
+              <p class="tip">只支持上传Word、Excel、Html格式,单个附件小于30M</p>
               <el-button class="btn-submit" @click="handleSave">提交</el-button>
             </el-form-item>      
           </el-form>

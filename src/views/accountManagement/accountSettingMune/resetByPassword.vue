@@ -27,8 +27,17 @@
             v-model="data.new_password"
               placeholder="请输入登录密码"
               name="username"
+              oncopy="return false"
+              onpaste="return false"
               type="password" 
+              @focus="passwordPumpShow=true"
+              @blur="passwordPumpShow=false"
             />
+            <div v-if="passwordPumpShow" class="passwordPump">
+              1、8-20位字符<br>
+              2、大写字母、小写字母、数字、特殊符号两种组合以上
+               <div class="hover-pump-arrow"></div>
+            </div>
           </el-form-item> 
           <el-form-item prop="repeat_new_password" :rules="[{ required: true, message: '请确认输入登录密码', trigger: 'blur' }]">
             <i class="iconfont icon-denglumimazhongzhi"></i>
@@ -65,8 +74,20 @@ export default {
   data() {
     return {
       active: 1,
+      // 密码报错提示框
+      passwordPumpShow:false,
       data:{
         password:''
+      }
+    }
+  },
+  watch: {
+    'data.new_password': function() {
+      const passwordReg = /^(?![A-Z]+$)(?![a-z]+$)(?!\d+$)(?![\W_]+$)\S{8,20}$/
+      if (passwordReg.test(this.data.new_password)) {
+        this.passwordPumpShow = false
+      } else {
+        this.passwordPumpShow = true
       }
     }
   },
@@ -82,6 +103,11 @@ export default {
           }).then(res=>{
             if(res.data.code == 0){
               if (this.active++ > 2) this.active = 1;
+            }else{
+              this.$message({
+                message: '登录密码有误',
+                type: 'warning'
+              })
             }
           })
         
@@ -92,7 +118,9 @@ export default {
     goActiveThree(){
       this.$refs.form.validate(valid => {
         if (valid) {
-          resetpassword({
+          const passwordReg = /^(?![A-Z]+$)(?![a-z]+$)(?!\d+$)(?![\W_]+$)\S{8,20}$/
+          if (passwordReg.test(this.data.new_password) && (this.data.new_password==this.data.repeat_new_password)){
+             resetpassword({
             password:this.data.password,
             new_password:this.data.new_password,
             repeat_new_password:this.data.repeat_new_password
@@ -101,7 +129,17 @@ export default {
               if (this.active++ > 2) this.active = 1;
             }
           })
-          // if (this.active++ > 2) this.active = 1;
+          }else if(this.data.new_password != this.data.repeat_new_password){
+          this.$message({
+            message: '两次输入密码不一致',
+            type: 'warning'
+          })
+         }else if(!passwordReg.test(this.data.new_password)){
+           this.$message({
+            message: '密码8-20位字符含大写字母、小写字母、数字、特殊符号两种组合以上',
+            type: 'warning'
+          })
+         }
 
         }
       })
@@ -192,6 +230,33 @@ export default {
         color:#C0C4CC;
         font-size:16px;
         z-index: 10;
+      }
+      .passwordPump {
+        position: absolute;
+        top: 70px;
+        left: 0;
+        padding: 16px 23px;
+        width: 530px;
+        // height: 90px;
+        background: #ffffff;
+        font-size: 14px;
+        color: #909399;
+        text-align: left;
+        z-index: 11;
+        .hover-pump-arrow {
+          position: absolute;
+          content: " ";
+          width: 0;
+          height: 0;
+          border: 10px solid rgba(96, 98, 102, 0.9);
+          border-top-color: transparent;
+          border-left-color: transparent;
+          border-right-color: transparent;
+          border-bottom-color: #ffffff;
+          top: -20px;
+          left: 50%;
+          margin-left: -10px;
+        }
       }
     }
     .partThree{

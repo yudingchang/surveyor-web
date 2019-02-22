@@ -7,8 +7,9 @@
     <tc-report-part-e ref="visual_and_workmanship" :sampling="data.sampling" :configs="configs" @save="handleSave"/>
     <tc-report-part-f ref="special_attention" :configs="configs" @save="handleSave"/>
     <tc-report-part-g ref="appendix" :configs="configs" :sampling-information="_.get(data, 'order.sampling_information')" @save="handleSave"/>
-    <tc-report-part-h ref="general_information" :order="data" :configs="configs" @save="handleSave"/>
-    <tc-report-part-i ref="inspection_results" :order="data" :configs="configs" @save="handleSave"/>
+    <tc-report-part-h ref="inspection_styles" :order="data" :configs="configs" @save="handleSave"/>
+    <tc-report-part-i ref="general_information" :order="data" :configs="configs" @save="handleSave"/>
+    <tc-report-part-j ref="inspection_results" :order="data" :configs="configs" @save="handleSave"/>
     <el-form style="margin:60px auto 100px">
       <el-form-item label-width="0" style="text-align: center;">
         <el-button style="border:1px solid rgba(144,147,153,1);width:140px;color:#909399;" @click="back()">返回</el-button>
@@ -64,6 +65,8 @@ export default {
     let modify = this.$route.query.modify ? this.$route.query.modify : false
     if(modify){
       this.$route.meta.title  = '修改报告'
+    }else{
+      this.$route.meta.title  = '写报告'
     }
     this.$nextTick(() => {
       this.getData()
@@ -87,6 +90,7 @@ export default {
             this.$refs.visual_and_workmanship.setData(this.data.review.visual_and_workmanship) // 外观及工艺
             this.$refs.special_attention.setData(this.data.review.special_attention) // 客户特殊要求
             this.$refs.appendix.setData(this.data.review.appendix) // 附录
+            this.$refs.inspection_styles.setData(this.data.review.inspection_styles) // 检验款
             this.$refs.general_information.setData(this.data.review.general_information) // 基本信息
             this.$refs.inspection_results.setData(this.data.review.inspection_results, this.data) // 基本信息
           })
@@ -107,11 +111,38 @@ export default {
       })
     },
     reportsubmit() {
-      reportsubmit(this.id, this.configs).then(res => {
-        if (res.data.code == 0) {
+      var _self=this
 
-        }
+      function checkForm(formName) { //封装验证表单的函数
+        var result = new Promise(function(resolve, reject) {
+          _self.$refs[formName].$refs.form.validate((valid) => {
+            if (valid) {
+              resolve();
+            } else { reject() }
+          })
+        })
+        resultArr.push(result) //push 得到promise的结果
+      }
+      let formArr=['quantity_conformity','packing_and_marking','product_conformity','data_measurement','visual_and_workmanship','special_attention']//假设这是四个form表单的ref
+      var resultArr=[]//用来接受返回结果的数组
+      formArr.forEach(item => { //根据表单的ref校验
+          checkForm(item)
       })
+      Promise.all([...resultArr]).then(function() { //都通过了
+        reportsubmit(_self.id, _self.configs).then(res => {
+          if (res.data.code == 0) {
+            _self.$router.push({
+              path:'/orderManagement/reporteManager'
+            })
+          }
+        })
+      }).catch(function() {
+        this.$message({
+          message: '报告信息不完整',
+          type: 'error'
+        })
+      });    
+     
     },
     previewReport(){
       this.$router.push({
@@ -197,6 +228,9 @@ export default {
         text-align: center;
         .el-form-item {
           margin: 20px 0;
+        }
+        .singleForm{
+          margin: 10px 0;
         }
       }
       .el-form-item__label {

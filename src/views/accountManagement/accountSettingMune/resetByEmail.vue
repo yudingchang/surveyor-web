@@ -1,5 +1,5 @@
 <template>
-  <div class="resetByPassword">
+  <div class="resetByEmail">
     <el-form ref="form" :model="form">
       <el-steps :active="active" finish-status="finish" align-center>
         <el-step title="电子邮箱验证"/>
@@ -13,6 +13,7 @@
                 v-model="form.email"
               placeholder="请输入电子邮箱"
               name="username"
+              disabled
               type="text" 
             />
           </el-form-item> 
@@ -25,7 +26,7 @@
               type="text" 
               style="width:530px;"
               >
-              <el-button slot="append" style="width:120px;height:48px;" :disabled="(sendMaDisabled == true) || (form.email =='')" @click="secondStepSendMa()">{{ secondStepText }}</el-button>
+              <el-button class="orangeAppend" slot="append" style="width:120px;height:48px;" :disabled="(sendMaDisabled == true) || (form.email =='')" @click="secondStepSendMa()">{{ secondStepText }}</el-button>
             </el-input>
             <!-- <el-button class="sendMa" @click="sendma()">{{sendmaText}}</el-button> -->
           </el-form-item> 
@@ -40,8 +41,17 @@
             v-model="form.new_password"
               placeholder="请输入登录密码"
               name="username"
-              type="text" 
+              oncopy="return false"
+              onpaste="return false"
+              type="password" 
+              @focus="passwordPumpShow=true"
+              @blur="passwordPumpShow=false"
             />
+            <div v-if="passwordPumpShow" class="passwordPump">
+              1、8-20位字符<br>
+              2、大写字母、小写字母、数字、特殊符号两种组合以上
+               <div class="hover-pump-arrow"></div>
+            </div>
           </el-form-item>
           <el-form-item prop="repeat_new_password" :rules="[{ required: true, message: '请确认输入登录密码', trigger: 'blur' }]">
             <i class="iconfont icon-denglumimazhongzhi"></i>
@@ -49,7 +59,7 @@
             v-model="form.repeat_new_password"
               placeholder="请确认登录密码"
               name="username"
-              type="text" 
+              type="password" 
             />
           </el-form-item> 
           <el-button @click="goActiveThree()" class="next">确认</el-button>
@@ -69,6 +79,7 @@
 <script>
 import {  resetpassword } from '@/api/accountSetting'
 import { resetPassword , forgetSendMa} from '@/api/login'
+import { mapGetters } from 'vuex'
 export default {
   name: 'resetByPassword',
   components: {
@@ -78,10 +89,30 @@ export default {
   data() {
     return {
       active: 1,
+      // 密码报错提示框
+      passwordPumpShow:false,
       secondStepText:'获取验证码',
       sendMaDisabled:false,
       form:{
         password:''
+      }
+    }
+  },
+   computed: {
+    ...mapGetters([    
+      'email'
+    ])
+  },  
+  created(){
+    this.form.email = this.email
+  },
+  watch: {
+    'form.new_password': function() {
+      const passwordReg = /^(?![A-Z]+$)(?![a-z]+$)(?!\d+$)(?![\W_]+$)\S{8,20}$/
+      if (passwordReg.test(this.form.new_password)) {
+        this.passwordPumpShow = false
+      } else {
+        this.passwordPumpShow = true
       }
     }
   },
@@ -157,7 +188,7 @@ export default {
 }
 </script>
 <style lang='scss'>
-  .resetByPassword{
+  .resetByEmail{
     $body_padding: 20px;
     .el-input__inner{
       height: 50px;
@@ -217,6 +248,12 @@ export default {
 .el-checkbox__input.is-focus .el-checkbox__inner {
   border-color: #c0c4cc;
 }
+.el-input-group__append{
+  border:none;
+  // border-radius: 0;
+  color:#ffffff;
+  background-color: #FFA800;
+}    
 .el-checkbox__input.is-checked .el-checkbox__inner,
 .el-checkbox__input.is-indeterminate .el-checkbox__inner {
   background-color: #ffa800;
@@ -225,12 +262,39 @@ export default {
   }
 </style>
 <style rel="stylesheet/scss" lang="scss" scoped>
-  .resetByPassword{
+  .resetByEmail{
     width: 530px;
     margin:100px auto 0;
     .password{
       margin-top:80px;
       position: relative;
+      .passwordPump {
+        position: absolute;
+        top: 70px;
+        left: 0;
+        padding: 16px 23px;
+        width: 530px;
+        // height: 90px;
+        background: #ffffff;
+        font-size: 14px;
+        color: #909399;
+        text-align: left;
+        z-index: 11;
+        .hover-pump-arrow {
+          position: absolute;
+          content: " ";
+          width: 0;
+          height: 0;
+          border: 10px solid rgba(96, 98, 102, 0.9);
+          border-top-color: transparent;
+          border-left-color: transparent;
+          border-right-color: transparent;
+          border-bottom-color: #ffffff;
+          top: -20px;
+          left: 50%;
+          margin-left: -10px;
+        }
+      }
       i{
         position:absolute;
         display: block;
@@ -245,6 +309,11 @@ export default {
           height: 50px;
           background:#FFA800;
           color:#ffffff;
+          border-radius: 0;
+      }
+      
+      .orangeAppend{
+       
       }
     }
     .partThree{

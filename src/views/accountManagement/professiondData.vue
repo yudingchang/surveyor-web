@@ -26,6 +26,7 @@
               <el-input
                 v-model="personalCertificateForm.last_name"
                 placeholder="请输入姓"
+                maxlength="50"
                 class="normalInput"
                 style="width:180px;"
               />
@@ -34,6 +35,7 @@
               <el-input
                 v-model="personalCertificateForm.first_name"
                 placeholder="请输入名"
+                maxlength="50"
                 class="normalInput"
                 style="width:180px;"
               />
@@ -46,27 +48,32 @@
               </el-radio-group>
             </el-form-item>
             <br>
-            <el-form-item label="出生日期" prop="birthday" label-width="100px">
+            <el-form-item label="出生日期" label-width="100px" prop="birthday">
               <el-date-picker
                 v-model="personalCertificateForm.birthday"
                 type="date"
+                :default-value = "new Date('1990','6','1')"
                 format="yyyy 年 MM 月 dd 日"
-                placeholder="选择日期"
+                placeholder="请选择日期"
                 class="normalInput"
               />
             </el-form-item>
             <br>
-            <el-form-item label="常驻地" label-width="100px">
-              <tc-target ref="target" :target="supplier"/>
-              <!-- <el-date-picker
-                v-model="personalCertificateForm.birthday"
-                type="date"
-                placeholder="选择日期">
-              </el-date-picker>-->
+            <el-form-item>
+              <span style="color:#f56c6c">*</span>
+              <el-form-item label="常驻地" label-width="90px">
+                <!-- supplier -->
+                <tc-target ref="target" :target="supplier"/>
+                <!-- <el-date-picker
+                  v-model="personalCertificateForm.birthday"
+                  type="date"
+                  placeholder="选择日期">
+                </el-date-picker>-->
+              </el-form-item>
             </el-form-item>
             <br>
             <el-form-item label="详细地址" prop="address" label-width="100px">
-              <el-input v-model="personalCertificateForm.address" type="textarea" class="normalInput"/>
+              <el-input v-model="personalCertificateForm.address" maxlength="200" type="textarea" class="normalInput"/>
             </el-form-item>
             <br>
             <el-form-item label="证件类型" prop="certificate_type" label-width="100px">
@@ -92,58 +99,64 @@
               />
             </el-form-item>
             <br>
-            <el-form-item label="证件照" prop="name" label-width="100px">
-              <el-upload
-                :action="uploadUrl"
-                :headers="uploadHeaders"
-                :show-file-list="false"
-                :on-success="handleAvatarSuccess"
-                :before-upload="beforeAvatarUpload"
-                class="avatar-uploader"
-              >
-                <img v-if="imageUrl" :src="imageUrl" class="avatar">
-                <div v-else class="avatar-uploader-icon">
-                  <i class="iconfont icon-IconCopy1"/>
-                  <p>身份证正面照片</p>
-                </div>
-              </el-upload>
-              <el-upload
-                :action="uploadUrl"
-                :headers="uploadHeaders2"
-                :show-file-list="false"
-                :on-success="handleAvatarSuccess2"
-                :before-upload="beforeAvatarUpload2"
-                class="avatar-uploader"
-              >
-                <img v-if="imageUrl2" :src="imageUrl2" class="avatar">
-                <div v-else class="avatar-uploader-icon">
-                  <i class="iconfont icon-IconCopy1"/>
-                  <p>身份证反面照片</p>
-                </div>
-              </el-upload>
-              <el-upload
-                :action="uploadUrl"
-                :headers="uploadHeaders3"
-                :show-file-list="false"
-                :on-success="handleAvatarSuccess3"
-                :before-upload="beforeAvatarUpload3"
-                class="avatar-uploader"
-              >
-                <img v-if="imageUrl3" :src="imageUrl3" class="avatar">
-                <div v-else class="avatar-uploader-icon">
-                  <i class="iconfont icon-IconCopy1"/>
-                  <p>手持身份证正面照片</p>
-                </div>
-              </el-upload>
-            </el-form-item>
+            <el-form-item>
+              <span style="color:#f56c6c">*</span>
+              <el-form-item label="证件照" prop="name" label-width="90px">
+                <el-upload
+                  :action="uploadUrl"
+                  :headers="uploadHeaders"
+                  :show-file-list="false"
+                  :on-success="handleAvatarSuccess"
+                  :before-upload="beforeAvatarUpload"
+                  class="avatar-uploader"
+                >
+                  <img v-if="imageUrl" :src="imageUrl" class="avatar">
+                  <div v-else class="avatar-uploader-icon">
+                    <i class="iconfont icon-IconCopy1"/>
+                    <p>身份证正面照片</p>
+                  </div>          
+                </el-upload>
+                <span class="front" v-if="!imageUrl">请上传身份证正面照片</span>
+                <el-upload
+                  :action="uploadUrl"
+                  :headers="uploadHeaders2"
+                  :show-file-list="false"
+                  :on-success="handleAvatarSuccess2"
+                  :before-upload="beforeAvatarUpload2"
+                  class="avatar-uploader"
+                >
+                  <img v-if="imageUrl2" :src="imageUrl2" class="avatar">
+                  <div v-else class="avatar-uploader-icon">
+                    <i class="iconfont icon-IconCopy1"/>
+                    <p>身份证反面照片</p>
+                  </div>
+                </el-upload>
+                <span class="back" v-if="!imageUrl2">请上传身份证反面照片</span>
+                <el-upload
+                  :action="uploadUrl"
+                  :headers="uploadHeaders3"
+                  :show-file-list="false"
+                  :on-success="handleAvatarSuccess3"
+                  :before-upload="beforeAvatarUpload3"
+                  class="avatar-uploader"
+                >
+                  <img v-if="imageUrl3" :src="imageUrl3" class="avatar">
+                  <div v-else class="avatar-uploader-icon">
+                    <i class="iconfont icon-IconCopy1"/>
+                    <p>手持身份证正面照片</p>
+                  </div>
+                </el-upload>
+                <span class="handheld" v-if="!imageUrl3">请上传手持身份证正面照片</span>
+              </el-form-item>
+            </el-form-item>  
             <br>
-            <el-button class="btn" @click="savaPersonalCertificate()">保存</el-button>
+            <el-button class="btn" @click="savaPersonalCertificate('personalCertificateForm')">保存</el-button>
           </el-form>
           <!-- 个人认证只读 -->
+          <!-- ref="personalCertificateForm"
+            :model="personalCertificateForm" -->
           <el-form
-            v-show="!is_edit_certificate"
-            ref="personalCertificateForm"
-            :model="personalCertificateForm"
+            v-show="!is_edit_certificate"    
             class="personalCertificateForm"
           >
             <el-form-item label="姓名" prop="last_name" label-width="100px">
@@ -179,7 +192,7 @@
               <img v-if="imageUrl2" :src="imageUrl2">
               <img v-if="imageUrl3" :src="imageUrl3">
             </el-form-item>
-            <el-button style="position:absolute;right:40px;top:0;" type="success" icon="el-icon-edit-outline" @click="is_edit_certificate = !is_edit_certificate">修改</el-button>
+            <el-button v-if="inspector.inspector_status != 2" style="position:absolute;right:40px;top:0;" type="success" icon="el-icon-edit-outline" @click="is_edit_certificate = !is_edit_certificate">修改</el-button>
           </el-form>
         </div>
       </el-col>
@@ -212,7 +225,7 @@
                 :options="configs.multiCascaderLocations"
                 v-model="examineGoodsForm.locations"
                 style="width:428px;"
-                placeholder="选择运营商"
+                placeholder="请选择验货期望地"
                 @change="ispChange"
               />
             </el-form-item>
@@ -232,8 +245,6 @@
           <!-- 验货信息只读 -->
           <el-form
             v-show="!is_edit_serve"
-            ref="examineGoodsForm"
-            :model="examineGoodsForm"
             class="personalCertificateForm"
           >
             <el-form-item label="验货期望地" prop="locations_arr" label-width="100px">
@@ -244,7 +255,7 @@
             <el-form-item label="报告语言" prop="report_languages" label-width="100px">
               <span>{{ arrayLanguages(examineGoodsForm.report_languages) }}</span>
             </el-form-item>
-            <el-button style="position:absolute;right:40px;top:0;" type="success" icon="el-icon-edit-outline" @click="is_edit_serve=!is_edit_serve">修改</el-button>
+            <el-button v-if="inspector.inspector_status != 2" style="position:absolute;right:40px;top:0;" type="success" icon="el-icon-edit-outline" @click="is_edit_serve=!is_edit_serve">修改</el-button>
           </el-form>
         </div>
 
@@ -263,15 +274,15 @@
         <div v-show="experienceFormShow">
           <!-- 工作经验编辑 -->
           <div v-show="is_edit_work">
-            <el-form ref="experienceForm" :model="experienceForm" class="personalCertificateForm">
+            <el-form ref="experienceForm" :model="experienceForm" class="personalCertificateForm" label-width="140px">
               <div v-for="(item,index) in experienceForm.experienceFormArray" :key="index">
                 <el-form-item
                   :prop="'experienceFormArray.' + index + '.company'"
                   :rules="experienceFormRules.company"
                   label="公司名称"
-                  label-width="100px"
+                  
                 >
-                  <el-input v-model="item.company" class="normalInput" placeholder="请输入公司名称"/>
+                  <el-input v-model="item.company" maxlength="50" class="normalInput" placeholder="请输入公司名称"/>
                   <div
                     v-if="index>=1"
                     class="remove"
@@ -285,7 +296,6 @@
                   :prop="'experienceFormArray.' + index + '.start_end_date'"
                   :rules="experienceFormRules.start_end_date"
                   label="起止时间"
-                  label-width="100px"
                 >
                   <el-date-picker
                     v-model="item.start_end_date"
@@ -301,8 +311,7 @@
                 <el-form-item
                   :prop="'experienceFormArray.' + index + '.is_third_party_work'"
                   :rules="experienceFormRules.is_third_party_work"
-                  label="是否有第三方工作经验"
-                  label-width="170px"
+                  label="是否是第三方公司"
                 >
                   <el-radio-group v-model="item.is_third_party_work">
                     <el-radio :label="1">是</el-radio>
@@ -313,7 +322,6 @@
                   :prop="'experienceFormArray.' + index + '.position'"
                   :rules="experienceFormRules.position"
                   label="职位"
-                  label-width="100px"
                 >
                   <el-input v-model="item.position" class="normalInput" placeholder="请输入职位"/>
                 </el-form-item>
@@ -321,12 +329,12 @@
                   :prop="'experienceFormArray.' + index + '.work_description'"
                   :rules="experienceFormRules.work_description"
                   label="工作描述"
-                  label-width="100px"
                 >
                   <el-input
                     v-model="item.work_description"
                     type="textarea"
                     class="normalInput"
+                    maxlength="500"
                     placeholder="500字以内"
                   />
                 </el-form-item>
@@ -334,9 +342,8 @@
                   :prop="'experienceFormArray.' + index + '.company_nature'"
                   :rules="experienceFormRules.company_nature"
                   label="公司性质"
-                  label-width="100px"
                 >
-                  <el-select v-model="item.company_nature" placeholder="请选择" class="normalInput">
+                  <el-select v-model="item.company_nature" placeholder="请选择工作性质" class="normalInput">
                     <el-option
                       v-for="item in configs.inspectorCompanyNatureArr"
                       :key="item.id"
@@ -349,7 +356,6 @@
                   :prop="'experienceFormArray.' + index + '.company_scale'"
                   :rules="experienceFormRules.company_scale"
                   label="公司规模"
-                  label-width="100px"
                 >
                   <el-select v-model="item.company_scale" placeholder="请选择" class="normalInput">
                     <el-option
@@ -364,7 +370,6 @@
                   :prop="'experienceFormArray.' + index + '.is_full_time'"
                   :rules="experienceFormRules.is_full_time"
                   label="是否全职"
-                  label-width="100px"
                 >
                   <el-radio-group v-model="item.is_full_time">
                     <el-radio :label="1">是</el-radio>
@@ -438,7 +443,7 @@
                   <span v-if="item.is_full_time == 2">否</span>
                 </el-form-item>
               </div>
-              <el-button style="position:absolute;right:40px;top:0;" type="success" icon="el-icon-edit-outline" @click="is_edit_work=!is_edit_work">修改</el-button>
+              <el-button v-if="inspector.inspector_status != 2" style="position:absolute;right:40px;top:0;" type="success" icon="el-icon-edit-outline" @click="is_edit_work=!is_edit_work">修改</el-button>
             </el-form>
           </div>
         </div>
@@ -490,7 +495,7 @@
                   label="毕业学校"
                   label-width="100px"
                 >
-                  <el-input v-model="item.college" class="normalInput" placeholder="请输入毕业学校"/>
+                  <el-input v-model="item.college" class="normalInput" maxlength="50" placeholder="请输入毕业学校"/>
                 </el-form-item>
                 <el-form-item
                   :prop="'educationFormArray.' + index + '.major'"
@@ -498,7 +503,7 @@
                   label="专业"
                   label-width="100px"
                 >
-                  <el-input v-model="item.major" class="normalInput" placeholder="请输入专业"/>
+                  <el-input v-model="item.major" class="normalInput" maxlength="50" placeholder="请输入专业"/>
                 </el-form-item>
                 <el-form-item
                   :prop="'educationFormArray.' + index + '.education'"
@@ -506,7 +511,7 @@
                   label="学历"
                   label-width="100px"
                 >
-                  <el-select v-model="item.education" placeholder="请输入学历" class="normalInput">
+                  <el-select v-model="item.education" placeholder="请选择学历" class="normalInput">
                     <el-option
                       v-for="item in configs.inspectorEducationArr"
                       :key="item.id"
@@ -580,7 +585,7 @@
                   <span v-else>否</span>
                 </el-form-item>
               </div>
-              <el-button style="position:absolute;right:40px;top:0;" type="success" icon="el-icon-edit-outline" @click="is_edit_education=!is_edit_education">修改</el-button>
+              <el-button v-if="inspector.inspector_status != 2" style="position:absolute;right:40px;top:0;" type="success" icon="el-icon-edit-outline" @click="is_edit_education=!is_edit_education">修改</el-button>
             </el-form>
           </div>
         </div>
@@ -618,7 +623,7 @@
                 label="英语水平"
                 label-width="100px"
               >
-                <el-select v-model="item.level_attained" placeholder="请选择" class="normalInput">
+                <el-select v-model="item.level_attained" placeholder="请选择英语水平" class="normalInput">
                   <el-option
                     v-for="item in optionSelet"
                     :key="item.value"
@@ -634,6 +639,7 @@
                   :file-list="_.filter(item.en_images, { detach: false })"
                   :on-remove="handleRemove.bind(this,index)"
                   :on-success="handleSuccess.bind(this,index)"
+                  :before-upload="beforeAvatarUpload"
                   list-type="picture-card"
                 >
                   <div class="bgContent">
@@ -655,6 +661,7 @@
                   :file-list="_.filter(item.certificate_images, { detach: false })"
                   :on-remove="handleRemoveCertificate.bind(this,index)"
                   :on-success="handleSuccessCertificate.bind(this,index)"
+                  :before-upload="beforeAvatarUpload"
                   list-type="picture-card"
                 >
                   <div class="bgContent">
@@ -700,7 +707,7 @@
                 <img v-for="(item,index) in item.certificate_images" :src="item.url" :key="index" alt="">
               </el-form-item>
             </div>
-            <el-button style="position:absolute;right:40px;top:0;" type="success" icon="el-icon-edit-outline" @click="is_edit_technical = !is_edit_technical">修改</el-button>
+            <el-button v-if="inspector.inspector_status != 2" style="position:absolute;right:40px;top:0;" type="success" icon="el-icon-edit-outline" @click="is_edit_technical = !is_edit_technical">修改</el-button>
           </el-form>
         </div>
       </el-col>
@@ -785,7 +792,7 @@
                   </span>
                 </span>
               </el-form-item>
-              <el-button style="position:absolute;right:40px;top:0;" type="success" icon="el-icon-edit-outline" @click="is_edit_industry=!is_edit_industry">修改</el-button>
+              <el-button v-if="inspector.inspector_status != 2" style="position:absolute;right:40px;top:0;" type="success" icon="el-icon-edit-outline" @click="is_edit_industry=!is_edit_industry">修改</el-button>
             </el-form>
           </div>
         </div>
@@ -794,7 +801,7 @@
       <el-col :span="24" class="trainingExperience normalbox">
         <div :class="{titleChange:!trainingExperienceFormShow}" class="normalTitle">
           <span class="left">
-            <span>*</span>培训经历
+            培训经历
           </span>
           <span class="right" @click="trainingExperienceSpread()">
             {{ trainingExperiencetext }}
@@ -818,7 +825,7 @@
               >
                 <el-form-item
                   :prop="'trainingExperienceFormArray.' + index + '.start_end_date'"
-                  :rules="trainingExperienceFormRules.start_end_date"
+                  
                   label="培训时间"
                   label-width="100px"
                 >
@@ -842,42 +849,44 @@
                 </el-form-item>
                 <el-form-item
                   :prop="'trainingExperienceFormArray.' + index + '.training_institution'"
-                  :rules="trainingExperienceFormRules.training_institution"
+                  
                   label="培训课程"
                   label-width="100px"
                 >
                   <el-input
                     v-model="item.training_institution"
                     class="normalInput"
+                    maxlength="50"
                     placeholder="请输入培训课程"
                   />
                 </el-form-item>
                 <el-form-item
                   :prop="'trainingExperienceFormArray.' + index + '.training_course'"
-                  :rules="trainingExperienceFormRules.training_course"
+                  
                   label="培训机构"
                   label-width="100px"
                 >
-                  <el-input v-model="item.training_course" class="normalInput" placeholder="请输入培训机构"/>
+                  <el-input v-model="item.training_course" class="normalInput" maxlength="50" placeholder="请输入培训机构"/>
                 </el-form-item>
                 <el-form-item
                   :prop="'trainingExperienceFormArray.' + index + '.address'"
-                  :rules="trainingExperienceFormRules.address"
+                  
                   label="培训地点"
                   label-width="100px"
                 >
-                  <el-input v-model="item.address" class="normalInput" placeholder="请输入培训地点"/>
+                  <el-input v-model="item.address" class="normalInput" maxlength="50" placeholder="请输入培训地点"/>
                 </el-form-item>
                 <el-form-item
                   :prop="'trainingExperienceFormArray.' + index + '.training_description'"
-                  :rules="trainingExperienceFormRules.training_description"
-                  label="培训描述"
+                  
+                  label="培训描述"            
                   label-width="100px"
                 >
                   <el-input
                     v-model="item.training_description"
                     type="textarea"
                     class="normalInput"
+                    maxlength="500"
                     placeholder="请输入培训描述"
                   />
                 </el-form-item>
@@ -938,14 +947,14 @@
                   <span>{{ item.training_description }}</span>
                 </el-form-item>
               </div>
-              <el-button style="position:absolute;right:40px;top:0;" type="success" icon="el-icon-edit-outline" @click="is_edit_training=!is_edit_training">修改</el-button>
+              <el-button v-if="inspector.inspector_status != 2" style="position:absolute;right:40px;top:0;" type="success" icon="el-icon-edit-outline" @click="is_edit_training=!is_edit_training">修改</el-button>
             </el-form>
           </div>
         </div>
 
       </el-col>
       <el-col :span="24" class="bottom">
-        <el-button class="submitBtn" @click="submitBtn()">提交</el-button>
+        <el-button class="submitBtn" @click="submitBtn()" v-if="inspector.inspector_status != 2">提交</el-button>
       </el-col>
       <!-- 绑定电子邮箱 -->
       <el-dialog :title="emailForm.emailText" :visible.sync="emailForm.dialogFormVisible" width="400px" center>
@@ -1000,6 +1009,13 @@ export default {
     'tc-target': InspectionTarget
   },
   data() {
+    var validateSex = (rule, value, callback) => {
+        if (value===0) {
+          return callback(new Error('请选择性别'));
+        }else{
+          callback();
+        }
+      };
     return {
       tableData: [],
       supplier: {
@@ -1075,7 +1091,7 @@ export default {
       },
       trainingExperienceFormRules: {
         start_end_date: [
-          { required: true, message: '请输入起止时间', trigger: 'change' }
+          { required: true, message: '请选择起止时间', trigger: 'change' }
         ],
         training_institution: [
           { required: true, message: '请输入培训课程', trigger: 'blur' }
@@ -1105,11 +1121,13 @@ export default {
         }
       },
       //  个人认证表单
-      personalCertificateForm: {},
+      personalCertificateForm: {
+        certificate_type:1
+      },
       personalCertificateRules: {
         last_name: [{ required: true, message: '请输入姓', trigger: 'blur' }],
         first_name: [{ required: true, message: '请输入名', trigger: 'blur' }],
-        sex: [{ required: true, message: '请选择性别', trigger: 'change' }],
+        sex: [{required: true, validator: validateSex, trigger: 'blur' }],
         birthday: [{ required: true, message: '请选择生日', trigger: 'blur' }],
         address: [
           { required: true, message: '请选择详细地址', trigger: 'blur' }
@@ -1121,13 +1139,16 @@ export default {
           { required: true, message: '请输入证件号', trigger: 'blur' }
         ]
       },
-      examineGoodsForm: {},
+      examineGoodsForm: {
+        report_languages:[],
+        locations_arr:[]
+      },
       examineGoodsFormRules: {
         locations: [
           { required: true, message: '请选择验货期望地', trigger: 'change' }
         ],
         report_languages: [
-          { required: true, message: '请选择报告语言', trigger: 'change' }
+          { required: true, message: '请选择报告语言', trigger: 'blur' }
         ]
       },
       experienceFormRules: {
@@ -1135,7 +1156,7 @@ export default {
           { required: true, message: '请输入公司名称', trigger: 'blur' }
         ],
         start_end_date: [
-          { required: true, message: '请输入起止时间', trigger: 'change' }
+          { required: true, message: '请选择起止时间', trigger: 'change' }
         ],
         is_third_party_work: [
           {
@@ -1149,7 +1170,7 @@ export default {
           { required: true, message: '请输入工作描述', trigger: 'blur' }
         ],
         company_nature: [
-          { required: true, message: '请输入工作性质', trigger: 'change' }
+          { required: true, message: '请选择公司性质', trigger: 'change' }
         ],
         company_scale: [
           { required: true, message: '请选择公司规模', trigger: 'change' }
@@ -1179,10 +1200,10 @@ export default {
       imageUrl2: '',
       imageUrl3: '',
       options: [
-        {
-          value: 0,
-          label: "请选择证件类型"
-        },
+        // {
+        //   value: 0,
+        //   label: "请选择证件类型"
+        // },
         {
           value: 1,
           label: '身份证'
@@ -1274,7 +1295,8 @@ export default {
   computed: {
     ...mapGetters([    
       'email',
-      'configs'
+      'configs',
+      'inspector'
     ]),
     uploadUrl() {
       return process.env.BASE_API + 'v1/upload'
@@ -1478,11 +1500,9 @@ export default {
       ].en_images[newIndex].detach = true
     },
     handleSuccess(index, res, file) {
-      console.log(index)
       this.technicalCompetenceForm.technicalCompetenceFormArray[
         index
       ].en_images.push(res.data)
-      console.log(this.technicalCompetenceForm)
     },
     // 验货相关证书
     handleRemoveCertificate(index, file, fileList) {
@@ -1537,15 +1557,15 @@ export default {
       this.num = index
       item.isBool = true
       switch (index) {
-        case 0:
-          this.getList()
-          break
-        case 1:
-          this.getList('WAIT_QUOTE')
-          break
-        case 2:
-          this.getList('WAIT_PAY')
-          break
+        // case 0:
+        //   this.getList()
+        //   break
+        // case 1:
+        //   this.getList('WAIT_QUOTE')
+        //   break
+        // case 2:
+        //   this.getList('WAIT_PAY')
+        //   break
       }
     },
     // 获取个人认证信息
@@ -1581,13 +1601,19 @@ export default {
             inspector_certificate.identification_images
           this.imageUrl = inspector_certificate.identification_images.find(
             t => t.tag == 'front'
-          ).url
+          ) ? inspector_certificate.identification_images.find(
+            t => t.tag == 'front'
+          ).url : ''
           this.imageUrl2 = inspector_certificate.identification_images.find(
             t => t.tag == 'back'
-          ).url
+          ) ?  inspector_certificate.identification_images.find(
+            t => t.tag == 'back'
+          ).url : ''
           this.imageUrl3 = inspector_certificate.identification_images.find(
             t => t.tag == 'handheld'
-          ).url
+          ) ? inspector_certificate.identification_images.find(
+            t => t.tag == 'handheld'
+          ).url : ''
           this.examineGoodsForm =
             Object.keys(inspector_serve).length === 0
               ? this.examineGoodsForm
@@ -1625,59 +1651,101 @@ export default {
         // this.optionList = response.data.data.multiCascaderLocations
       })
     },
+    // 预上传英语证书
+    beforeAvatarUpload(file) {
+      console.log(file.type)
+      const isJPG = file.type == 'image/jpeg';
+      const isPNG = file.type == 'image/png';
+      const isLt2M = file.size / 1024 / 1024 < 10;
+
+      if (!(isJPG || isPNG)) {
+        this.$message.error('上传头像图片只能是 JPG或PNG 格式!');
+      }
+      if (!isLt2M) {
+        this.$message.error('上传头像图片大小不能超过 10MB!');
+      }
+      return (isJPG || isPNG)  && isLt2M;
+    },
     // 保存个人认证
-    savaPersonalCertificate() {
-      this.$refs['personalCertificateForm'].validate(valid => {
-        if (valid) {
+    savaPersonalCertificate(formName) {
+      var _this = this
+      var p1=new Promise(function(resolve, reject) {
+          _this.$refs[formName].validate((valid) => {
+              if(valid){
+                  resolve();
+              }
+          })
+      })
+      var p2=new Promise(function(resolve, reject) {
+          _this.$refs['target'].$refs.targetForm.validate((valid) => {
+              if(valid){
+                  resolve();
+              }
+          })
+      })
+      var p3 = new Promise(function(resolve, reject) {
+        if(_this.imageUrl && _this.imageUrl2 && _this.imageUrl3){
+           resolve();
+        }
+      })
+      
+      Promise.all([p1,p2,p3]).then(function(){
           let changeList
           const tempetchangeList = [
-            ...this.identificationImagesList,
-            this.newhandheld == null ? '' : this.newhandheld,
-            this.newback == null ? '' : this.newback,
-            this.newfront == null ? '' : this.newfront
+            ..._this.identificationImagesList,    
+            _this.newhandheld == null ? '' : _this.newhandheld,
+            _this.newback == null ? '' : _this.newback,
+            _this.newfront == null ? '' : _this.newfront
           ]
           changeList = tempetchangeList.filter(item => item.length != 0)
           savaPersonalCertificate({
             inspector_certificate: {
-              ...this.personalCertificateForm,
-              country_id: this.supplier.country_id,
-              location_ids: this.supplier.location_ids,
+              ..._this.personalCertificateForm,
+              country_id: _this.supplier.country_id,
+              location_ids: _this.supplier.location_ids,
               identification_images:
-                this.identificationImagesList.length == 0
-                  ? [this.front, this.back, this.handheld]
+                _this.identificationImagesList.length == 0
+                  ? [_this.front, _this.back, _this.handheld]
                   : changeList
             }
           }).then(response => {
             if (response.data.code == 0) {
               store.dispatch('GetUserInfo')
-              this.$message({
+              _this.$message({
                 message: '个人认证资料保存成功',
                 type: 'success'
               })
-              this.getPersonalAuthentication()
+              _this.getPersonalAuthentication()
             }
-          })
-        } else {
+  
+         else {
           console.log('error submit!!')
-          return false
-        }
-      })
+          return false 
+        }      
+        })
+        })
+      // this.$refs[formName].validate((valid) => {
+      //   if (valid) {
+       
+      //   }
+      // })
     },
     // 保存验货信息
     savaExamineGoods() {
-      this.$refs['examineGoodsForm'].validate(valid => {
+      var _this = this
+      this.$refs['examineGoodsForm'].validate((valid) => {
         if (valid) {
           savaExamineGoods({
             inspector_serve: {
-              ...this.examineGoodsForm
+              ..._this.examineGoodsForm
             }
           }).then(response => {
             if (response.data.code == 0) {
-              this.$message({
+              _this.$message({
                 message: '验货信息资料保存成功',
                 type: 'success'
               })
-              this.getPersonalAuthentication()
+              _this.getPersonalAuthentication()
             }
           })
         } else {
@@ -1774,8 +1842,14 @@ export default {
       this.multiCascaderIndustrysForm.electronics.category_ids = this.$refs.electronics.getCheckedKeys()
       this.multiCascaderIndustrysForm.light_industry.category_ids = this.$refs.light_industry.getCheckedKeys()
       this.multiCascaderIndustrysForm.textile.category_ids = this.$refs.textile.getCheckedKeys()
-      // console.log(this.electronicsData)
-      savemultiCascaderIndustrys({
+      if(this.multiCascaderIndustrysForm.electronics.category_ids.length == 0 && this.multiCascaderIndustrysForm.light_industry.category_ids.length == 0 && this.multiCascaderIndustrysForm.textile.category_ids.length == 0){
+         this.$message({
+            message: '请选择行业线',
+            type: 'error'
+          })
+          return false
+      }else{
+        savemultiCascaderIndustrys({
         industry: this.multiCascaderIndustrysForm
       }).then(res => {
         if (res.data.code == 0) {
@@ -1786,15 +1860,53 @@ export default {
           this.getPersonalAuthentication()
         }
       })
+      }
+      // console.log(this.electronicsData)     
     },
     // 提交所有信息
     submitBtn(){
-      console.log(this.email)
-      if(this.email != null ){
-        this.submitConfirmBtn()
-      }else{
-        this.emailForm.dialogFormVisible = true      
+      var _self=this
+      var p1=new Promise(function(resolve, reject) {
+          _self.$refs['target'].$refs.targetForm.validate((valid) => {
+              if(valid){
+                  resolve();
+              }
+          })
+      })
+      var p2 = new Promise(function(resolve, reject) {
+        if(_self.imageUrl && _self.imageUrl2 && _self.imageUrl3){
+           resolve()
+        }
+      })
+      var p3 = new Promise(function(resolve, reject) {
+        if(_self.multiCascaderIndustrysForm.electronics.category_ids.length != 0 ||  _self.multiCascaderIndustrysForm.light_industry.category_ids.length != 0 || _self.multiCascaderIndustrysForm.textile.category_ids.length != 0){
+          resolve()
+        }
+      })
+      function checkForm(formName) { //封装验证表单的函数
+        var result = new Promise(function(resolve, reject) {
+          _self.$refs[formName].validate((valid) => {
+            if (valid) {
+              resolve();
+            } else { reject() }
+          })
+        })
+        resultArr.push(result) //push 得到promise的结果
       }
+      let formArr=['personalCertificateForm','examineGoodsForm','experienceForm','educationForm','technicalCompetenceRules']//假设这是四个form表单的ref
+      var resultArr=[]//用来接受返回结果的数组
+      formArr.forEach(item => { //根据表单的ref校验
+          checkForm(item)
+      })
+      Promise.all([...resultArr,p2,p3,p1]).then(function() { //都通过了
+        if(_self.email != null ){
+        _self.submitConfirmBtn()
+        }else{
+          _self.emailForm.dialogFormVisible = true      
+        }
+      }).catch(function() {
+        console.log("err");
+      });      
     },
     // 提交所有信息
     submitConfirmBtn() {
@@ -1824,6 +1936,8 @@ export default {
         technical_skills: this.technicalCompetenceForm.technicalCompetenceFormArray
       }).then(res => {
         if (res.data.code == 0) {
+          this.getPersonalAuthentication()
+          store.dispatch('GetUserInfo')
           this.$router.push({
             path:'dataAudite'
           })
@@ -1954,6 +2068,9 @@ export default {
   .el-form-item__label {
     text-align: left;
   }
+  .el-checkbox__input.is-checked+.el-checkbox__label {
+    color: #ffa800;
+  }
   .el-upload--picture-card {
     border: 1px solid rgba(192, 196, 204, 1);
     width: 240px;
@@ -2009,7 +2126,7 @@ export default {
   }
 
   .el-radio + .el-radio {
-    margin-left: 115px;
+    margin-left: 25px;
   }
   .el-radio__input.is-checked .el-radio__inner {
     border-color: #ffa500;
@@ -2085,7 +2202,27 @@ export default {
       font-size: 16px;
     }
   }
-
+  .front{
+    position: absolute;
+    bottom: -20px;
+    left: 0;
+    color:#f56c6c;
+    font-size:12px;
+  }
+  .back{
+    position: absolute;
+    bottom: -20px;
+    left: 265px;
+    color:#f56c6c;
+    font-size:12px;
+  }
+  .handheld{
+    position: absolute;
+    bottom: -20px;
+    left: 530px;
+    color:#f56c6c;
+    font-size:12px;
+  }
   .normalbox {
     padding: 20px 30px;
     background: rgba(255, 255, 255, 1);
@@ -2132,7 +2269,7 @@ export default {
       .showImg{
         img{
           width: 240px;
-          // height: 135px;
+          max-height: 135px;
           display: inline-block;
           margin-right:20px;
         }

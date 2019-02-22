@@ -128,6 +128,10 @@ export default {
     handleComfirm() {
       this.$refs.form.validate(valid => {
         if (valid) {
+          this.$message({
+            message: '客户特殊要求保存成功',
+            type: 'success'
+          })
           this.$emit('save', this.data, 'special_attention')
         }
       })

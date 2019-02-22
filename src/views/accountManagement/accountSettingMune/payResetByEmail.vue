@@ -1,5 +1,5 @@
 <template>
-  <div class="resetByPassword">
+  <div class="payResetByEmail">
     <el-form ref="form" :model="form">
       <el-steps :active="active" finish-status="finish" align-center>
         <el-step title="电子邮箱验证"/>
@@ -11,6 +11,7 @@
             <i class="iconfont icon-dianziyouxiangzhongzhi"></i>
             <el-input
                 v-model="form.email"
+                disabled
               placeholder="请输入电子邮箱"
               name="username"
               type="text" 
@@ -69,6 +70,7 @@
 <script>
 import { sendMa } from '@/api/walletDetail'
 import { forgotpaypasswordMa , forgotpaypassword } from '@/api/accountSetting'
+import { mapGetters } from 'vuex'
 export default {
   name: 'resetByPassword',
   components: {
@@ -84,6 +86,14 @@ export default {
         password:''
       }
     }
+  },
+  computed: {
+    ...mapGetters([    
+      'email'
+    ])
+  },  
+  created(){
+    this.form.email = this.email
   },
   methods: {
     back(){
@@ -146,7 +156,7 @@ export default {
 }
 </script>
 <style lang='scss'>
-  .resetByPassword{
+  .payResetByEmail{
     $body_padding: 20px;
     .el-input__inner{
       height: 50px;
@@ -206,6 +216,11 @@ export default {
 .el-checkbox__input.is-focus .el-checkbox__inner {
   border-color: #c0c4cc;
 }
+.el-input-group__append{
+  border: none;
+  color: #ffffff;
+  background-color: #FFA800;
+}
 .el-checkbox__input.is-checked .el-checkbox__inner,
 .el-checkbox__input.is-indeterminate .el-checkbox__inner {
   background-color: #ffa800;
@@ -214,7 +229,7 @@ export default {
   }
 </style>
 <style rel="stylesheet/scss" lang="scss" scoped>
-  .resetByPassword{
+  .payResetByEmail{
     width: 530px;
     margin:100px auto 0;
     .password{

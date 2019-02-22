@@ -73,8 +73,15 @@
         prop="marking_name"
         label="状态"/>
       <el-table-column
-        prop="admin.nickname"
-        label="测库联系人"/>
+        label="测库联系人">
+        <template slot-scope="scope">
+          {{scope.row.admin.nickname}}
+          <span v-if="scope.row.admin.mobile_phone">
+            ({{scope.row.admin.mobile_phone}})
+          </span>
+          <!-- <div class=""><span v-for="(item,index) in filterFees(scope.row.fees)" :key='index'>{{item}}</span></div>  -->
+        </template>
+      </el-table-column>
       <el-table-column
         label="操作"
       >
@@ -471,6 +478,7 @@ content: ' , ';
         list-style: none;
         margin: 0;
         padding: 0;
+        cursor: pointer;
         li {
           float: left;
           width: 20%;

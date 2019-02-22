@@ -26,7 +26,7 @@
                   抽样水平
                 </td>
                 <td colspan="3">
-                  {{ _.get(_.find(_.get(configs, 'samplings.levels', []), { level: data.sampling.params.level }), 'value') }}
+                  {{ _.get(_.find(_.get(configs, 'samplings.levels', []), item => { return item.value == data.sampling.params.level }), 'label') }}
                 </td>
               </tr>
               <tr v-if="data.sampling.type === 2">
@@ -69,6 +69,16 @@
             </tbody>
           </table>
         </el-form-item>
+        
+        <!-- :rules="((data.real_fatal_defect>data.sampling.params.fatal_defect) || (data.real_serious_defect>data.sampling.params.serious_defect) || (data.real_minor_defect>data.sampling.params.minor_defect)) ? [{ required: true, message:'请输入备注内容', trigger: 'blur' }] : []" -->
+        <el-form-item label="备注" label-width="70px" prop='remark' :rules="((data.real_fatal_defect>data.sampling.params.fatal_defect) || (data.real_serious_defect>data.sampling.params.serious_defect) || (data.real_minor_defect>data.sampling.params.minor_defect)) ? [{ required: true, message:'请输入备注内容', trigger: 'blur' }] : []">
+          <el-input
+            :autosize="{ minRows: 3, maxRows: 5}"  
+            v-model="data.remark"
+            type="textarea"
+            placeholder="请输入备注内容"
+            style="width: 100%;"/>
+        </el-form-item>
 
         <div v-for="(product, index) in data.products" :key="'p'+index">
           <el-form-item label-width="100px">
@@ -77,11 +87,25 @@
               款号/型号
             </template>
             <span style="margin-right: 1rem;">{{ product.number ? product.number : 'N/A' }}</span>
-            <el-input v-if="!product.number" v-model="product.name" style="width: 480px;"/>
-            <span style="margin-left: 1rem;">抽样数{{ product.check_quantity }}</span>
-            <i v-if="!product.id" class="el-icon-close tc-remove" @click="handleRemoveProduct(index)"/>
+            <el-input v-if="!product.number" v-model="product.name" style="width: 300px;" placeholder="请输入款号或名称"/>
+            <span style="margin-left: 1rem;">抽样数</span>
+            <!-- <span style="margin-right: 1rem;">{{ product.check_quantity ? product.check_quantity : 'N/A' }}</span> -->
+            <el-input v-model="product.check_quantity" style="width: 150px;" placeholder="请输入数量"/>
+            <el-button v-if="!product.id" type="success" @click="handleRemoveProduct(index)">删除产品</el-button>
+            <!-- <i v-if="!product.id" class="el-icon-close tc-remove" @click=""/> -->
+            
           </el-form-item>
-          <el-form-item label-width="0" style="margin: 0 0 24px 0;">
+          <el-form-item :rules="[{ required: true, message: '请选择是否有缺陷', trigger: 'blur' }]" label="是否有缺陷" :prop="'products.'+index+'.has_defect'" label-width="100px">
+            <el-radio
+              v-for="item in defectList"
+              v-model="product.has_defect"
+              @change="resetForm('form')"
+              :key="item.value"
+              :label="item.value">
+              {{ item.label }}
+            </el-radio>
+          </el-form-item>
+          <el-form-item label-width="0" style="margin: 0 0 24px 0;" v-if="product.has_defect==1">
             <el-table
               :data="product.defective_items"
               border
@@ -131,25 +155,21 @@
               </el-table-column>
             </el-table>
           </el-form-item>
-          <el-form-item label-width="0" style="margin: 0 0 22px 0;">
+          <el-form-item label-width="0" style="margin: 0 0 22px 0;" v-if="product.has_defect==1">
             <el-button type="success" icon="el-icon-plus" @click="handleAddDefectiveItem(product)">添加缺陷项</el-button>
           </el-form-item>
-          <el-form-item label="备注" prop="remark_content" :rules="((data.real_fatal_defect>data.sampling.params.fatal_defect) || (data.real_serious_defect>data.sampling.params.serious_defect) || (data.real_minor_defect>data.sampling.params.minor_defect)) ? [{ required: true, message:'请输入备注内容', trigger: 'blur' }] : []">
-            <el-input
-              :autosize="{ minRows: 3, maxRows: 5}"
-              v-model="data.remark_content"
-              type="textarea"
-              placeholder="请输入备注内容"
-              style="width: 100%;"/>
-          </el-form-item>
-          <el-form-item label="图片">
+          <el-form-item label="图片" v-if="product.has_defect==1">
             <tc-upload-image
               :files="product.files"
               :name="'products.'+index+'.files'"
               @upload="handleUploadFile"
               @remove="handleRemoveFile"/>
           </el-form-item>
+          
         </div>
+        <el-form-item label-width="0" style="margin: 0 0 22px 0;" >
+            <el-button type="success" icon="el-icon-plus" @click="addProduct(product)">添加产品</el-button>
+          </el-form-item>
 
         <el-form-item label-width="0" style="text-align: center;">
           <el-button class="tc-report-button" @click="handleComfirm">保存</el-button>
@@ -163,8 +183,13 @@
 import UploadImage from '@/views/report/components/UploadImage'
 
 const defaultData = {
-  sampling: null,
+  sampling: {
+    params:{
+
+    }
+    },
   products: [],
+  remark:'',
   real_fatal_defect: 0,
   real_serious_defect: 0,
   real_minor_defect: 0
@@ -204,6 +229,14 @@ export default {
     return {
       loading: true,
       data: this._.cloneDeep(defaultData),
+      defectList:[
+      {
+        value:1,
+        label:'有'
+      },{
+        value:0,
+        label:'无'
+      }],
       partEShow: true
     }
   },
@@ -248,6 +281,10 @@ export default {
     handleAddDefectiveItem(product) {
       product.defective_items.push(this._.cloneDeep(defaultDefectiveItem))
     },
+    // 增加产品
+    addProduct(product){
+      this.data.products.push(this._.cloneDeep(defaultProduct))
+    },
     // 删除缺陷项
     handleRemoveDefectiveItem(product, index) {
       product.defective_items.splice(index, 1)
@@ -267,7 +304,34 @@ export default {
     handleComfirm() {
       this.$refs.form.validate(valid => {
         if (valid) {
-          this.$emit('save', this.data, 'visual_and_workmanship')
+          this.$message({
+            message: '外观及工艺保存成功',
+            type: 'success'
+          })
+          const _data = this._.cloneDeep(defaultData)
+          _data.real_fatal_defect = this.data.real_fatal_defect
+          _data.real_minor_defect = this.data.real_minor_defect
+          _data.real_serious_defect = this.data.real_serious_defect
+          _data.remark = this.data.remark
+          _data.sampling = this.data.sampling
+          _data.products = this.data.products.map((item,index)=>{
+            return{
+              ...item,
+              defective_items:item.defective_items.map((items,index)=>{
+                return {
+                  ...items,
+                  check_quantity: item.check_quantity,
+                  number:item.number,
+                  name:item.name,
+                }
+              })
+            }
+          })
+          
+          
+          console.log(_data)
+          // this.data = this.data.
+          this.$emit('save', _data, 'visual_and_workmanship')
         }
       })
     }

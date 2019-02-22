@@ -20,18 +20,17 @@
         <el-form-item prop="username" class="phone-email clearfloat">
           <span class="phone-style">
             中国大陆 +86
-            <!-- {{ phoneLoginForm.phone_number_code?phoneLoginForm.phone_number_code:'中国大陆 +86' }} -->
           </span>
-          <!--  @click="getpopover()" -->
-          <span class="arrow-next"/>
+          <!-- <span class="arrow-next"/> -->
           <el-input
             v-model="phoneLoginForm.phone_number"
+            onkeyup="value=value.replace(/[^\d]/g,'') "
             placeholder="请输入手机号码"
             name="username"
             type="text"
             class="phone-email-content"
-            autocomplete="new-password"
-            maxlength='20'
+            auto-complete="new-password"
+            maxlength='15'
             @keyup.enter.native="loginByPhone"
           />
           <div v-show="popoverShow" class="popover">
@@ -66,71 +65,8 @@
         <div class="errorPump-arrow"/>
       </div>
     </el-form>
-
     <!-- 注册界面主体 -->
     <el-form v-if="registerShow" class="login-form-box register-form-box">
-      <!-- <ul class="tabs">
-        <li :class="{active:item.isBool}" v-for="(item,index) in registerstyle" :key = index @click="registerTab(item,index)">{{item.content}}</li>
-      </ul> -->
-      <!-- 电子邮箱注册 -->
-      <!-- <el-form ref="registerForm" :model="registerForm"   class="login-form" label-position="left" v-if="registernum==0">
-        <el-form-item prop="email" class="email">
-          <span>
-            <img src="/static/image/email.png" alt="">
-          </span>
-          <el-input
-            v-model="registerForm.email"
-            placeholder="输入电子邮箱"
-            name="username"
-            type="text"
-            class="email-content"
-          />
-        </el-form-item>
-        <el-form-item prop="password" class="email">
-          <span>
-            <img src="/static/image/password.png" alt="">
-          </span>
-          <el-input
-            v-model="registerForm.password"
-            placeholder="输入登录密码"
-            name="username"
-            type="password"
-            class="email-content"
-            @focus="showPump()"
-            @blur="hidePump()"
-          />
-          <div class="passwordPump" v-if="passwordPumpShow">
-            1、8-20位字符<br>
-            2、大写字母、小写字母、数字、特殊符号两种组合以上
-            <div class="hover-pump-arrow"></div>
-          </div>
-        </el-form-item>
-        <el-form-item prop="confirmpassword" class="email">
-          <span>
-            <img src="/static/image/password.png" alt="">
-          </span>
-          <el-input
-            v-model="registerForm.confirmpassword"
-            placeholder="确认输入登录密码"
-            name="username"
-            type="password"
-            class="email-content"
-          />
-        </el-form-item>
-        <el-form-item prop="company_name" class="email">
-          <span>
-            <img src="/static/image/company.png" alt="">
-          </span>
-          <el-input
-            v-model="registerForm.company_name"
-            placeholder="请输入公司名称"
-            name="username"
-            type="text"
-            class="email-content"
-          />
-        </el-form-item>
-
-      </el-form> -->
       <!-- 手机号注册 -->
       <el-form :model="phoneRegisterForm" class="login-form">
         <p class="textTitle">手机号码注册</p>
@@ -139,9 +75,10 @@
             {{ phoneRegisterForm.phone_number_code?phoneRegisterForm.phone_number_code:'中国大陆 +86' }}
           </span>
           <!-- @click="getpopover()" -->
-          <span class="arrow-next" />
+          <!-- <span class="arrow-next" /> -->
           <el-input
             v-model="phoneRegisterForm.phone_number"
+            @keyup.enter.native="userRegister"
             placeholder="请输入手机号码"
             name="username"
             type="text"
@@ -160,6 +97,7 @@
           </span>
           <el-input
             v-model="phoneRegisterForm.verification_code"
+            @keyup.enter.native="userRegister"
             placeholder="请输入验证码"
             name="username"
             type="text"
@@ -169,13 +107,14 @@
             {{ secondStepText }}
           </el-button>
         </el-form-item>
-        <el-form-item prop="username" class="email">
+        <el-form-item prop="username" class="email forgetPassWord">
           <span>
             <img src="/static/image/password.png" alt="">
           </span>
           <el-input
             v-model="phoneRegisterForm.password"
             placeholder="设置登录密码"
+            @keyup.enter.native="userRegister"
             name="username"
             type="password"
             class="email-content"
@@ -185,7 +124,7 @@
           <div v-if="passwordPumpShow" class="passwordPump">
             1、8-20位字符<br>
             2、大写字母、小写字母、数字、特殊符号两种组合以上
-            <div class="hover-pump-arrow"/>
+            <div class="hover-pump-arrow"></div>
           </div>
         </el-form-item>
         <el-form-item prop="username" class="email">
@@ -195,6 +134,7 @@
           <el-input
             v-model="phoneRegisterForm.confirmpassword"
             placeholder="确认登录密码"
+            @keyup.enter.native="userRegister"
             name="username"
             type="password"
             class="email-content"
@@ -203,18 +143,13 @@
         <el-button type="primary" style="margin-top:18px;" :disabled = "(phoneRegisterForm.phone_number=='')||( phoneRegisterForm.verification_code=='')||( phoneRegisterForm.password=='')||(phoneRegisterForm.confirmpassword=='')" :class="{'disabled':((phoneRegisterForm.phone_number=='') || (phoneRegisterForm.verification_code=='') || (phoneRegisterForm.password=='') || (phoneRegisterForm.confirmpassword=='')),'isactive':((phoneRegisterForm.phone_number!='') && (phoneRegisterForm.verification_code!='') && (phoneRegisterForm.password!='') && (phoneRegisterForm.confirmpassword!=''))}"  @click="userRegister()">注册</el-button>
         <el-button type="primary" class="btnreturn margin16" @click="goLogin">返回登录</el-button>
         <p class="tip"><el-checkbox v-model="checked"/><span class="agreement">我已阅读并同意<a href="">《用户协议》</a></span></p>
-        <!-- <el-button type="primary"  class="isactive margin40">注册</el-button>
-        <el-button type="primary"  class="btnreturn margin16">返回登录</el-button>
-        <p class="tip"><el-checkbox v-model="checked"></el-checkbox><span class="agreement">我已阅读并同意<a href="">《用户协议》</a></span></p> -->
-      </el-form>
-      
+      </el-form>  
       <!-- 注册报错信息报文 -->
       <div v-if="registerwrongPump" class="errorPump">
         <div class="error-content">{{ registerWrongMessage }}</div>
-        <div class="errorPump-arrow" />
+        <div class="errorPump-arrow"></div>
       </div>
     </el-form>
-
     <!-- 验证电子邮箱 -->
     <el-form v-if="verifyEmail" class="verify-email">
       <span class="email-img"/>
@@ -222,10 +157,6 @@
       <p class="t1">一封包含验证码的电子邮件已发至{{ registerForm.email }}
       <br>请在此处输入验证码：</p>
       <el-form-item class="input-box">
-        <!-- <ul class="write-input"> -->
-        <!-- getbackMoney -->
-        <!-- <li v-for="disInput in disInputs" :key="disInput.value"><input class="disInput" type="tel" maxlength="1" v-model="disInput.value" ></li>
-        </ul> -->
         <div id="inputList" class="write-input">
           <input
             v-for="(v, i) in 6"
@@ -239,12 +170,6 @@
             @keyup="keyUp($event)"
             @keydown="oldPwdList = pwdList.length">
         </div>
-
-        <!-- <input type="text" maxlength="1">
-        <input type="text" maxlength="1">
-        <input type="text" maxlength="1">
-        <input type="text" maxlength="1">
-        <input type="text" maxlength="1">  -->
       </el-form-item>
       <div class="t2">没有收到电子邮件?
         <div class="hover-pump">检查您的垃圾邮件文件夹或等待几分钟。<br>
@@ -258,7 +183,6 @@
         <div @click="userRegister()">继续</div>
       </div>
     </el-form>
-
     <!-- 密码找回 -->
     <el-form v-if="passwordRecoveryShow" class="password-recovery">
       <el-steps :active="active" finish-status="finish" align-center>
@@ -266,62 +190,16 @@
         <el-step title="设置新的登录密码"/>
         <el-step title="完成"/>
       </el-steps>
-      <!-- <div class="first-step" v-if="firstStepShow">
-        <div class="recovery-style">
-          <div @click="recoveryByEmail()">
-            <i class="iconfont icon-mimazhaohuiyouxiang-"></i>
-            <span>电子邮箱</span>
-          </div>
-          <div @click="recoveryByPhone()">
-            <i class="iconfont icon-Fill"></i>
-            <span>手机号码</span>
-          </div>
-        </div>
-        <div class="btn-recovery-return margin70" @click="goLogin()">返回登录</div>
-      </div> -->
       <div v-if="secondStepShow" class="second-step" >
-        <!-- <el-form v-if="secondStepEmailShow" :model="secondStepForm" class="login-form ma-content">
-          <el-form-item prop="username" class="email">
-            <span>
-              <img src="/static/image/email.png" alt="">
-            </span>
-            <el-input
-              v-model="secondStepForm.email"
-              :placeholder="mamessage"
-              name="username"
-              type="text"
-              class="email-content"
-            />
-          </el-form-item>
-          <el-form-item prop="username" class="email">
-            <span>
-              <img src="/static/image/ma.png" alt="">
-            </span>
-            <el-input
-              v-model="secondStepForm.verification_code"
-              placeholder="输入验证码"
-              name="username"
-              type="text"
-              class="ma-input email-content"
-            />
-            <el-button :class="{sendma:true,changeColor:sendMaDisabled}" :disabled="sendMaDisabled" @click="secondStepSendMa()" >
-              {{ secondStepText }}
-            </el-button>
-          </el-form-item>
-          <el-button :class="{disabled:(secondStepForm.phone_number=='') || (phoneLoginForm.password==''),isactive:(phoneLoginForm.phone_number!='') && (phoneLoginForm.password!='')}" :disabled="secondStepForm.email==''|| secondStepForm.verification_code==''" class="btn-next" @click="goThirdStep()">下一步</el-button>
-          <el-button class="btn-return-sm" @click="backFirstStep()">返回</el-button>
-        </el-form> -->
-
         <el-form v-if="secondStepPhoneShow" :model="secondStepFormPhone" class="login-form ma-content">
           <el-form-item prop="username" class="email phone-email clearfloat secondStepPhone">
             <span class="phone-style">
               {{ secondStepFormPhone.phone_number_code?secondStepFormPhone.phone_number_code:'中国大陆 +86' }}
             </span>
-            <!-- @click="getpopover()" -->
-            <span class="arrow-next"/>
+            <!-- <span class="arrow-next"/> -->
             <el-input
               v-model="secondStepFormPhone.phone_number"
-              placeholder="请输入电话号码"
+              placeholder="请输入手机号码"
               name="username"
               type="text"
               class="phone-email-content"
@@ -352,7 +230,6 @@
           <el-button :class="{disabled:(secondStepFormPhone.phone_number=='') || (secondStepFormPhone.verification_code==''),isactive:(secondStepFormPhone.phone_number!='') && (secondStepFormPhone.verification_code!='')}" :disabled="secondStepFormPhone.phone_number==''|| secondStepFormPhone.verification_code==''"  @click="goThirdStep()">下一步</el-button>
           <el-button class="btn-return-sm" @click="backFirstStep()">返回</el-button>
         </el-form>
-
       </div>
       <div v-if="thirdStepShow" class="second-step third-step">
         <el-form :model="thirdStepForm" class="login-form ma-content">
@@ -366,7 +243,14 @@
               name="username"
               type="password"
               class="password-content"
+              @focus="showPump()"
+              @blur="hidePump()"
             />
+            <div v-if="passwordPumpShow" class="passwordPump">
+              1、8-20位字符<br>
+              2、大写字母、小写字母、数字、特殊符号两种组合以上
+              <div class="hover-pump-arrow"></div>
+            </div>
           </el-form-item>
           <el-form-item prop="username" class="email">
             <span>
@@ -392,10 +276,7 @@
           <el-button class="btn-next" @click="goLogin()">立即登录</el-button>
         </el-form>
       </div>
-
-      <!-- <el-button style="margin-top: 12px;" @click="next">下一步</el-button> -->
     </el-form>
-
     <!-- 注册成功页面 -->
     <div v-if="registerResultShow" class="registerResult">
       <el-form class="ma-content">
@@ -571,7 +452,16 @@ export default {
       } else {
         this.passwordPumpShow = true
       }
+    },
+    'thirdStepForm.password':function(){
+      const passwordReg = /^(?![A-Z]+$)(?![a-z]+$)(?!\d+$)(?![\W_]+$)\S{8,20}$/
+      if (passwordReg.test(this.thirdStepForm.password)) {
+        this.passwordPumpShow = false
+      } else {
+        this.passwordPumpShow = true
+      }
     }
+
   },
   created() {
     this.getConfigs()
@@ -584,14 +474,14 @@ export default {
     this.ipt = document.querySelectorAll('#inputList .disInput')
   },
   methods: {
-    goFourStep() {
-      
+    goFourStep() {   
       if(this.thirdStepForm.password == this.thirdStepForm.confirmpassword){
         resetPassword({
         type: 'phone_number',
         verification_code: this.secondStepFormPhone.verification_code,
         phone_number: this.secondStepFormPhone.phone_number,
-        password: this.thirdStepForm.password
+        password: this.thirdStepForm.password,
+        repeat_password: this.thirdStepForm.confirmpassword
       }).then(response => {
         if (response.data.code == 0) {
           this.fourStepShow = true
@@ -633,8 +523,8 @@ export default {
     // 注册发送验证码
     sendMa() {
       if (this.phoneRegisterForm.phone_number == '') {
-        this.registerWrongMessage = '手机号不能为空'
         this.registerwrongPump = true
+        this.registerWrongMessage = '手机号不能为空'
         return false
       }
       sendma({
@@ -916,8 +806,9 @@ export default {
     // 手机号注册
     userRegister() {
       if(this.phoneRegisterForm.password != this.phoneRegisterForm.confirmpassword){
-        this.registerWrongMessage = '密码不一致'
         this.registerwrongPump = true
+        this.registerWrongMessage = '密码不一致'
+        
       }else{
          userRegister({
           ...this.phoneRegisterForm
@@ -1188,10 +1079,13 @@ $body_padding: 13px;
     // border-radius: 5px;
     // color: #454545;
   }
-  input:-webkit-autofill , textarea:-webkit-autofill, select:-webkit-autofill {
-      -webkit-box-shadow: 0 0 0px 1000px none inset;
-      // border: 1px solid #CCC!important;
-    }
+  // input:-webkit-autofill , textarea:-webkit-autofill, select:-webkit-autofill {
+  //     background-color: #ffa800 !important;
+  //   }
+  // input:-webkit-autofill , textarea:-webkit-autofill, select:-webkit-autofill {
+  //     -webkit-box-shadow: 0 0 0px 1000px none inset;
+  //     border: 1px solid #CCC!important;
+  //   }
   // input:-internal-autofill-previewed, input:-internal-autofill-selected, textarea:-internal-autofill-previewed, textarea:-internal-autofill-selected, select:-internal-autofill-previewed, select:-internal-autofill-selected{
   //   background-color:transprant !important;
   // }
@@ -1411,11 +1305,12 @@ $light_gray: #eee;
           }
           .phone-email-content{
             float: left;
+            margin-left:16px;
             width: 200px;
             color: #ffffff;
             border-left: 1px solid #D8D8D8;
             height: 28px;
-            padding-left: 10px;
+            // padding-left: 16px;
             font-size: 16px;
           }
         }
@@ -1475,6 +1370,35 @@ $light_gray: #eee;
         border: 2px solid #979797;
         border-radius: 4px;
         margin: 16px 0 0;
+      }
+    }
+    .third-step{
+      .passwordPump {
+        position: absolute;
+        top: 55px;
+        left: -5px;
+        padding: 16px 23px;
+        width: 400px;
+        // height: 90px;
+        background: #ffffff;
+        font-size: 14px;
+        color: #909399;
+        text-align: left;
+        z-index: 2;
+        .hover-pump-arrow {
+          position: absolute;
+          content: " ";
+          width: 0;
+          height: 0;
+          border: 10px solid rgba(96, 98, 102, 0.9);
+          border-top-color: transparent;
+          border-left-color: transparent;
+          border-right-color: transparent;
+          border-bottom-color: #ffffff;
+          top: -20px;
+          left: 50%;
+          margin-left: -10px;
+        }
       }
     }
     .four-step {
@@ -1680,8 +1604,10 @@ $light_gray: #eee;
     // position: relative;
     .errorPump {
       position: absolute;
-      right: -370px;
-      bottom: 20px;
+      left:50%;
+      margin-left: 280px;
+      top: 50%;
+      margin-top:50px;
       background: rgba(214, 214, 214, 0.2);
       // opacity: 0.2;
       width: 350px;
@@ -1691,8 +1617,7 @@ $light_gray: #eee;
       color: #ffffff;
       .error-content {
         font-size: 16px;
-        color: #ffffff;
-        z-index: 11;
+        color: #ffffff;    
       }
       .errorPump-arrow:after {
         position: absolute;
@@ -1738,90 +1663,91 @@ $light_gray: #eee;
         cursor:pointer;
       }
     }
-     .login-form {
-    position:absolute;
-    width:500px;
-    left:50%;
-    padding: 40px 50px 30px;
-    height:400px;
-    margin-top:-200px;
-    margin-left:-250px;
-    top:50%;
-    background-color: rgba(255, 255, 255, 0.2);
-    .textTitle{
-      font-size:20px;
-      color:#ffffff;
-      text-align:center;
-    }
-    .ma-input {
-      width: 200px !important;
-      border-right: 1px solid #D8D8D8 !important;
-    }
-    .sendma {
-      float: right;
-      padding: 0 20px 0 0;
-      font-size: 16px;
-      color: #ffa800;
-      cursor: pointer;
-      height:28px;
-      line-height:28px;
-      background-color:transparent;
-      border:none;
-    }
-    .phone-email {
-      padding: 0 0 10px 5px;
-      margin-top: 32px;
-      position: relative;
-      .phone-style {
-        float: left;
+    .login-form {
+      position:absolute;
+      width:500px;
+      left:50%;
+      padding: 40px 50px 30px;
+      height:400px;
+      margin-top:-200px;
+      margin-left:-250px;
+      top:50%;
+      background-color: rgba(255, 255, 255, 0.2);
+      .textTitle{
+        font-size:20px;
+        color:#ffffff;
+        text-align:center;
+      }
+      .ma-input {
+        width: 200px !important;
+        border-right: 1px solid #D8D8D8 !important;
+      }
+      .sendma {
+        float: right;
+        padding: 0 20px 0 0;
         font-size: 16px;
-        color: #ffffff;
-        font-weight: normal;
+        color: #ffa800;
+        cursor: pointer;
+        height:28px;
+        line-height:28px;
+        background-color:transparent;
+        border:none;
       }
-      .arrow-next {
-        float: left;
-        background: url("/static/image/arrow-next.png") no-repeat;
-        background-size: 33%;
-        background-position: 50% 50%;
-        display: inline-block;
-        width: 42px;
-        height: 24px;
-        margin: 3px 8px 0 0;
-      }
-      .phone-email-content {
-        float: left;
-        width: 200px;
-        color: #ffffff;
-        border-left: 1px solid #D8D8D8;
-        height: 28px;
-        padding-left: 10px;
-        font-size: 16px;
-      }
-      .popover {
-        position: absolute;
-        top: 50px;
-        width: 191px;
-        // height: 200px;
-        border-radius: 5px;
-        background: #ffffff;
-        z-index: 5;
-        > ul {
-          height: 310px;
-          overflow-y: scroll;
-          list-style: none;
-          // padding:20px 0 20px 20px;
-          li {
-            color: #7c8ca5;
-            font-size: 14px;
-            height: 36px;
-            line-height: 36px;
-            padding-left:20px;
-            &:hover{
-              background-color: #F3F6F9;
-            }
-          }
-
+      .phone-email {
+        padding: 0 0 10px 5px;
+        margin-top: 32px;
+        position: relative;
+        .phone-style {
+          float: left;
+          font-size: 16px;
+          color: #ffffff;
+          font-weight: normal;
         }
+        .arrow-next {
+          float: left;
+          background: url("/static/image/arrow-next.png") no-repeat;
+          background-size: 33%;
+          background-position: 50% 50%;
+          display: inline-block;
+          width: 42px;
+          height: 24px;
+          margin: 3px 8px 0 0;
+        }
+        .phone-email-content {
+          float: left;
+          margin-left:16px;
+          width: 200px;
+          color: #ffffff;
+          border-left: 1px solid #D8D8D8;
+          height: 28px;
+          padding-left: 16px;
+          font-size: 16px;
+        }
+        .popover {
+          position: absolute;
+          top: 50px;
+          width: 191px;
+          // height: 200px;
+          border-radius: 5px;
+          background: #ffffff;
+          z-index: 5;
+          > ul {
+            height: 310px;
+            overflow-y: scroll;
+            list-style: none;
+            // padding:20px 0 20px 20px;
+            li {
+              color: #7c8ca5;
+              font-size: 14px;
+              height: 36px;
+              line-height: 36px;
+              padding-left:20px;
+              &:hover{
+                background-color: #F3F6F9;
+              }
+            }
+
+          }
         .popper-arrow:after {
           position: absolute;
           content: " ";
@@ -1911,6 +1837,8 @@ $light_gray: #eee;
       height:550px;
       margin-top: -275px;
     }
+    
+
   }
  
   .tips {

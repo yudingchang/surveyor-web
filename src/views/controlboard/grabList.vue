@@ -11,7 +11,7 @@
       height="calc(100vh - 260px)"
     >
       <el-table-column
-        label="服务单号"
+        label="订单号"
         width="230">
         <template slot-scope="scope">
           <span v-if="scope.row.is_main == true" class="numberBg">主</span><span v-if="scope.row.is_main == false" class="numberBg">辅</span> <el-button type="text" class="btnText" @click="goOrderDetail(scope.row)">{{ scope.row.number }}</el-button>
@@ -46,8 +46,8 @@
         width="200"
         label="产品名称">
         <template slot-scope="scope">
-          <span v-if="scope.row.products.length==1">{{ scope.row.products[0] }}</span>
-          <span v-else-if="scope.row.products.length>1" style="display:inline-block;"><span style="display:inline-block;width:120px;">{{ scope.row.products[0] }}...</span><i style="display:inline-block;" class="iconfont icon-IconCopy" @click="getDetail(scope.row)"/></span>
+          <span v-if="scope.row.products.length==1">{{ scope.row.products[0].name }}</span>
+          <span v-else-if="scope.row.products.length>1" style="display:inline-block;"><span style="display:inline-block;width:120px;">{{ scope.row.products[0].name }}...</span><i style="display:inline-block;" class="iconfont icon-IconCopy" @click="getDetail(scope.row)"/></span>
         </template>
       </el-table-column>
       <el-table-column
@@ -79,6 +79,18 @@
         </el-table>
       </el-dialog>
     </div>
+    <!-- 抢单对话框 -->
+    <el-dialog
+      :visible.sync="centerDialogVisible"
+      width="30%"
+      top="30vh"
+      center>
+      <span>{{ grabSheetText }}</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button class="cancle" @click="centerDialogVisible = false">否</el-button>
+        <el-button type="primary" class="confirm" @click="confirmgrabSheet()">是</el-button>
+      </span>
+    </el-dialog>
 
     <el-col :span="24" class="toolbar">
       <el-pagination
@@ -97,7 +109,7 @@
 </template>
 
 <script>
-import { grabSheet } from '@/api/dashboard'
+import { grabSheet , confirmgrabSheet } from '@/api/dashboard'
 export default {
   name: '',
   components: { },
@@ -108,7 +120,13 @@ export default {
         rows: 15,
         currentpage: 1
       },
+      canConfirm: false,
+      canChase: false,
       dialogTableVisible: false,
+      centerDialogVisible: false,
+      orderService: '',
+      orderInformation:{},
+      grabSheetText:'',
       tableData: [
       ],
       gridData: [],
@@ -139,16 +157,16 @@ export default {
     getDetail(row) {
       this.dialogTableVisible = true
       this.gridData = row.products.map((item, index) => {
-        return {
-          name: item
-        }
+        return item
       })
       console.log(this.gridData)
     },
+    // 去订单详情
+    goOrderDetail(row) {
+      this.$router.push({ path: '/orderManagement/orderDetails', query: { orderId:row.id}})
+    },
     handleSizeChange(val) {
-      console.log('ccc')
       this.filters.rows = val
-      // this.filters.currentpage = val;
       this.getgrabSheet()
     },
     handleCurrentChange(val) {
@@ -156,11 +174,80 @@ export default {
       this.filters.currentpage = val
       this.getgrabSheet()
       // console.log(`当前页: ${val}`);
-    }
+    },
+    // 显示抢单弹框
+    showGrabSheetPump(row) {
+      this.orderService = row.id   
+      this.orderInformation = _.cloneDeep(row)
+      this.grabSheetText = row.is_main == false ? `此单为辅单，订单金额为￥${Number(row.commission) + Number(row.other_fee)}，您确认抢此订单吗？` : `订单金额￥${Number(row.commission) + Number(row.other_fee)}，需要写${this.getArray(row.reports)}报告您确认抢此订单吗？`
+      this.centerDialogVisible = true
+      this.canConfirm = row.can.confirm
+      this.canChase = row.can.chase
+    },
+    // 遍历数组
+    getArray(data) {
+      return data.map((val, index) => {
+        return val.locale_name
+      })
+    },
+    // 抢单
+    confirmgrabSheet() {
+      let chaseText
+      if (this.canConfirm) {
+        chaseText = 'confirm'
+      } else {
+        chaseText = 'chase'
+      }
+      confirmgrabSheet({
+        url: `v1/inspector/service/${this.orderService}/${chaseText}`
+      }).then(response => {
+        if (response.data.code == 0) {  
+          this.centerDialogVisible = false
+          this.getgrabSheet()
+          this.$router.push({
+            path: 'SuccessfulSingle',
+            query:{
+              orderInformation:this.orderInformation
+            }
+          })
+        }
+      })
+    },
   }
 }
 </script>
-
+<style lang="scss">
+.grabList{
+    .el-dialog--center .el-dialog__body {
+          text-align: center ;
+          color:rgba(124,143,166,1);
+          font-size:16px;
+    }
+    .el-table th {
+            background:inherit;
+            height: inherit;
+            color: inherit;
+        }
+   .el-dialog__header{
+      text-align: center;
+      // background:rgba(230,234,238,1);
+      padding: 30px 20px 15px;
+      }
+      .el-dialog__title{
+      color: #164061;
+      font-size: 14px;
+      font-weight: bold;
+      }
+      .el-dialog__body{
+        text-align: center;
+      padding: 0;
+      }
+      .el-dialog__footer{
+        padding: 20px 20px 20px;
+      }
+}
+  
+</style>
 <style rel="stylesheet/scss" lang="scss" scoped>
 .grabList {
     margin: 32px 40px 0 39px;
@@ -200,6 +287,24 @@ export default {
             line-height:22px;
             background:rgba(74,144,226,1);
         }
+    }
+    .dialog-footer{
+       .cancle{
+            width:98px;
+            height:40px;
+            border:1px solid rgba(144,147,153,1);
+            color: #909399;
+       }
+       .cancle:hover{
+           background-color: #ffffff;
+       }
+       .confirm{
+            width:98px;
+            height:40px;
+            background:rgba(255,168,0,1);
+            color: 14px;
+            border: none;
+       }
     }
 }
 </style>

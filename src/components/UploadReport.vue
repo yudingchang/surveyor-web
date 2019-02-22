@@ -3,7 +3,7 @@
     <div v-for="file in _.filter(files, { detach: false })" :key="file.id" class="image-preview shadow-sm" >
       <div class="image-preview-wrapper" :class="{'hiddenaction':!action}">
         <div>
-          <svg-icon :icon-class="getFileExtensions('_.'+file.extension)" class-name="file-icon"/>
+          <svg-icon :icon-class="file.extension" class-name="file-icon"/>
         </div>
         <div class="image-name" :class="{'hiddenBorder':!action}">{{ file.name }}</div>
         <div class="image-preview-action">
@@ -84,11 +84,11 @@ export default {
     handleBeforeUpload(file) {
       console.log(file.type)
       if (this.mimes && !this.mimes.includes(file.type)) {
-        this.$message.error(`上传图片只能是 ${this.mimes.join(',')} 格式!`)
+        this.$message.error(`上传附件只能是word,excel,html格式!`)
         return false
       }
       if (this.size && file.size > this.size) {
-        this.$message.error(`上传图片大小不能超过 ${this._.round(this.size/1024)} KB!`)
+        this.$message.error(`上传附件大小不能超过 ${this._.round(this.size/1024/1024)} M!`)
         return false
       }
 

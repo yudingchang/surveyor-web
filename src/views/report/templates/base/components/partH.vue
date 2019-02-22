@@ -1,7 +1,7 @@
 <template>
-  <div v-loading="loading" class="tc-report-card">
+  <div v-loading="loading" class="tc-report-card tc-report-cards">
     <div :class="{titleChange:!partHShow}" class="tc-report-card-title clearfix">
-      <span><span class="titleText">H</span>基本信息</span>
+      <span><span class="titleText">H</span>检验款</span>
       <span class="right" style="float:right;color:#FFA800" @click="partHShow=!partHShow">
         <span v-if="partHShow">收起</span>
         <span v-if="!partHShow">展开</span>
@@ -9,177 +9,52 @@
       </span>
     </div>
     <div v-show="partHShow" class="tc-report-card-content">
-      <el-form ref="form" :model="data" label-width="130px">
-        <el-form-item label-width="0" style="margin: 0 0 24px 0;">
-          <table cellspacing="0" cellpadding="0" border="0" class="tc-table" style="width: 100%">
-            <tbody>
-              <tr>
-                <td style="width: 270px; vertical-align:middle;text-align:center;" class="background-gray">
-                  检验类型
-                </td>
-                <td style="text-align: left; min-width: 350px;vertical-align:middle;">
-                  <el-form-item label-width="0">
-                    第<el-input-number v-model="data.number" :min="1" controls-position="right" style="width: 120px; margin: 0 7px;"/>次检验
-                  </el-form-item>
-                </td>
-                <td rowspan="12" style="width:450px;position:relative" >
-                  <el-upload
-                    :action="uploadUrl"
-                    :headers="uploadHeaders"
-                    :show-file-list="false"
-                    :on-success="handleSuccess"
-                    :on-remove="handleRemove"
-                    :before-upload="handleBeforeUpload"
-                    style="position:absolute;top:0;right:0;width:100%"
-                    >
-                    <img v-if="data.file" :src="data.file.url" class="avatar">
-                    <!-- <i v-else class="el-icon-plus avatar-uploader-icon"/> -->
-                    <div class="noFileStyle" v-else>
-                      <i class="iconfont icon-IconCopy1"></i>
-                      <p>上传图片</p>
-                      <p>图片大小≤10M，格式jpg/png</p>
-                    </div>
-                  </el-upload>
-                </td>
-              </tr>
-              <tr>
-                <td style="width: 270px;vertical-align:middle;text-align:center;" class="background-gray">
-                  买家名称
-                </td>
-                <td style="text-align: left;">
-                  <el-form-item label-width="0">
-                    <el-input v-model="data.user_name" style="width: 100%;"/>
-                  </el-form-item>
-                </td>
-              </tr>
-              <tr>
-                <td style="width: 270px;vertical-align:middle;text-align:center;" class="background-gray">
-                  供应商名称
-                </td>
-                <td style="text-align: left;">
-                  <el-form-item label-width="0">
-                    <el-input v-model="data.supplier_name" style="width: 100%;"/>
-                  </el-form-item>
-                </td>
-              </tr>
-              <tr>
-                <td style="width: 270px;vertical-align:middle;text-align:center;" class="background-gray">
-                  工厂名称
-                </td>
-                <td style="text-align: left;">
-                  <el-form-item label-width="0">
-                    <el-input v-model="data.factory_name" style="width: 100%;"/>
-                  </el-form-item>
-                </td>
-              </tr>
-              <tr>
-                <td style="width: 270px;vertical-align:middle;text-align:center;" class="background-gray">
-                  款号/型号
-                </td>
-                <td style="text-align: left;">
-                  <el-form-item label-width="0">
-                    <el-input v-model="data.product_number" style="width: 100%;"/>
-                  </el-form-item>
-                </td>
-              </tr>
-              <tr>
-                <td style="width: 270px;vertical-align:middle;text-align:center;" class="background-gray">
-                  产品名称
-                </td>
-                <td style="text-align: left;">
-                  <el-form-item label-width="0">
-                    <el-input v-model="data.product_name" style="width: 100%;"/>
-                  </el-form-item>
-                </td>
-              </tr>
-              <tr>
-                <td style="width: 270px;vertical-align:middle;text-align:center;" class="background-gray">
-                  订单号码
-                </td>
-                <td style="text-align: left;">
-                  <el-form-item label-width="0">
-                    <el-input v-model="data.order_name" style="width: 100%;"/>
-                  </el-form-item>
-                </td>
-              </tr>
-              <tr>
-                <td style="width: 270px;vertical-align:middle;text-align:center;" class="background-gray">
-                  检验服务
-                </td>
-                <td style="text-align: left;">
-                  <el-form-item label-width="0">
-                    <el-select
-                      v-model="data.inspection_type"
-                      filterable
-                      default-first-option
-                      style="width: 100%;">
-                      <el-option
-                        v-for="item in configs.inspectionTypes"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"/>
-                    </el-select>
-                  </el-form-item>
-                </td>
-              </tr>
-              <tr>
-                <td style="width: 270px;vertical-align:middle;text-align:center;" class="background-gray">
-                  检验日期
-                </td>
-                <td style="text-align: left;">
-                  <el-form-item label-width="0">
-                    <el-date-picker
-                      v-model="data.inspection_dates"
-                      type="dates"
-                      style="width: 100%;"/>
-                  </el-form-item>
-                </td>
-              </tr>
-              <tr>
-                <td style="width: 270px;vertical-align:middle;text-align:center;" class="background-gray">
-                  检验地址
-                </td>
-                <td style="text-align: left;">
-                  <el-form-item label-width="0">
-                    <el-input v-model="data.inspection_address" style="width: 100%;"/>
-                  </el-form-item>
-                </td>
-              </tr>
-              <tr>
-                <td style="width: 270px;vertical-align:middle;text-align:center;" class="background-gray">
-                  整批次数量
-                </td>
-                <td style="text-align: left;">
-                  <el-form-item label-width="0">
-                    {{ data.report_quantity }}
-                  </el-form-item>
-                </td>
-              </tr>
-              <tr>
-                <td style="width: 270px;vertical-align:middle;text-align:center;" class="background-gray">
-                  检验依据
-                </td>
-                <td style="text-align: left;">
-                  <el-form-item label-width="0">
-                    <el-radio
-                      v-for="item in configs.inspectionBases"
-                      v-model="data.inspection_basis"
-                      :key="item.value"
-                      :label="item.value">
-                      {{ item.label }}
-                    </el-radio>
-                    <el-input v-model="data.inspection_basis_other" style="width: 100px;" placeholder="请输入"/>
-                  </el-form-item>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </el-form-item>
-        <el-form-item label-width="0" style="text-align: center;">
+      <el-form>
+        <div class="examineBox clearfix">
+          <div class="leftImg fl">
+            <el-upload
+              :action="uploadUrl"
+              :headers="uploadHeaders"
+              :show-file-list="false"
+              :on-success="handleSuccess"
+              :on-remove="handleRemove"
+              :before-upload="handleBeforeUpload"
+              
+              >
+              <img v-if="data.files[0].url" :src="data.files[0].url" class="avatar">
+              
+              <div class="noFileStyle" v-else>
+                <i class="iconfont icon-IconCopy1"></i>
+                <p>产品合照或具有代表性产品图片</p>
+                <p>图片大小≤2M，格式jpg/png</p>
+              </div>
+            </el-upload>
+          </div>
+          <div class="rightImg fr">
+            <el-upload
+              :action="uploadUrl"
+              :headers="uploadHeaders"
+              :show-file-list="false"
+              :on-success="handleSuccess1"
+              :on-remove="handleRemove1"
+              :before-upload="handleBeforeUpload"
+              
+              >
+              <img v-if="data.files[1].url" :src="data.files[1].url" class="avatar">
+              
+              <div class="noFileStyle" v-else>
+                <i class="iconfont icon-IconCopy1"></i>
+                <p>产品合照或具有代表性产品图片</p>
+                <p>图片大小≤2M，格式jpg/png</p>
+              </div>
+            </el-upload>
+          </div>
+        </div>
+        <el-form-item label-width="0" style="text-align: center;margin-top:30px;">
           <el-button class="tc-report-button" @click="handleComfirm">保存</el-button>
         </el-form-item>
-      </el-form>
-    </div>
+      </el-form>  
+    </div>      
   </div>
 </template>
 
@@ -188,20 +63,14 @@ import UploadImage from '@/views/report/components/UploadImage'
 import { getToken } from '@/utils/auth'
 
 const defaultData = {
-  number: 1,
-  user_name: '',
-  supplier_name: '',
-  factory_name: '',
-  product_number: '',
-  product_name: '',
-  order_name: '',
-  inspection_type: null,
-  inspection_dates: [],
-  inspection_address: '',
-  report_quantity: 0,
-  inspection_basis: null,
-  inspection_basis_other: '',
-  file: null
+  files:[
+    {
+      url:''
+    },
+    {
+       url:''
+    }
+  ]
 }
 
 export default {
@@ -240,34 +109,26 @@ export default {
         this.data = this._.cloneDeep(data)
       } else {
         const _data = this._.cloneDeep(defaultData)
-        const products = this._.get(this.order, 'products')
-        const productNumbers = this._.filter(this._.map(products, 'number'))
-        const productNames = this._.filter(this._.map(products, 'name'))
-        const productOrderNumbers = this._.filter(this._.map(this._.flatten(this._.map(products, 'PO')), 'number'))
-        const productQuantity = this._.sum(this._.map(products, 'report_quantity'))
-
-        _data.user_name = this._.get(this.order, 'order.user_name')
-        _data.supplier_name = this._.get(this.order, 'order.supplier.name')
-        _data.factory_name = this._.get(this.order, 'service.address.name')
-        _data.product_number = productNumbers ? productNumbers.join(',') : ''
-        _data.product_name = productNames ? productNames.join(',') : ''
-        _data.order_name = productOrderNumbers ? productOrderNumbers.join(',') : ''
-        _data.inspection_type = parseInt(this._.get(this.order, 'order.inspection_type'))
-        _data.inspection_dates = this._.get(this.order, 'service.inspection_dates')
-        _data.inspection_address = this._.get(this.order, 'service.address.address_detail')
-        _data.report_quantity = productQuantity
-
         this.data = _data
       }
       this.loading = false
     },
     // 提交
     handleComfirm() {
-      this.$refs.form.validate(valid => {
-        if (valid) {
-          this.$emit('save', this.data, 'general_information')
-        }
-      })
+      if(!this.data.files[0].url || !this.data.files[1].url){
+        this.$message({
+          message: '请上传产品图片',
+          type: 'error'
+        })
+        return false
+      }else{
+        this.$message({
+          message: '检验款保存成功',
+          type: 'success'
+        })
+        this.$emit('save', this.data, 'inspection_styles')
+      }
+          
     },
 
     handleBeforeUpload(file) {
@@ -288,44 +149,37 @@ export default {
     // 上传成功
     handleSuccess(response, file, fileList) {
       if (response.code === 0) {
-        this.data.file = {
-          id: response.data.id,
-          name: response.data.name,
-          url: response.data.url
+        this.data.files[0].id= response.data.id
+        this.data.files[0].name= response.data.name
+        this.data.files[0].url= response.data.url
         }
-      }
+      
     },
     // 移除图片
     handleRemove(file, fileList) {
-      console.log(file, fileList);
+    },
+    // 上传成功
+    handleSuccess1(response, file, fileList) {
+      if (response.code === 0) {
+        this.data.files[1].id= response.data.id
+        this.data.files[1].name= response.data.name
+        this.data.files[1].url= response.data.url
+      }
+    },
+    // 移除图片
+    handleRemove1(file, fileList) {
     },
   }
 }
 </script>
 
 <style lang="scss">
-.tc-report-card {
-  .noFileStyle{
-    padding-top:300px;
-    i{
-      color:#FFA800;
-      font-size: 36px;
-    }
-    p:nth-child(2){
-      font-size:22px;
-      color:#7F8FA4;
-    }
-    p:nth-child(3){
-      font-size:16px;
-      color:#EF3535;
-      margin-top:25px;
-    }
-
-  }
+.tc-report-cards {
   .el-upload {
-    width: 80%;
+    width: 100% !important;
     .avatar{
       width: 100%;
+      max-height:400px;
     }
   }
 }
@@ -350,3 +204,39 @@ export default {
     object-fit: contain;
   } */
 </style>
+<style rel="stylesheet/scss" lang="scss" scoped>
+  .tc-report-card{
+    .noFileStyle{
+      padding-top:130px;
+      i{
+        color:#FFA800;
+        font-size: 36px;
+      }
+      p:nth-child(2){
+        font-size:16px;
+        color:#7F8FA4;
+      }
+      p:nth-child(3){
+        font-size:16px;
+        color:#EF3535;
+        margin-top:17px;
+      }
+    }
+    .examineBox{
+      width: 100%;
+      border:1px solid #D7DCE3;
+      border-radius:4px;
+      height: 410px;
+      .leftImg{
+        width: 50%;
+        height: 100%;
+        border-right:1px solid #D7DCE3;
+      }
+      .rightImg{
+        width: 50%;
+        height: 100%;
+      }
+    }
+  }
+</style>
+

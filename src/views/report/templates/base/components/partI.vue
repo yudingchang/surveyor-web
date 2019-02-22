@@ -1,153 +1,158 @@
 <template>
-  <div class="tc-report-card">
-    <div :class="{titleChange:!partIShow}" class="tc-report-card-title clearfix">
-      <span><span class="titleText">I</span>检验结论</span>
-      <span class="right" style="float:right;color:#FFA800" @click="partIShow=!partIShow">
-        <span v-if="partIShow">收起</span>
-        <span v-if="!partIShow">展开</span>
-        <i :class="{rotaga:!partIShow}" class="el-icon-caret-top"/>
+  <div v-loading="loading" class="tc-report-card">
+    <div :class="{titleChange:!partHShow}" class="tc-report-card-title clearfix">
+      <span><span class="titleText">I</span>基本信息</span>
+      <span class="right" style="float:right;color:#FFA800" @click="partHShow=!partHShow">
+        <span v-if="partHShow">收起</span>
+        <span v-if="!partHShow">展开</span>
+        <i :class="{rotaga:!partHShow}" class="el-icon-caret-top"/>
       </span>
     </div>
-    <div v-show="partIShow" class="tc-report-card-content">
+    <div v-show="partHShow" class="tc-report-card-content">
       <el-form ref="form" :model="data" label-width="130px">
-        <el-form-item
-          :rules="[{ required: true, message: '请选择结论', trigger: 'change' }]"
-          label="报告总结论"
-          prop="general_conclusion">
-          <el-radio
-            v-for="item in configs.generalConclusionOptions"
-            v-model="data.general_conclusion"
-            :key="item.value"
-            :label="item.value">
-            {{ item.label }}
-          </el-radio>
-        </el-form-item>
         <el-form-item label-width="0" style="margin: 0 0 24px 0;">
           <table cellspacing="0" cellpadding="0" border="0" class="tc-table" style="width: 100%">
             <tbody>
+              <!-- <tr>
+                <td style="width: 270px; vertical-align:middle;text-align:center;" class="background-gray">
+                  检验类型
+                </td>
+                <td style="text-align: left; min-width: 350px;vertical-align:middle;">
+                  <el-form-item label-width="0" class="singleForm">
+                    第<el-input-number v-model="data.number" :min="1" controls-position="right" style="width: 120px; margin: 0 7px;"/>次检验
+                  </el-form-item>
+                </td>
+              </tr> -->
               <tr>
-                <td style="width: 270px;" class="background-gray">外观及工艺</td>
-                <td colspan="5">符合</td>
+                <td style="width: 270px;vertical-align:middle;text-align:center;" class="background-gray">
+                  买家名称
+                </td>
+                <td style="text-align: left;width: 470px;">
+                  <el-form-item label-width="0" class="singleForm">
+                    <el-input v-model="data.user_name" style="width: 100%;"/>
+                  </el-form-item>
+                </td>
+                <td style="width: 270px;vertical-align:middle;text-align:center;" class="background-gray">
+                  订单号码
+                </td>
+                <td style="text-align: left;">
+                  <el-form-item label-width="0" class="singleForm">
+                    <el-input v-model="data.order_name" style="width: 100%;"/>
+                  </el-form-item>
+                </td>
               </tr>
               <tr>
-                <td style="width: 270px;" class="background-gray">抽样数</td>
-                <td colspan="5">{{ cloneE.sampling.params.quantity }}</td>
+                <td style="width: 270px;vertical-align:middle;text-align:center;" class="background-gray">
+                  供应商名称
+                </td>
+                <td style="text-align: left;">
+                  <el-form-item label-width="0" class="singleForm">
+                    <el-input v-model="data.supplier_name" style="width: 100%;"/>
+                  </el-form-item>
+                </td>
+                <td style="width: 270px;vertical-align:middle;text-align:center;" class="background-gray">
+                  款号/型号
+                </td>
+                <td style="text-align: left;">
+                  <el-form-item label-width="0" class="singleForm">
+                    <el-input v-model="data.product_number" style="width: 100%;"/>
+                  </el-form-item>
+                </td>
               </tr>
               <tr>
-                <td rowspan="2" class="background-gray" style="vertical-align:middle;text-align:center;">检验标准</td>
-                <!-- {{order}} -->
-                <td rowspan="2" style="text-align:center;vertical-align:middle;">{{ _.get(_.find(_.get(configs, 'samplings.options', []), { value: cloneE.sampling.type }), 'label') }}</td>
-                <td style="width: 180px;">疵点</td>
-                <td style="width: 180px;">致命缺陷</td>
-                <td style="width: 180px;">严重缺陷</td>
-                <td style="width: 180px;">轻微缺陷</td>
+                <td style="width: 270px;vertical-align:middle;text-align:center;" class="background-gray">
+                  检验日期
+                </td>
+                <td style="text-align: left;">
+                  <el-form-item label-width="0" class="singleForm">
+                    <el-date-picker
+                      v-model="data.inspection_dates"
+                      type="dates"
+                      style="width: 100%;"/>
+                  </el-form-item>
+                </td>
+                <td style="width: 270px;vertical-align:middle;text-align:center;" class="background-gray">
+                  产品名称
+                </td>
+                <td style="text-align: left;">
+                  <el-form-item label-width="0" class="singleForm">
+                    <el-input v-model="data.product_name" style="width: 100%;"/>
+                  </el-form-item>
+                </td>
               </tr>
               <tr>
-                <td>AQL</td>
-                <td>{{ cloneE.sampling.params.fatal_defect_limit ? cloneE.sampling.params.fatal_defect_limit : 'N/A' }}</td>
-                <td>{{ cloneE.sampling.params.serious_defect_limit ? cloneE.sampling.params.serious_defect_limit : 'N/A' }}</td>
-                <td>{{ cloneE.sampling.params.minor_defect_limit ? cloneE.sampling.params.minor_defect_limit : 'N/A' }}</td>
+                <td style="width: 270px;vertical-align:middle;text-align:center;" class="background-gray">
+                  检验地址
+                </td>
+                <td style="text-align: left;vertical-align:middle;">
+                  <el-form-item label-width="0" class="singleForm">
+                    <el-input v-model="data.inspection_address" style="width: 100%;"/>
+                  </el-form-item>
+                </td>
+                 <td style="width: 270px;vertical-align:middle;text-align:center;" class="background-gray">
+                  整批次数量
+                </td>
+                <td style="text-align: left;vertical-align:middle;">
+                  <el-form-item label-width="0" class="singleForm">
+                    {{ data.report_quantity }}
+                  </el-form-item>
+                </td>
               </tr>
               <tr>
-                <td rowspan="3" class="background-gray" style="vertical-align:middle;text-align:center;">检验水平</td>
-                <td rowspan="3">{{ _.get(_.find(_.get(configs, 'samplings.levels', []), { level: _.get(order, 'visual_and_workmanship.sampling.params.level') }), 'value') }}</td>
-                <td>最大允许值</td>
-                <td>{{ cloneE.sampling.params.fatal_defect }}</td>
-                <td>{{ cloneE.sampling.params.serious_defect }}</td>
-                <td>{{ cloneE.sampling.params.minor_defect }}</td>
+                <td style="width: 270px;vertical-align:middle;text-align:center;" class="background-gray">
+                  检验服务
+                </td>
+                <td style="text-align: left;vertical-align:middle;">
+                  <el-form-item label-width="0" class="singleForm" style="display:inline-block">
+                    <el-select
+                      v-model="data.inspection_type"
+                      filterable
+                      default-first-option
+                      style="width: 180px;">
+                      <el-option
+                        v-for="item in configs.inspectionTypes"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"/>
+                    </el-select>
+                    
+                  </el-form-item>
+                  <!-- <td style="text-align: left; min-width: 350px;vertical-align:middle;"> -->
+                  <el-form-item label-width="0" class="singleForm" style="display:inline-block;vertical-align:middle;">
+                    第<el-input-number v-model="data.number" :min="1" controls-position="right" style="width: 120px; margin: 0 7px;"/>次检验
+                  </el-form-item>
+                <!-- </td> -->
+                </td>
+                <td style="width: 270px;vertical-align:middle;text-align:center;" class="background-gray">
+                  是否合并抽样
+                </td>
+                <td style="text-align: left;vertical-align:middle;">
+                  <el-radio-group v-model="data.is_merge_sampling">
+                    <el-radio :label=1>是</el-radio>
+                    <el-radio :label=0>否</el-radio>
+                  </el-radio-group>
+                </td>
               </tr>
               <tr>
-                <td>实际值</td>
-                <td>{{ cloneE.real_fatal_defect }}</td>
-                <td>{{ cloneE.real_serious_defect }}</td>
-                <td>{{ cloneE.real_minor_defect }}</td>
-              </tr>
-              <tr>
-                <td>结论</td>
-                <td colspan="3">致命缺陷</td>
-              </tr>
+                <td style="width: 270px;vertical-align:middle;text-align:center;" class="background-gray">
+                  检验依据
+                </td>
+                <td style="text-align: left;" colspan=3>
+                  <el-form-item label-width="0" class="singleForm">
+                    <el-radio
+                      v-for="item in configs.inspectionBases"
+                      v-model="data.inspection_basis"
+                      :key="item.value"
+                      :label="item.value">
+                      {{ item.label }}
+                    </el-radio>
+                    <el-input v-model="data.inspection_basis_other" style="width: 100px;" placeholder="请输入"/>
+                  </el-form-item>
+                </td>
+              </tr>          
             </tbody>
           </table>
         </el-form-item>
-        <el-form-item label-width="0" style="margin: 0 0 24px 0;">
-          <table cellspacing="0" cellpadding="0" border="0" class="tc-table" style="width: 100%">
-            <tbody>
-              <tr>
-                <td style="width: 270px;" class="background-gray">数量符合性</td>
-                <td v-if="cloneA.conclusion==1" style="width: 270px;">符合</td>
-                <td v-if="cloneA.conclusion==2" style="width: 270px;">不符合</td>
-                <td v-if="cloneA.conclusion==3" style="width: 270px;">待定</td>
-                <td v-if="cloneA.conclusion==4" style="width: 270px;">不适用</td>
-                <td v-if="cloneA.conclusion==1">无</td>
-                <td v-if="[2,3].includes(cloneA.conclusion)"> <el-input type="text" class="tdInput" v-model="data.conclusion.quantityCompliance" placeholder="请输入"></el-input> </td>
-              </tr>
-              <tr>
-                <td class="background-gray">包装/标识/标签</td>
-                <td v-if="ClonebStatu == 1">不符合</td>
-                <td v-if="ClonebStatu == 2">待定</td>
-                <td v-if="ClonebStatu == 3">符合</td>
-                <td v-if="ClonebStatu == 3">无</td>
-                <td v-if="[1,2].includes(ClonebStatu)"><el-input type="text" class="tdInput" v-model="data.conclusion.packing" placeholder="请输入"></el-input> </td>
-              </tr>
-              <tr>
-                
-                <td class="background-gray">产品符合性</td>
-                <td v-if="CloneCStatu == 1">不符合</td>
-                <td v-if="CloneCStatu == 2">待定</td>
-                <td v-if="CloneCStatu == 3">符合</td>
-                <td v-if="CloneCStatu == 3">无</td>
-                <td v-if="[1,2].includes(CloneCStatu)"><el-input type="text" class="tdInput" v-model="data.conclusion.product" placeholder="请输入"></el-input> </td>
-              </tr>
-              <tr>
-                <!-- {{cloneD}} -->
-                <td class="background-gray">数据测量/现场测试</td>
-                <td v-if="CloneDStatu == 1">不符合</td>
-                <td v-if="CloneDStatu == 2">待定</td>
-                <td v-if="CloneDStatu == 3">符合</td>
-                <td v-if="CloneDStatu == 3">无</td>
-                <td v-if="[1,2].includes(CloneDStatu)"><el-input type="text" class="tdInput" v-model="data.conclusion.measure" placeholder="请输入"></el-input> </td>
-              </tr>
-              <tr>
-                <td class="background-gray">特别注意点</td>
-                <td v-if="CloneFStatu == 1">不符合</td>
-                <td v-if="CloneFStatu == 2">待定</td>
-                <td v-if="CloneFStatu == 3">符合</td>
-                <td v-if="CloneFStatu == 3">无</td>
-                <td v-if="[1,2].includes(CloneFStatu)"><el-input type="text" class="tdInput" v-model="data.conclusion.keyPoint" placeholder="请输入"></el-input> </td>
-              </tr>
-            </tbody>
-          </table>
-        </el-form-item>
-        <div class="tc-report-card-content-title">备注</div>
-        <el-form-item label-width="0" style="margin: 0 0 24px 0;">
-          <el-table
-            :data="data.remarks"
-            border
-            class="tc-writable-table"
-            style="width: 100%">
-            <el-table-column label="#" align="center" width="100">
-              <template slot-scope="scope">
-                {{ scope.$index + 1 }}
-              </template>
-            </el-table-column>
-            <el-table-column label="备注" align="center">
-              <template slot-scope="scope">
-                <el-input v-model="scope.row.remark" placeholder="请输入"/>
-              </template>
-            </el-table-column>
-            <el-table-column align="center" width="50">
-              <template slot-scope="scope">
-                <el-button size="mini" type="success" icon="el-icon-minus" @click="handleRemoveRemark(scope.$index)" circle/>
-              </template>
-            </el-table-column>
-          </el-table>
-        </el-form-item>
-        <el-form-item label-width="0" style="margin: 0 0 24px 0;">
-          <el-button type="success" icon="el-icon-plus" @click="handleAddRemark">添加</el-button>
-          <el-button type="success" @click="handleAddNofit">导入不符合备注</el-button>
-          <el-button type="success" @click="handleAddPending">导入待定备注</el-button>
-        </el-form-item>
-
         <el-form-item label-width="0" style="text-align: center;">
           <el-button class="tc-report-button" @click="handleComfirm">保存</el-button>
         </el-form-item>
@@ -158,18 +163,28 @@
 
 <script>
 import UploadImage from '@/views/report/components/UploadImage'
+import { getToken } from '@/utils/auth'
 
 const defaultData = {
-  general_conclusion: '',
-  remarks: [],
-  conclusion :{}
-}
-const defaultRemark = {
-  remark: ''
+  number: 1,
+  user_name: '',
+  supplier_name: '',
+  factory_name: '',
+  product_number: '',
+  product_name: '',
+  order_name: '',
+  inspection_type: null,
+  inspection_dates: [],
+  inspection_address: '',
+  report_quantity: 0,
+  inspection_basis: null,
+  inspection_basis_other: '',
+  is_merge_sampling:0,
+  file: null
 }
 
 export default {
-  name: 'ReportPartI',
+  name: 'ReportPartH',
   components: {
     'tc-upload-image': UploadImage
   },
@@ -185,204 +200,136 @@ export default {
   },
   data() {
     return {
+      loading: true,
       data: this._.cloneDeep(defaultData),
-      cloneA: '',
-      cloneB: '',
-      cloneC:'',
-      cloneD:'',
-      cloneE: {
-        sampling:{
-          params:{}
-        },
-        
-      },
-      cloneF:'',
-      ClonebStatu:'',
-      CloneCStatu:'',
-      CloneDStatu:'',
-      CloneFStatu:'',
-      partIShow: true
+      partHShow: true
     }
   },
-  created(){
-    
+  computed: {
+    uploadUrl() {
+      return process.env.BASE_API + 'v1/upload'
+    },
+    uploadHeaders() {
+      return { Authorization: 'Bearer ' + getToken() }
+    }
   },
   methods: {
-    setData(data, Deepclone) {
+    setData(data) {
       if (data) {
-        console.log(data)
         this.data = this._.cloneDeep(data)
-        if (!this._.has(this.data, 'conclusion')) {
-          this.data.conclusion = {}
-
-        }
-        // this.data = this.data.hasOwnProperty("conclusion") ? this.data : this.$set(this.data,'conclusion',{}) 
-        // console.log(this.data)
-        
-        
-        console.log('xxx') 
       } else {
         const _data = this._.cloneDeep(defaultData)
+        const products = this._.get(this.order, 'products')
+        const productNumbers = this._.filter(this._.map(products, 'number'))
+        const productNames = this._.filter(this._.map(products, 'name'))
+        const productOrderNumbers = this._.filter(this._.map(this._.flatten(this._.map(products, 'PO')), 'number'))
+        const productQuantity = this._.sum(this._.map(products, 'report_quantity'))
+
+        _data.user_name = this._.get(this.order, 'order.user_name')
+        _data.supplier_name = this._.get(this.order, 'order.supplier.name')
+        _data.factory_name = this._.get(this.order, 'service.address.name')
+        _data.product_number = productNumbers ? productNumbers.join(',') : ''
+        _data.product_name = productNames ? productNames.join(',') : ''
+        _data.order_name = productOrderNumbers ? productOrderNumbers.join(',') : ''
+        _data.inspection_type = parseInt(this._.get(this.order, 'order.inspection_type'))
+        _data.inspection_dates = this._.get(this.order, 'service.inspection_dates')
+        _data.inspection_address = this._.get(this.order, 'service.address.address_detail')
+        _data.report_quantity = productQuantity
+
         this.data = _data
       }
-      this.cloneE = Deepclone.review.visual_and_workmanship
-      this.cloneA = Deepclone.review.quantity_conformity
-      this.cloneB = Deepclone.review.packing_and_marking
-      this.cloneC = Deepclone.review.product_conformity
-      this.cloneD = Deepclone.review.data_measurement
-      this.cloneF = Deepclone.review.special_attention
       this.loading = false
-      this.jundgeB(this.cloneB.packing.products,this.cloneB.marking.products)
-      this.jundgeC(this.cloneC.products)
-      this.jundgeD(this.cloneD.checkitems)
-      this.jundgeF(this.cloneF.products)
     },
-
-    handleAddRemark() {
-      this.data.remarks.push(this._.cloneDeep(defaultRemark))
-    },
-    handleRemoveRemark(index) {
-      this.data.remarks.splice(index, 1)
-    },
-    // 导入不符合项
-    handleAddNofit(){
-      let NofitClone
-      let NofitCloneA  
-      if(this.cloneA.conclusion == 2){
-        NofitCloneA = this.cloneA.remark_content
-      }
-      let NofitCloneB 
-      let NofitCloneBpacking 
-      let NofitCloneBmarking
-      NofitCloneBpacking = this.cloneB.packing.products.filter(t=>t.conclusion == 2) ? this.cloneB.packing.products.filter(t=>t.conclusion == 2).map((item)=>{
-        return item.remark_content
-      }) : ''
-      NofitCloneBmarking = this.cloneB.marking.products.filter(t=>t.conclusion == 2) ? this.cloneB.marking.products.filter(t=>t.conclusion == 2).map((item)=>{
-        return item.remark_content
-      }) : ''
-      NofitCloneB = [...NofitCloneBpacking,...NofitCloneBmarking]
-      let NofitCloneC
-      NofitCloneC = this.cloneC.products.filter(t=>t.conclusion == 2) ? this.cloneC.products.filter(t=>t.conclusion == 2).map((item) =>{
-        return item.remark_content
-      }) : ''
-      let NofitCloneD
-      NofitCloneD = _.filter(this.cloneD.checkitems, item => {
-            return [2,3].includes(item.conclusion) 
-          }).length ? this.cloneD.remark_content :''
-      let NofitCloneE    
-      NofitCloneE = ((this.cloneE.real_fatal_defect>this.cloneE.sampling.params.fatal_defect) || (this.cloneE.real_serious_defect>this.cloneE.sampling.params.serious_defect) || (this.cloneE.real_minor_defect>this.cloneE.sampling.params.minor_defect)) ? this.cloneE.remark_content:''
-      let NofitCloneF
-      NofitCloneF = this.cloneF.products.filter(t=>t.conclusion == 2) ? this.cloneF.products.filter(t=>t.conclusion == 2).map((item) =>{
-        return item.remark_content
-      }) : '' 
-      NofitClone = [NofitCloneA,...NofitCloneB,...NofitCloneC,NofitCloneD,NofitCloneE,...NofitCloneF].filter(item => item).map((item)=>{
-        return {
-          remark:item
-        }
-      })
-      this.data.remarks.push(...NofitClone)
-    },
-    // 导入待定项
-    handleAddPending(){
-      let PendingClone
-      let PendingCloneA  
-      if(this.cloneA.conclusion == 3){
-        PendingCloneA = this.cloneA.remark_content
-      }
-      let PendingCloneB 
-      let PendingCloneBpacking 
-      let PendingCloneBmarking
-      PendingCloneBpacking = this.cloneB.packing.products.filter(t=>t.conclusion == 3) ? this.cloneB.packing.products.filter(t=>t.conclusion == 3).map((item)=>{
-        return item.remark_content
-      }) : ''
-      PendingCloneBmarking = this.cloneB.marking.products.filter(t=>t.conclusion == 3) ? this.cloneB.marking.products.filter(t=>t.conclusion == 3).map((item)=>{
-        return item.remark_content
-      }) : ''
-      PendingCloneB = [...PendingCloneBpacking,...PendingCloneBmarking]
-      let PendingCloneC
-      PendingCloneC = this.cloneC.products.filter(t=>t.conclusion == 3) ? this.cloneC.products.filter(t=>t.conclusion == 3).map((item) =>{
-        return item.remark_content
-      }) : ''
-      let PendingCloneD
-      PendingCloneD = _.filter(this.cloneD.checkitems, item => {
-            return [2,3].includes(item.conclusion) 
-          }).length ? this.cloneD.remark_content :''
-      let PendingCloneE    
-      PendingCloneE = ((this.cloneE.real_fatal_defect>this.cloneE.sampling.params.fatal_defect) || (this.cloneE.real_serious_defect>this.cloneE.sampling.params.serious_defect) || (this.cloneE.real_minor_defect>this.cloneE.sampling.params.minor_defect)) ? this.cloneE.remark_content:''
-      let PendingCloneF
-      PendingCloneF = this.cloneF.products.filter(t=>t.conclusion == 3) ? this.cloneF.products.filter(t=>t.conclusion == 3).map((item) =>{
-        return item.remark_content
-      }) : '' 
-      PendingClone = [PendingCloneA,...PendingCloneB,...PendingCloneC,PendingCloneD,PendingCloneE,...PendingCloneF].filter(item => item).map((item)=>{
-        return {
-          remark:item
-        }
-      })
-      this.data.remarks.push(...PendingClone)
-    },
-    // 判断partB结论
-    jundgeB(Array1,Array2){
-      let Array = [...Array1,...Array2]
-      if(Array.findIndex(t=>t.conclusion==2)!=-1){
-        this.ClonebStatu = 1
-        return false
-      }else if(Array.findIndex(t=>t.conclusion==3)!=-1){
-        this.ClonebStatu = 2
-        return false
-      }else{
-        this.ClonebStatu = 3
-        return  false
-      }
-    },
-    // 判断partC结论
-    jundgeC(Array){
-      console.log(Array)
-      if(Array.findIndex(t=>t.conclusion==2)!=-1){
-        this.CloneCStatu = 1
-        return false
-      }else if(Array.findIndex(t=>t.conclusion==3)!=-1){
-        this.CloneCStatu = 2
-        return false
-      }else{
-        this.CloneCStatu = 3
-        return  false
-      }
-    },
-    // 判断partD结论
-    jundgeD(Array){
-      if(Array.findIndex(t=>t.conclusion==2)!=-1){
-        this.CloneDStatu = 1
-        return false
-      }else if(Array.findIndex(t=>t.conclusion==3)!=-1){
-        this.CloneDStatu = 2
-        return false
-      }else{
-        this.CloneDStatu = 3
-        return  false
-      }
-    },
-    // 判断partF结论
-    jundgeF(Array){
-      if(Array.findIndex(t=>t.conclusion==2)!=-1){
-        this.CloneFStatu = 1
-        return false
-      }else if(Array.findIndex(t=>t.conclusion==3)!=-1){
-        this.CloneFStatu = 2
-        return false
-      }else{
-        this.CloneFStatu = 3
-        return  false
-      }
-    },
-
     // 提交
     handleComfirm() {
       this.$refs.form.validate(valid => {
         if (valid) {
-          this.$emit('save', this.data, 'inspection_results')
+          this.$message({
+            message: '基本信息保存成功',
+            type: 'success'
+          })
+          this.$emit('save', this.data, 'general_information')
         }
       })
-    }
+    },
+
+    handleBeforeUpload(file) {
+      if (!['image/jpeg', 'image/png'].includes(file.type)) {
+        this.$message.error('上传图片只能是 JPG/PNG 格式!')
+        return false
+      }
+      if (file.size / 1024 / 1024 > 10) {
+        this.$message.error('上传图片大小不能超过 10MB!')
+        return false
+      }
+    },
+    uploadOnProgress(e, file) {
+      const index = this.uploadingFiles.findIndex(uploadingFile => uploadingFile.uid === file.uid)
+      this.uploadingFiles[index].percent = Math.round(e.percent)
+      this.$set(this.uploadingFiles, index, file)
+    },
+    // 上传成功
+    handleSuccess(response, file, fileList) {
+      if (response.code === 0) {
+        this.data.file = {
+          id: response.data.id,
+          name: response.data.name,
+          url: response.data.url
+        }
+      }
+    },
+    // 移除图片
+    handleRemove(file, fileList) {
+      console.log(file, fileList);
+    },
   }
 }
 </script>
+
+<style lang="scss">
+.tc-report-card {
+  .noFileStyle{
+    padding-top:300px;
+    i{
+      color:#FFA800;
+      font-size: 36px;
+    }
+    p:nth-child(2){
+      font-size:22px;
+      color:#7F8FA4;
+    }
+    p:nth-child(3){
+      font-size:16px;
+      color:#EF3535;
+      margin-top:25px;
+    }
+
+  }
+  .el-upload {
+    width: 80%;
+    .avatar{
+      width: 100%;
+    }
+  }
+}
+  /* .avatar-uploader .el-upload {
+    width: 450px;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+  }
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    text-align: center;
+  } */
+  /* .avatar {
+    width: 450px;
+    display: block;
+    object-fit: contain;
+  } */
+</style>

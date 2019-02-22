@@ -1,13 +1,13 @@
 <template>
-  <el-form ref="targetForm" :model="target" class="targetForm">
+  <el-form ref="targetForm" :model="target" :rules= rules class="targetForm">
     <el-form-item style="width:428px;">
       <!-- 选择国家 -->
       <!-- {{target.location_ids}} -->
       <!-- {{locationOptions}} -->
       <el-col :span="8">
         <el-form-item
-          :rules="[{ required: true, message: $t('rules.required.country'), trigger: 'blur' }]"
-          prop="country"
+          
+          prop="country_id"
         >
           <el-select v-model="target.country_id" style="width: 100%;" @change="handleCountryChange">
             <el-option
@@ -21,8 +21,8 @@
       <el-col :span="1">&nbsp;</el-col>
       <el-col :span="15">
         <el-form-item
-          :rules="[{ required: true, message: $t('rules.required.address'), trigger: 'blur' }]"
-          prop="country"
+          
+          prop="location_ids"
           style="width: 100%;"
         >
           <el-cascader
@@ -70,7 +70,11 @@ export default {
       mapDialogVisible: false,
       locationOptions: [],
       countryOptions: [],
-      address: []
+      address: [],
+      rules:{
+        country_id:[{ required: true, message: '请选择国家', trigger: 'change' }],
+        location_ids:[{ required: true, message: '请选择城市', trigger: 'blur' }]
+      }
     }
   },
   watch: {
@@ -87,7 +91,7 @@ export default {
   created() {
     //   console.log(this.countryOptions)
     this.getCountryOptions()
-    this.fillLocationOptions(this.target.country_id);
+    // this.fillLocationOptions(this.target.country_id);
   },
   methods: {
     // 查找国家

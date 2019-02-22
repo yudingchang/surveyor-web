@@ -1,34 +1,45 @@
 <template>
   <div v-loading="loading" class="dataAudite">
-    <div class="step clearfix">
+    <div class="step clearfix" v-if="inspector.inspector_status == 2">
         <img src="/static/image/vertical_success.png" alt="" class="fl">
         <div class="fl stepContent">
             <p class="greenColor">资料提交</p>
-            <p class="greenColor">2018-05-16 9:00</p>
+            <p class="greenColor">{{_.last(inspector.log.inspector).created_at}}</p>
             <p class="greenColor">您的专业资料已提交，等待测库工作人员审核</p>
-            <p class="greenColor">2018-05-16 9:00</p>
+            <p class="greenColor">{{inspector.updated_at}}</p>
             <p class="greenColor">审核通过</p>
-            <p class="greenColor">2018-05-16 9:00</p>
+            <p class="greenColor">{{inspector.updated_at}}</p>
+            <p>{{inspector.pass_description ? inspector.pass_description : ''}}</p>
             <a @click="searchData()">查看资料</a>
         </div>
     </div>
-    <!-- <div class="step clearfix">
+    <div class="step clearfix" v-if="inspector.inspector_status == -2">
         <img src="/static/image/vertical_fail.png" alt="" class="fl">
         <div class="fl stepContent">
             <p class="greenColor">资料提交</p>
-            <p class="greenColor">2018-05-16 9:00</p>
+            <p class="greenColor">{{_.last(inspector.log.inspector).created_at}}</p>
             <p class="greenColor">您的专业资料已提交，等待测库工作人员审核</p>
-            <p class="greenColor">2018-05-16 9:00</p>
+            <p class="greenColor">{{inspector.updated_at}}</p>
             <p class="redColor">审核未通过</p>
-            <p class="redColor">2018-05-16 9:00</p>
-            <p>审核未通过原因审核未通过原因审核未通过原因</p>
-            <a  @click="searchData()">修改资料</a>
+            <p class="redColor">{{inspector.updated_at}}</p>
+            <p>{{inspector.reject_description}}</p>
+            <a @click="searchData()">修改资料</a>
         </div>
-    </div> -->
+    </div>
+    <div class="step clearfix" v-if="inspector.inspector_status == 1">
+        <img src="/static/image/verticalpadding.png" alt="" class="fl">
+        <div class="fl stepContent">
+            <p class="greenColor">资料提交</p>
+            <p class="greenColor">{{_.last(inspector.log.inspector).created_at}}</p>
+            <p class="greenColor">您的专业资料已提交，等待测库工作人员审核</p>
+            <p class="greenColor">{{inspector.updated_at}}</p>
+        </div>
+    </div>
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
   name: 'ReportPartA',
   components: {
@@ -39,8 +50,15 @@ export default {
     return {
       loading: false,
       data: {},
-      partAShow: true
+      partAShow: true,
     }
+  },
+  computed: {
+    ...mapGetters([
+      'inspector',
+    ])  
+  },    
+  created(){
   },
   methods: {
     searchData() {

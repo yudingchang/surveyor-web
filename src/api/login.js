@@ -66,7 +66,7 @@ export function logout() {
 
 export function getUserInfo(token) {
   return request({
-    url: '/v1/user',
+    url: '/v1/inspector/info',
     method: 'get'
   })
 }
