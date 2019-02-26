@@ -65,13 +65,12 @@
           </p>
         </div>
         <!-- 注销账户 -->
-        <div class="Setting-info-loginPassword">
+        <!-- <div class="Setting-info-loginPassword">
           <p>注销账户</p>
           <p>
             <span class="accountCancel" @click="accountCancel()">销户</span>
-            <!-- <span @click="resetLoginpass">重置</span> -->
           </p>
-        </div>
+        </div> -->
       </el-col>
     </el-row>
     <!-- 修改手机号码 -->
