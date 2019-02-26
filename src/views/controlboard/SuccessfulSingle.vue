@@ -4,6 +4,7 @@
       <p class="text1">恭喜您！抢单成功</p>
       <a class="btn1" @click="continueOrder">继续抢单</a>
       <a class="btn2" @click="continueOrder">返回首页</a>
+      <!-- {{orderInformation}} -->
       <table class="gridtable" border>
           <tbody>
                <tr>
@@ -12,7 +13,7 @@
                 </tr>
                 <tr>
                   <td class="greenTd">测库联系人</td>
-                  <td colspan="3">{{orderInformation.admin.nickname}}</td>
+                  <td colspan="3">{{orderInformation.admin.nickname}} <span v-if="orderInformation.admin.mobile_phone">({{orderInformation.admin.mobile_phone}})</span></td>
                 </tr>
                 <tr>
                   <td class="greenTd">测库订单号</td>
@@ -41,7 +42,7 @@
                 </tr>
                 <tr>
                   <td class="greenTd">总工作量</td>
-                  <td colspan="3">{{Number(orderInformation.order.workload)}}天</td>
+                  <td colspan="3">{{Number(orderInformation.order.workload)}}人天</td>
                 </tr>
                 <tr>
                   <td class="greenTd">报告语言</td>

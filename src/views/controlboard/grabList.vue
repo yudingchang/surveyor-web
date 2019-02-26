@@ -37,8 +37,8 @@
       <el-table-column
         label="报告语言">
         <template slot-scope="scope">
-          <span v-for="(item,index) in scope.row.reports" :key="index" style="margin-right:5px;">
-            {{ item.locale_name }}
+          <span v-for="(item,index) in getFitter(scope.row.reports)" :key="index" style="margin-right:5px;">
+            {{ item }}
           </span>
         </template>
       </el-table-column>
@@ -67,7 +67,8 @@
         prop="address"
         label="操作">
         <template slot-scope="scope">
-          <el-button :disabled="(scope.row.can.confirm == false) && (scope.row.can.chase == false)" type="success" @click="showGrabSheetPump(scope.row)">抢单</el-button>
+          <el-button v-if="(scope.row.can.confirm == false) && (scope.row.can.chase == false)" type="warning" @click="showNoRobbingPump(scope.row)">查看原因</el-button>
+          <el-button v-else type="success" @click="showGrabSheetPump(scope.row)">抢单</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -89,6 +90,20 @@
       <span slot="footer" class="dialog-footer">
         <el-button class="cancle" @click="centerDialogVisible = false">否</el-button>
         <el-button type="primary" class="confirm" @click="confirmgrabSheet()">是</el-button>
+      </span>
+    </el-dialog>
+
+    <!-- 不可抢对话框 -->
+    <el-dialog
+      title="不可抢原因"
+      :visible.sync="noRobbing"
+      width="25%"
+      top="30vh"
+      center>
+      <span>{{ noRobbingText }}</span>
+      <span slot="footer" class="dialog-footer">
+        <!-- <el-button class="cancle" @click="centerDialogVisible = false">否</el-button>
+        <el-button type="primary" class="confirm" @click="confirmgrabSheet()">是</el-button> -->
       </span>
     </el-dialog>
 
@@ -124,7 +139,9 @@ export default {
       canChase: false,
       dialogTableVisible: false,
       centerDialogVisible: false,
-      orderService: '',
+      noRobbing: false,
+      noRobbingText: '',
+      orderService: '',     
       orderInformation:{},
       grabSheetText:'',
       tableData: [
@@ -161,6 +178,10 @@ export default {
       })
       console.log(this.gridData)
     },
+    // 过滤中文，英文项目
+    getFitter(row){
+      return this._.map(this._.uniqBy(row, 'locale'), 'locale_name')
+    },
     // 去订单详情
     goOrderDetail(row) {
       this.$router.push({ path: '/orderManagement/orderDetails', query: { orderId:row.id}})
@@ -183,6 +204,11 @@ export default {
       this.centerDialogVisible = true
       this.canConfirm = row.can.confirm
       this.canChase = row.can.chase
+    },
+    // 显示不可抢弹框
+    showNoRobbingPump(row){
+      this.noRobbing = true
+      this.noRobbingText = row.can_messages.chase
     },
     // 遍历数组
     getArray(data) {
@@ -241,6 +267,9 @@ export default {
       .el-dialog__body{
         text-align: center;
       padding: 0;
+      }
+      .el-table td{
+        font-size: 12px;
       }
       .el-dialog__footer{
         padding: 20px 20px 20px;

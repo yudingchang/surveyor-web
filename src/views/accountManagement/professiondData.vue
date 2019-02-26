@@ -1992,6 +1992,7 @@ export default {
               this.emailForm.dialogFormVisible = false
               this.emailForm.reviseMailSuccess = true
               store.dispatch('GetUserInfo')
+              this.submitConfirmBtn()
             }
           })
         }

@@ -6,13 +6,22 @@
         <el-col :span="24">
           <div class="walletAccountTop clearfix">
             <div class="WalletBalance">
-              <p class="WalletBalanceTop"><i class="WalletBalanceLogo"/><span class="WalletBalanceText">钱包余额</span><i class="el-icon-question" style="color:#7F8FA4;font-size:18px;"/></p>
+              <p class="WalletBalanceTop"><i class="WalletBalanceLogo"/><span class="WalletBalanceText">钱包余额</span>
+                <el-tooltip class="item" effect="dark" content="钱包余额不包含保证金" placement="right">
+                  <i class="el-icon-question" style="color:#7F8FA4;font-size:18px;"/>
+                </el-tooltip>              
+              </p>
               <div class="WalletBalanceBottom">
                 <span class="moneyText">¥{{ balance }}</span><span class="btn" @click="goWithDrawCash()">提现</span>
               </div>
             </div>
             <div class="WalletBalance deposit">
-              <p class="WalletBalanceTop"><i class="depositLogo"/><span class="WalletBalanceText">保证金</span><i class="el-icon-question" style="color:#7F8FA4;font-size:18px;"/></p>
+              <p class="WalletBalanceTop"><i class="depositLogo"/><span class="WalletBalanceText">保证金</span>
+                <el-tooltip class="item" width='300px' effect="dark" content="当您违规平台操作规则，平台将从您保证金扣款惩罚。
+每完成一笔订单，我们将按比例，将您的钱包余额转入保证金中。当保证金达2000元，将不在扣款。保证金是不可提现金额。当你不在选择我们平台抢单验货时才可退回。" placement="right">
+                  <i class="el-icon-question" style="color:#7F8FA4;font-size:18px;"/>
+                </el-tooltip>      
+              </p>
               <div class="WalletBalanceBottom">
                 <span class="moneyText">¥{{ freeze }}</span>
               </div>
@@ -478,6 +487,9 @@ export default {
 </script>
 
 <style lang="scss">
+  .el-tooltip__popper{
+    width: 300px;
+  }
   .walletAccount{
     .el-button--text {
       color: #FFA800;
@@ -486,10 +498,12 @@ export default {
     .el-table td{
       font-size: 12px;
     }
+    
   }
 </style>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
+
 .walletAccount{
   margin:24px 40px 0;
   // position: relative;

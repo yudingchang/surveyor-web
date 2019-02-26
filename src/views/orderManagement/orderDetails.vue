@@ -5,7 +5,7 @@
         <div class="orderNumber clearfix">
           <span>订单号: {{ fundamentalState.number }}</span>
           <span class="greencolor orderstate">({{ fundamentalState.marking_name }})</span>
-          <div class="copyIcon closeIcon" @click="chargeback" v-if="(fundamentalState.marking_name!='完成') || (fundamentalState.marking_name!='待排单')">
+          <div class="copyIcon closeIcon" @click="chargeback" v-if="(fundamentalState.marking_name == '待审核') || (fundamentalState.marking_name == '验货中') || (fundamentalState.marking_name == '待验货') ">
             <i class="iconfont icon-fuzhi"/>
             <p>退单</p>
           </div>
@@ -31,7 +31,7 @@
               </el-form-item>
               <el-form-item label="价格" prop="name">
                 <span>¥{{ Number(fundamentalState.commission) + Number(fundamentalState.other_fee) }}</span>
-                <span v-if="fundamentalState.other_fee!=''">
+                <span v-if="fundamentalState.other_fee!='0.00'">
                   <span>(含其他费用</span>
                   <span
                     v-for="(item,index) in fundamentalState.other_fee_detail"
@@ -77,7 +77,7 @@
         </div>
       </el-col>
     </el-row>
-    <el-row>
+    <el-row v-if="!((fundamentalState.marking_name=='待确认') || (fundamentalState.marking_name=='抢单中')|| (fundamentalState.marking_name=='待审核'))">
       <el-col :span="14">
         <div class="examineGoodsMessage">
           <p>验货地信息</p>
@@ -130,7 +130,7 @@
       </el-col>
     </el-row>
     <!-- 参考样品 -->
-    <el-row>
+    <el-row v-if="!((fundamentalState.marking_name=='待确认') || (fundamentalState.marking_name=='抢单中') || (fundamentalState.marking_name=='待审核'))">
       <el-col :span="24">
         <div class="sampleReference">
           <p>参考样品</p>
@@ -161,7 +161,7 @@
       </el-col>
     </el-row>
     <!-- 取样信息 -->
-    <el-row>
+    <el-row v-if="!((fundamentalState.marking_name=='待确认') || (fundamentalState.marking_name=='抢单中') || (fundamentalState.marking_name=='待审核'))">
       <el-col :span="24">
         <div class="sampleIntelligence">
           <p>取样信息</p>
@@ -249,7 +249,7 @@
                         </el-form-item>
                         <el-form-item v-for="(val,i) in item.PO" :key="i" label="P.O号">
                           <span>{{ val.number }}</span>
-                          <span>{{ val.quantity }}</span>
+                          <span style="margin-left:50px;">{{ val.quantity }}</span>
                           <span>{{ val.unit }}</span>
                         </el-form-item>
                         <el-form-item label="产品总数">
@@ -652,7 +652,8 @@ export default {
     chargeback(){
        console.log(this.canPhoneChargeBack);
       // 没有超过验货前一天10点
-      if((this.fundamentalState.marking_name == '待审核' || this.jundgeTime()) && this.canPhoneChargeBack == false ){
+      // || this.jundgeTime()) && this.canPhoneChargeBack == false
+      if(this.fundamentalState.marking_name == '待审核'){
         this.chargeBackDialogVisible = true
         return false
       }

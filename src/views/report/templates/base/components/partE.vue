@@ -50,7 +50,7 @@
               </tr>
               <tr>
                 <td class="background-gray">可接受质量限（AQL）</td>
-                <td>{{ data.sampling.params.fatal_defect_limit ? data.sampling.params.fatal_defect_limit : 'N/A' }}</td>
+                <td>{{ data.sampling.params.fatal_defect_limit ? data.sampling.params.fatal_defect_limit : 0 }}</td>
                 <td>{{ data.sampling.params.serious_defect_limit ? data.sampling.params.serious_defect_limit : 'N/A' }}</td>
                 <td>{{ data.sampling.params.minor_defect_limit ? data.sampling.params.minor_defect_limit : 'N/A' }}</td>
               </tr>
@@ -79,15 +79,15 @@
             placeholder="请输入备注内容"
             style="width: 100%;"/>
         </el-form-item>
-
+        
         <div v-for="(product, index) in data.products" :key="'p'+index">
           <el-form-item label-width="100px">
             <template slot="label">
               <span>{{ (index+1).toString() }}</span>
               款号/型号
             </template>
-            <span style="margin-right: 1rem;">{{ product.number ? product.number : 'N/A' }}</span>
-            <el-input v-if="!product.number" v-model="product.name" style="width: 300px;" placeholder="请输入款号或名称"/>
+            <span style="margin-right: 1rem;">{{ product.number || product.name ? (product.number ?product.number:product.name) : '' }}</span>
+            <el-input v-if="!product.number && !product.name" v-model="product.name" style="width: 300px;" placeholder="请输入款号或名称"/>
             <span style="margin-left: 1rem;">抽样数</span>
             <!-- <span style="margin-right: 1rem;">{{ product.check_quantity ? product.check_quantity : 'N/A' }}</span> -->
             <el-input v-model="product.check_quantity" style="width: 150px;" placeholder="请输入数量"/>
@@ -99,7 +99,7 @@
             <el-radio
               v-for="item in defectList"
               v-model="product.has_defect"
-              @change="resetForm('form')"
+              @change="resetDefect(product,index)"
               :key="item.value"
               :label="item.value">
               {{ item.label }}
@@ -289,7 +289,11 @@ export default {
     handleRemoveDefectiveItem(product, index) {
       product.defective_items.splice(index, 1)
     },
-
+    resetDefect(product,index){
+      if(product.has_defect == 0){
+        product['defective_items'] = []
+      }
+    },
     handleUploadFile(file, name) {
       this._.get(this.data, name).push(file)
     },
@@ -329,9 +333,9 @@ export default {
           })
           
           
-          console.log(_data)
-          // this.data = this.data.
-          this.$emit('save', _data, 'visual_and_workmanship')
+          this.data = _data
+          console.log(this.data);
+          this.$emit('save', this.data, 'visual_and_workmanship')
         }
       })
     }

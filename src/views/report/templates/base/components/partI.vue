@@ -94,7 +94,9 @@
                 </td>
                 <td style="text-align: left;vertical-align:middle;">
                   <el-form-item label-width="0" class="singleForm">
-                    {{ data.report_quantity }}
+                    <!-- {{ data.report_quantity }}
+                     -->
+                     {{productQuantity}}
                   </el-form-item>
                 </td>
               </tr>
@@ -118,8 +120,8 @@
                     
                   </el-form-item>
                   <!-- <td style="text-align: left; min-width: 350px;vertical-align:middle;"> -->
-                  <el-form-item label-width="0" class="singleForm" style="display:inline-block;vertical-align:middle;">
-                    第<el-input-number v-model="data.number" :min="1" controls-position="right" style="width: 120px; margin: 0 7px;"/>次检验
+                  <el-form-item label-width="0" class="singleForm" style="display:inline-block;vertical-align:middle;" v-if="data.inspection_type==0">
+                    第<el-input-number v-model="data.number" :min="2" controls-position="right" style="width: 120px; margin: 0 7px;"/>次检验
                   </el-form-item>
                 <!-- </td> -->
                 </td>
@@ -139,14 +141,17 @@
                 </td>
                 <td style="text-align: left;" colspan=3>
                   <el-form-item label-width="0" class="singleForm">
-                    <el-radio
+                    <el-checkbox-group v-model="data.inspection_basis" style="display:inline-block">
+                      <el-checkbox v-for="item in configs.inspectionBases" :key="item.value" :label="item.value">{{item.label}}</el-checkbox>
+                    </el-checkbox-group>
+                    <!-- <el-radio
                       v-for="item in configs.inspectionBases"
                       v-model="data.inspection_basis"
                       :key="item.value"
                       :label="item.value">
                       {{ item.label }}
-                    </el-radio>
-                    <el-input v-model="data.inspection_basis_other" style="width: 100px;" placeholder="请输入"/>
+                    </el-radio> -->
+                    <el-input v-model="data.inspection_basis_other" maxlength="20" style="width: 100px;margin-left:10px;" placeholder="请输入"/>
                   </el-form-item>
                 </td>
               </tr>          
@@ -177,7 +182,7 @@ const defaultData = {
   inspection_dates: [],
   inspection_address: '',
   report_quantity: 0,
-  inspection_basis: null,
+  inspection_basis:[],
   inspection_basis_other: '',
   is_merge_sampling:0,
   file: null
@@ -214,17 +219,18 @@ export default {
     }
   },
   methods: {
-    setData(data) {
+    setData(data,Deepclone) {
       if (data) {
         this.data = this._.cloneDeep(data)
+        this.data.inspection_basis = this._.flattenDeep([this._.get(this.data, 'inspection_basis')]) 
       } else {
         const _data = this._.cloneDeep(defaultData)
         const products = this._.get(this.order, 'products')
         const productNumbers = this._.filter(this._.map(products, 'number'))
         const productNames = this._.filter(this._.map(products, 'name'))
         const productOrderNumbers = this._.filter(this._.map(this._.flatten(this._.map(products, 'PO')), 'number'))
-        const productQuantity = this._.sum(this._.map(products, 'report_quantity'))
-
+        // const productQuantity = this._.sum(this._.map(products, 'report_quantity'))
+        
         _data.user_name = this._.get(this.order, 'order.user_name')
         _data.supplier_name = this._.get(this.order, 'order.supplier.name')
         _data.factory_name = this._.get(this.order, 'service.address.name')
@@ -234,10 +240,12 @@ export default {
         _data.inspection_type = parseInt(this._.get(this.order, 'order.inspection_type'))
         _data.inspection_dates = this._.get(this.order, 'service.inspection_dates')
         _data.inspection_address = this._.get(this.order, 'service.address.address_detail')
-        _data.report_quantity = productQuantity
+        // _data.report_quantity = productQuantity
+       
 
         this.data = _data
       }
+      this.productQuantity = this._.sum(this._.map(Deepclone.review.quantity_conformity.products,'order_quantity'))
       this.loading = false
     },
     // 提交
@@ -311,6 +319,13 @@ export default {
       width: 100%;
     }
   }
+  .el-checkbox__input.is-checked .el-checkbox__inner{
+    background-color: #FFA800;
+    border-color: #FFA800;
+  }
+  .el-checkbox__input.is-checked+.el-checkbox__label {
+    color: #FFA800;
+}
 }
   /* .avatar-uploader .el-upload {
     width: 450px;

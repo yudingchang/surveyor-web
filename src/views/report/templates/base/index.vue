@@ -91,7 +91,7 @@ export default {
             this.$refs.special_attention.setData(this.data.review.special_attention) // 客户特殊要求
             this.$refs.appendix.setData(this.data.review.appendix) // 附录
             this.$refs.inspection_styles.setData(this.data.review.inspection_styles) // 检验款
-            this.$refs.general_information.setData(this.data.review.general_information) // 基本信息
+            this.$refs.general_information.setData(this.data.review.general_information,this.data) // 基本信息
             this.$refs.inspection_results.setData(this.data.review.inspection_results, this.data) // 基本信息
           })
         })
@@ -100,7 +100,7 @@ export default {
     handleSave(data, name) {
       const params = {}
       params[name] = data
-      console.log(this.data)
+      console.log(params)
       const loading = this.$loading({
         lock: true
       })
@@ -131,6 +131,10 @@ export default {
       Promise.all([...resultArr]).then(function() { //都通过了
         reportsubmit(_self.id, _self.configs).then(res => {
           if (res.data.code == 0) {
+            this.$message({
+              message: '报告提交成功',
+              type: 'success'
+            })
             _self.$router.push({
               path:'/orderManagement/reporteManager'
             })

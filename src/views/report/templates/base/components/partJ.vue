@@ -44,7 +44,7 @@
               </tr>
               <tr>
                 <td>AQL</td>
-                <td>{{ cloneE.sampling.params.fatal_defect_limit ? cloneE.sampling.params.fatal_defect_limit : 'N/A' }}</td>
+                <td>{{ cloneE.sampling.params.fatal_defect_limit ? cloneE.sampling.params.fatal_defect_limit : 0 }}</td>
                 <td>{{ cloneE.sampling.params.serious_defect_limit ? cloneE.sampling.params.serious_defect_limit : 'N/A' }}</td>
                 <td>{{ cloneE.sampling.params.minor_defect_limit ? cloneE.sampling.params.minor_defect_limit : 'N/A' }}</td>
               </tr>
@@ -119,6 +119,9 @@
             </tbody>
           </table>
         </el-form-item>
+        <div style="width:100%;padding:25px;border:1px solid rgba(215,220,227,1);border-radius:4px;margin-bottom:25px" v-if="cloneI.is_merge_sampling == 1">
+          Note: You directed that your inspection be based upon Combined sampling, Testcoo advises all clients of the risks associated with "Combined Sampling" where several different product styles are combined to make a single lot size. Combined Sampling represents an increased level of risk to you as statistical rules are compromised and the chances of missing quality issues are much greater than during single style sampling. We disclaim any liability to you if you make decisions concerning the acceptance, payment authorization, or shipment of the inspected goods based upon Combined Sampling.
+        </div>
         <div class="tc-report-card-content-title">备注</div>
         <el-form-item label-width="0" style="margin: 0 0 24px 0;">
           <el-table
@@ -216,6 +219,9 @@ export default {
       cloneF:{
         products:[]
       },
+      cloneI:{
+        is_merge_sampling:0,
+      },
       ClonebStatu:'',
       CloneCStatu:'',
       CloneDStatu:'',
@@ -243,6 +249,7 @@ export default {
       this.cloneD = Deepclone.review.data_measurement ? Deepclone.review.data_measurement : this.cloneD
       this.cloneE = Deepclone.review.visual_and_workmanship ? Deepclone.review.visual_and_workmanship : this.cloneE
       this.cloneF = Deepclone.review.special_attention ? Deepclone.review.special_attention : this.cloneF
+      this.cloneI = Deepclone.review.general_information ? Deepclone.review.general_information : this.cloneI
       this.loading = false
       this.jundgeB(this.cloneB.packing.products,this.cloneB.marking.products)
       this.jundgeC(this.cloneC.products)

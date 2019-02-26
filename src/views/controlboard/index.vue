@@ -8,6 +8,7 @@
       :data="tableData"
       style="width: 100%"
       class="grabSheet"
+      height="255"
       empty-text="暂无待抢订单"
     >
       <el-table-column
@@ -37,8 +38,8 @@
       <el-table-column
         label="报告语言">
         <template slot-scope="scope">
-          <span v-for="(item,index) in scope.row.reports" :key="index" style="margin-right:5px;">
-            {{ item.locale_name }}
+          <span v-for="(item,index) in _.map(_.uniqBy(scope.row.reports, 'locale'), 'locale_name')" :key="index" style="margin-right:5px;">
+            {{ item }}
           </span>
         </template>
       </el-table-column>
@@ -67,7 +68,8 @@
         prop="address"
         label="操作">
         <template slot-scope="scope">
-          <el-button :disabled="(scope.row.can.confirm == false) && (scope.row.can.chase == false)" type="success" @click="showGrabSheetPump(scope.row)">抢单</el-button>
+          <el-button v-if="(scope.row.can.confirm == false) && (scope.row.can.chase == false)" type="warning" @click="showNoRobbingPump(scope.row)">查看原因</el-button>
+          <el-button v-else type="success" @click="showGrabSheetPump(scope.row)">抢单</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -99,7 +101,17 @@
               <el-button class="btn" @click="goProfessiondData()">查看资料</el-button>
             </div>
             <div v-if="inspector.inspector_status==-2">
-              <p class="number">您的专业资料审核未通过<a style="color:#E65C5C">查看原因</a></p>
+              <p class="number">您的专业资料审核未通过 
+                <el-popover
+                  placement="bottom"
+                  width="200"
+                  center
+                  trigger="click"
+                  :content="qualification.reject_description"
+                  >
+                  <a slot="reference" style="color:#E65C5C;text-decoration: underline;">查看原因</a>
+                </el-popover>
+              </p>
               <el-button class="btn" @click="goProfessiondData()">修改资料</el-button>
             </div>
             <div v-if="inspector.inspector_status==2" class="completeMessage clearfix">
@@ -110,7 +122,7 @@
                    <span class="fr" style="margin-left:0" :class="{'noneStyle':getBool(qualification.main_assist_order,1) && qualification.main_assist_order.length==1}" v-if="getBool(qualification.main_assist_order,1)">主单(能写报告)</span>
                  </p>
                </div>
-               <div class="line fl" v-if="qualification.main_assist_order.length!=0"></div>
+               <div class="line fl" v-if="qualification.report_language.length!=0"></div>
                <div class="informationContent fl" v-if="qualification.report_language.length!=0">
                  <p class="informationTitle">可抢报告语言订单</p>
                  <p class="informationList clearfix">
@@ -118,7 +130,7 @@
                    <span class="fr" :class="{'noneStyle':getBool(qualification.report_language,'en') && qualification.report_language.length==1}" v-if="getBool(qualification.report_language,'en')">英文报告</span>
                  </p>
                </div>
-               <div class="line fl" v-if="qualification.report_language.length!=0"></div>
+               <div class="line fl" v-if="qualification.category_tags.electronics.category_arr.length!=0 && qualification.category_tags.light_industry.category_arr.length!=0 && qualification.category_tags.textile.category_arr.length!=0"></div>
                <div class="informationContent fl" style="width:340px;" v-if="qualification.category_tags.electronics.category_arr.length!=0 && qualification.category_tags.light_industry.category_arr.length!=0 && qualification.category_tags.textile.category_arr.length!=0">
                  <p class="informationTitle">可抢产品分类</p>
                  <p class="informationList clearfix">
@@ -149,6 +161,7 @@
       :data="tableData2"
       style="width: 100%"
       class="grabSheet"
+      height="255"
       empty-text="暂无待办事项"
     >
       <el-table-column
@@ -191,10 +204,10 @@
         label="操作">
         <template slot-scope="scope">
           <el-button type="text" class="orangeText" v-if="(scope.row.type == 'offline')&&((scope.row.service.marking == 'WAIT_INSPECT') || (scope.row.service.marking == 'INSPECTING'))" @click="goReportDetail(scope.row)"> 下载模版</el-button>
-          <el-button type="text" class="orangeText" v-if="(scope.row.type == 'offline')&&(scope.row.service.marking == 'INSPECTING')" @click="uploadReport(scope.row)">上传报告</el-button> 
-          <el-button type="text" class="orangeText" v-if="(scope.row.type == 'online')&&(scope.row.service.marking == 'INSPECTING')&& (scope.row.marking == 'WAIT_MODIFY')" @click="goReportDetail(scope.row)">修改报告</el-button>
+          <el-button type="text" class="orangeText"  @click="uploadReport(scope.row)" v-if="(scope.row.type == 'offline')&&(scope.row.service.marking == 'INSPECTING')">上传报告</el-button> 
+          <el-button type="text" class="orangeText" @click="goReportDetail(scope.row,true)" v-if="(scope.row.type == 'online')&&(scope.row.service.marking == 'INSPECTING')&& (scope.row.marking == 'WAIT_MODIFY')">修改报告</el-button>
           <el-button type="text" class="orangeText" v-if="(scope.row.type == 'online')&&(scope.row.service.marking=='INSPECTING')&& (scope.row.marking == 'WAIT_MODIFY')" @click="goReportDetail(scope.row)">查看原因</el-button>
-          <el-button type="text" class="orangeText" v-if="(scope.row.type == 'online')&&(scope.row.service.marking == 'INSPECTING')&& (scope.row.marking == 'WAIT_WRITE')" @click="goReportDetail(scope.row)">写报告</el-button>
+          <el-button type="text" class="orangeText" v-if="(scope.row.type == 'online')&&(scope.row.service.marking == 'INSPECTING')&& (scope.row.marking == 'WAIT_WRITE')" @click="goReportDetail(scope.row,false)">写报告</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -210,6 +223,21 @@
         <el-button type="primary" class="confirm" @click="confirmgrabSheet()">是</el-button>
       </span>
     </el-dialog>
+
+    <!-- 不可抢对话框 -->
+    <el-dialog
+      title="不可抢原因"
+      :visible.sync="noRobbing"
+      width="25%"
+      top="30vh"
+      center>
+      <span>{{ noRobbingText }}</span>
+      <span slot="footer" class="dialog-footer">
+        <!-- <el-button class="cancle" @click="centerDialogVisible = false">否</el-button>
+        <el-button type="primary" class="confirm" @click="confirmgrabSheet()">是</el-button> -->
+      </span>
+    </el-dialog>
+
     <div class="productBorder">
       <el-dialog :visible.sync="dialogTableVisible" title="产品名称" class="detail-dialog" width="400px" >
         <el-table :data="gridData" border height="200">
@@ -244,11 +272,14 @@ export default {
       orderService: '',
       canConfirm: false,
       canChase: false,
+      noRobbing:false,
+      noRobbingText:'',
       // 资料完善度
       informationComplete:true,
       qualification:{
         main_assist_order:'',
         report_language:'',
+        reject_description:'',
         category_tags:{
           electronics : {
             category_arr : ''
@@ -281,7 +312,7 @@ export default {
     getgrabSheet() {
       grabSheet({}).then(response => {
         if (response.data.code == 0) {
-          this.tableData = response.data.data.slice(0, 3)
+          this.tableData = response.data.data
         }
       })
     },
@@ -319,6 +350,11 @@ export default {
       this.centerDialogVisible = true
       this.canConfirm = row.can.confirm
       this.canChase = row.can.chase
+    },
+    // 显示不可抢弹框
+    showNoRobbingPump(row){
+      this.noRobbing = true
+      this.noRobbingText = row.can_messages.chase
     },
     // 抢单
     confirmgrabSheet() {
@@ -397,6 +433,19 @@ export default {
         }
       })
     },
+    // 写报告
+    goReportDetail(row,bool) {
+      this.$router.push({
+        path: '/orderManagement/reporteManager/writeReporte', query: { id: row.id ,modify:bool}
+      })
+    },
+    // 上传报告
+    uploadReport(row){
+      this.$router.push({
+        path: '/orderManagement/reporteManager/uploadReport', 
+        query: { id: row.id }
+      })
+    },
     // 去订单详情
     goOrderDetail(row) {
       this.$router.push({ path: '/orderManagement/orderDetails', query: { orderId:row.id}})
@@ -436,6 +485,9 @@ export default {
           text-align: center;
         padding: 0;
         }
+    }
+    .el-popover{
+      text-align: center;
     }
 }
 

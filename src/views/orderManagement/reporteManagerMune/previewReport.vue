@@ -48,18 +48,22 @@
                                    <td>检验地点</td>
                                    <td>{{baseInfoData.inspection_address}}</td>
                                    <td>整批次数量</td>
-                                   <td>{{baseInfoData.report_quantity}}</td>
+                                   <td>{{productQuantity}}</td>
                                </tr>
                                <tr height="60px">
                                    <td>检验服务</td>
-                                   <td>{{ _.get(_.find( configs.inspectionTypes, {value : baseInfoData.inspection_type}), 'label') }} 第{{baseInfoData.number}}次验货</td>
+                                   <td>{{ _.get(_.find( configs.inspectionTypes, {value : baseInfoData.inspection_type}), 'label') }}  <span v-if="baseInfoData.inspection_type==0">第{{baseInfoData.number}}次验货</span></td>
                                    <td>是否合并抽样</td>
                                    <td>{{ baseInfoData.is_merge_sampling==0 ? '否' : '是' }}</td>
                                    <!-- <td>{{ _.get(_.find(configs.inspectionTypes, {value : baseInfoData.inspection_type}), 'label') }}</td> -->
                                </tr>
                               <tr height="60px">
                                    <td>检验依据</td>
-                                   <td colspan="3">{{ _.get(_.find( configs.inspectionBases, {value : baseInfoData.inspection_basis}), 'label') }}</td>
+                                   <td colspan="3">
+                                       <span v-for="(item,index) in _.sortBy(_.uniq(baseInfoData.inspection_basis))" :key=index>
+                                          {{ _.get(_.find( configs.inspectionBases, {value : item}), 'label') }}
+                                       </span>
+                                   </td>
                                </tr>
                            </table>
                            <!-- <div class="baseInfo-table-img">
@@ -98,7 +102,7 @@
                             </tr>
                             <tr>
                                 <td height="40px">AQL</td>
-                                <td>{{ exteriorData.sampling.params.fatal_defect_limit ? exteriorData.sampling.params.fatal_defect_limit : 'N/A' }}</td>
+                                <td>{{ exteriorData.sampling.params.fatal_defect_limit ? exteriorData.sampling.params.fatal_defect_limit : 0 }}</td>
                                 <td>{{ exteriorData.sampling.params.serious_defect_limit ? exteriorData.sampling.params.serious_defect_limit : 'N/A' }}</td>
                                 <td>{{ exteriorData.sampling.params.minor_defect_limit ? exteriorData.sampling.params.minor_defect_limit : 'N/A' }}</td>
                             </tr>
@@ -119,9 +123,7 @@
                             <tr>
                                 <td height="40px">结论</td>
                                 <td colspan="3" v-if="(exteriorData.real_fatal_defect<exteriorData.sampling.params.fatal_defect) && (exteriorData.real_serious_defect<exteriorData.sampling.params.serious_defect) && (exteriorData.real_minor_defect<exteriorData.sampling.params.minor_defect)">未超出可接受限值</td>
-                                <td colspan="3" v-if="(exteriorData.real_fatal_defect>exteriorData.sampling.params.fatal_defect)">致命缺陷</td>
-                                <td colspan="3" v-if="(exteriorData.real_serious_defect>exteriorData.sampling.params.serious_defect)">严重缺陷</td>
-                                <td colspan="3" v-if="(exteriorData.real_minor_defect>exteriorData.sampling.params.minor_defect)">轻微缺陷</td>
+                                <td colspan="3" v-if="(exteriorData.real_fatal_defect>exteriorData.sampling.params.fatal_defect) || (exteriorData.real_serious_defect>exteriorData.sampling.params.serious_defect) || (exteriorData.real_minor_defect>exteriorData.sampling.params.minor_defect)">超出可接受限值</td>
                             </tr>
                             </tbody>
                         </table>
@@ -378,7 +380,7 @@
                         <p class="identify-p2"><span>结论</span><span :class="addClass(item.conclusion)">{{ _.get(_.find( configs.conclusionOptions, {value : item.conclusion}), 'label') }}</span></p>
                         <div class="identify-remark clearfix">
                             <p>备注:</p>
-                            <p class="content">{{item.remark_content}}</p>
+                            <p class="content">{{item.remark_content?item.remark_content:'无'}}</p>
                         </div>
                         <div class="identify-images clearfix">
                             <div>图片:</div>
@@ -455,22 +457,22 @@
                         <table cellspacing="0" cellpadding="0" border="0" class="tc-table" style="width: 100%">
                             <tbody>
                             <tr>
-                                <td style="width: 270px;height:60px;" class="background-gray">
+                                <td style="width: 270px;height:50px;" class="background-gray">
                                 检验标准
                                 </td>
                                 <td colspan="3">
                                 {{ _.get(_.find(_.get(configs, 'samplings.options', []), { value: exteriorData.sampling.type }), 'label') }}
                                 </td>
                             </tr>
-                            <tr v-if="exteriorData.sampling.type === 1" style="height:60px">
+                            <tr v-if="exteriorData.sampling.type === 1" style="height:50px">
                                 <td class="background-gray">
                                 抽样水平
                                 </td>
                                 <td colspan="3">
-                                {{ _.get(_.find(_.get(configs, 'samplings.levels', []), { level: exteriorData.sampling.params.level }), 'value') }}
+                                    {{ _.get(_.find(_.get(configs, 'samplings.levels', []), item => { return item.value == exteriorData.sampling.params.level }), 'label') }}
                                 </td>
                             </tr>
-                            <tr v-if="exteriorData.sampling.type === 2" style="height:60px">
+                            <tr v-if="exteriorData.sampling.type === 2" style="height:50px">
                                 <td class="background-gray">
                                 抽样比例
                                 </td>
@@ -479,29 +481,29 @@
                                 <!-- {{ _.get(_.find(_.get(configs, 'samplings.options', []), { level: data.sampling.params.proportion }), 'label') }} -->
                                 </td>
                             </tr>
-                            <tr style="height:60px">
+                            <tr style="height:50px">
                                 <td class="background-gray">抽样数量</td>
                                 <td colspan="3">{{ exteriorData.sampling.params.quantity }}</td>
                             </tr>
-                            <tr style="height:60px">
+                            <tr style="height:50px">
                                 <td class="background-gray">缺陷分类</td>
                                 <td>致命缺陷</td>
                                 <td>严重缺陷</td>
                                 <td>轻微缺陷</td>
                             </tr>
-                            <tr style="height:60px">
+                            <tr style="height:50px">
                                 <td class="background-gray">可接受质量限（AQL）</td>
                                 <td>{{ exteriorData.sampling.params.fatal_defect_limit ? exteriorData.sampling.params.fatal_defect_limit : 'N/A' }}</td>
                                 <td>{{ exteriorData.sampling.params.serious_defect_limit ? exteriorData.sampling.params.serious_defect_limit : 'N/A' }}</td>
                                 <td>{{ exteriorData.sampling.params.minor_defect_limit ? exteriorData.sampling.params.minor_defect_limit : 'N/A' }}</td>
                             </tr>
-                            <tr style="height:60px">
+                            <tr style="height:50px">
                                 <td class="background-gray">最大允许值</td>
                                 <td>{{ exteriorData.sampling.params.fatal_defect }}</td>
                                 <td>{{ exteriorData.sampling.params.serious_defect }}</td>
                                 <td>{{ exteriorData.sampling.params.minor_defect }}</td>
                             </tr>
-                            <tr style="height:60px">
+                            <tr style="height:50px">
                                 <td class="background-gray">实际发现</td>
                                 <td>{{ exteriorData.real_fatal_defect }}</td>
                                 <td>{{ exteriorData.real_serious_defect }}</td>
@@ -510,39 +512,46 @@
                             </tbody>
                         </table>
                     </div>
-                    {{exteriorData}}
                     <div class="exterior-detail-div">
                         <table border="1" cellspacing="0" cellpadding="0" width="100%" height="100%">
-                            <tr height="60px">
+                            <tr height="50px">
+                                <td width="260px">产品</td>
+                                <td width="260px">抽样数</td>
                                 <td width="220px">缺陷类别</td>
-                                <td width="773px">缺陷明细</td>
+                                <td width="260px">缺陷明细</td>
                                 <td width="152px">致命缺陷</td>
                                 <td width="152px">严重缺陷</td>
                                 <td width="158px">轻微缺陷</td>
                             </tr>
-                            <tr height="60px" v-for="(items,index) in  _.get(exteriorData, 'products', [])" :key="index">
-                                <!-- <div v-for="(item,index) in items.defective_items" :key="index+'-detail-div'"> -->
-                                    <td>{{ _.get(_.find( configs.defectiveCategories, {value : item.title}), 'label') }}</td>
-                                    
-                                    <td>{{item.description}}</td>
-                                    <td>{{item.fatal_defect}}</td>
-                                    <td>{{item.serious_defect}}</td>
-                                    <td>{{item.minor_defect}}</td>
-                                <!-- </div> -->
+                            <tr height="50px" v-for="(item,index) in defectItem" :key="index">
+                                <td>{{item.number}}</td>
+                                <td>{{item.check_quantity}}</td>
+                                <td>{{ _.get(_.find( configs.defectiveCategories, {value : item.title}), 'label') }}</td>                               
+                                <td>{{item.description}}</td>
+                                <td>{{item.fatal_defect}}</td>
+                                <td>{{item.serious_defect}}</td>
+                                <td>{{item.minor_defect}}</td>
+                            </tr>
+                            <tr height="50px">
+                                <td  colspan="4">总数</td>
+                                <td>{{data.real_fatal_defect}}</td>
+                                <td>{{data.real_serious_defect}}</td>
+                                <td>{{data.real_minor_defect}}</td>
+                            </tr>
+                            <tr height="50px">
+                                <td  colspan="4">最大允许值</td>
+                                <td >{{ exteriorData.sampling.params.fatal_defect}}</td>
+                                <td >{{ exteriorData.sampling.params.serious_defect}}</td>
+                                <td >{{ exteriorData.sampling.params.minor_defect}}</td>
                             </tr>
                         </table>
                     </div>
                     <div class="exterior-detail" v-for="(item,index) in _.get(exteriorData, 'products', [])" :key="index+'-exterior-detail'">
-                        <p class="exterior-detail-p">
-                            <span>{{index+1}}、{{ item.name }}/型号{{ item.number }}</span>
-                            <span>抽样数{{item.check_quantity}}</span>
+                        <p class="exterior-detail-p" v-if="item.has_defect==1">
+                            <span>款号/型号{{ item.number }}的图片</span>
                         </p>
-                        <div class="exterior-remark clearfix">
-                            <p>备注:</p>
-                            <p class="content">{{item.remark_content?item.remark_content:'无'}}</p>
-                        </div>
-                        <div class="exterior-images clearfix">
-                            <div>图片:</div>
+                        <div class="exterior-images clearfix" v-if="item.has_defect==1">
+                            <!-- <div>图片:</div> -->
                             <ShowFile :file-list="item.files"/>
                         </div>
                     </div>
@@ -550,7 +559,7 @@
                     
                 </div>
                 <!-- F、客户特殊要求 -->
-                <div class="Report-interface-special">
+                <div class="Report-interface-special" v-if="_.get(specialData, 'products',[]).length != 0">
                     <p class="special-p1"> 
                         F、客户特殊要求
                     </p>
@@ -568,7 +577,7 @@
                     </div>    
                 </div>
                 <!-- G、附录 -->
-                <div class="Report-interface-appendix">
+                <div class="Report-interface-appendix" v-if="!(_.get(appendixData, 'sampling_information',[]).length==0 && _.get(appendixData, 'tools',[]).length==0 && _.get(appendixData, 'files',[]).length==0)">
                     <p class="appendix-p1">G、附录</p>
                     <p class="appendix-p2"><span>附录 I</span><span>取样信息</span></p>
                     <div class="appendix-sample" v-for="(item,index) in _.get(appendixData, 'sampling_information', [])" :key="index+'-appendix-sample'">
@@ -695,6 +704,8 @@ export default {
     },
     data(){
         return{
+            // 整批次数量
+            productQuantity:'',
             //基础信息table数据
             baseInfoData: [],
             ClonebStatu: '',
@@ -703,7 +714,11 @@ export default {
             CloneFStatu: '',
             order:{},
             baseImg: [],     //imgUrl
-            
+            data:{
+                real_fatal_defect:'',
+                real_serious_defect:'',
+                real_minor_defect:''
+            },
             //检验结论table数据
             defaultconclusionData: {
                 conclusion:{
@@ -771,7 +786,7 @@ export default {
                     params:''
                 }
             },    
-
+            defectItem:[],
             //F、客户特殊要求table数据
             specialData: [],
 
@@ -790,6 +805,19 @@ export default {
     },
     created(){
         this.getInspectionReportData(this.$route.query.id)
+    },
+    watch: {
+      'defectItem': {
+        handler(val) {
+            this.$nextTick(() => {
+            // const items = this._.flatten(this._.map(this.data.products, 'defective_items'))
+            this.data.real_fatal_defect = this._.sum(this._.map(this.defectItem, 'fatal_defect'))
+            this.data.real_serious_defect = this._.sum(this._.map(this.defectItem, 'serious_defect'))
+            this.data.real_minor_defect = this._.sum(this._.map(this.defectItem, 'minor_defect'))
+            })
+        },
+        deep: true
+      }
     },
     methods:{
         //获取网页报告预览页面数据
@@ -828,8 +856,19 @@ export default {
 
                     //接收外观及工艺数据
                     this.exteriorData = response.data.data.review.visual_and_workmanship
-                    // this.defectItem = _
-
+                    var defaultdefectItem = this._.cloneDeep(this.exteriorData)
+                    this.productQuantity = this._.sum(this._.map(this.QuantityData.products,'order_quantity')) ? this._.sum(this._.map(this.QuantityData.products,'order_quantity')) : ''
+                    this.$nextTick(()=>{
+                        this.defectItem = this._.flatten(this._.map(defaultdefectItem.products, product => {
+                            return this._.map(product.defective_items, item => {
+                                
+                                const row = this._.merge(this._.cloneDeep(product), this._.cloneDeep(item))
+                                console.log(item)
+                                return row
+                            })
+                        }))
+                        }                   
+                    )   
                     //接收操作人员数据
                     this.approvalData = response.data.data.review.operator
                     
@@ -922,7 +961,13 @@ export default {
         reportsubmit(){
             reportsubmit(this.id, this.configs).then(res => {
                 if (res.data.code == 0) {
-
+                    this.$message({
+                        message: '报告提交成功',
+                        type: 'success'
+                    })
+                    this.$router.push({
+                        path:'/orderManagement/reporteManager'
+                    })
                 }
             })
         },
