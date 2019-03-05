@@ -19,7 +19,7 @@
           <div class="supplierContent">
             <el-form ref="item" :model="supplier" label-width="100px" class="demo-ruleForm">
               <el-form-item label="验货地区" prop="name">
-                <span>{{ fundamentalState.inspection_address.address_detail }}</span>
+                <span>{{ fundamentalState.inspection_address.address_summary }}</span>
               </el-form-item>
               <el-form-item label="验货日期" prop="name">
                 <span class="tc-separate">
@@ -90,7 +90,7 @@
                 <span>{{ fundamentalState.inspection_address.address_detail }}</span>
               </el-form-item>
               <el-form-item label="联系人姓名" prop="name">
-                <span>{{ fundamentalState.inspection_address.last_name + fundamentalState.inspection_address.first_name }}</span>
+                <span>{{ fundamentalState.inspection_address.first_name + fundamentalState.inspection_address.last_name }}</span>
               </el-form-item>
               <el-form-item label="手机号码" prop="name">
                 <span>{{ fundamentalState.inspection_address.phone_number }}</span>
@@ -112,7 +112,7 @@
               <el-form-item label="要求内容">
                 <span>{{ fundamentalState.order.description == null ? '无' : fundamentalState.order.description}}</span>
               </el-form-item>
-              <el-form-item label="检验资料">
+              <el-form-item label="检验资料" v-if="!((fundamentalState.marking_name=='待确认') || (fundamentalState.marking_name=='抢单中')|| (fundamentalState.marking_name=='待审核'))">
                 <div v-if="fundamentalState.order.files.length == 0">
                   无
                 </div>
@@ -677,6 +677,7 @@ export default {
         chargeBack(`/v1/inspector/service/${this.orderId}/refund`).then(res=>{
           if(res.data.code == 0){
             this.chargeBackDialogVisible = false
+            this.successBackDialogVisible = true
             this.$router.push({
               path: 'examineGood'
             })

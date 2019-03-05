@@ -16,7 +16,7 @@
     <div class="withdrawCashContent">
       <el-form>
         <el-form-item label="选择银行卡" label-width="100px">
-          <div v-for="(item,index) in cardList" :key="index" class="cardSt">
+          <div v-for="(item,index) in cardList" :key="index" class="cardSt" v-show="cardList.length>0">
             <el-radio v-model="radio" :label="index" @change="selects(item)">
               <div style="display:inline-block;width:250px;">
                 <span>{{ item.open_bank }}</span>
@@ -30,6 +30,7 @@
               </el-select>
             </el-radio>
           </div>
+          <el-button @click="addCard()" type="success" icon="el-icon-plus" v-show="cardList.length==0">添加银行卡</el-button>
         </el-form-item>
         <el-form-item label="提现金额" label-width="100px">
           <div class="inputContent">
@@ -44,7 +45,7 @@
           <span style="color:#7C8FA6;">注:每次提现需手续费15元，建议一次性提现</span>
         </el-form-item>
         <el-form-item label label-width="100px">
-          <el-button :disabled="!(isdisabled==false && (price !='') && (cardDetail != ''))" :class="{'disableBg':!(isdisabled==false && (price !='') && (cardDetail != ''))}" class="greenBtn" @click="goconfirmDrawCash()">申请提现</el-button>
+          <el-button  :disabled="isdisabled || !price || parseFloat(price)<16 || parseFloat(price)>parseFloat(balance) || !cardDetail"  type="success"  @click="goconfirmDrawCash()">申请提现</el-button>
         </el-form-item>
         <el-form-item label label-width="100px" style="margin-top:-20px;">
           <span style="color:#EF3535">提现条件:每个月1，15号</span>
@@ -139,7 +140,7 @@ export default {
     // 判断是否每月1.15号
     judgeDay() {
       const day = new Date().getDate()
-      this.isdisabled = !((day == 1 || day == 15))
+      this.isdisabled = !((day == 4 || day == 15))
     },
     // 跳转添加银行卡页面
     addCard(){

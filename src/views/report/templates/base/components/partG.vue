@@ -10,14 +10,14 @@
     </div>
     <div v-show="partGShow" class="tc-report-card-content">
       <el-form ref="form" :model="data" label-width="130px">
-        <div class="tc-report-card-content-title">附录Ⅰ 取样信息</div>
+        <div class="tc-report-card-content-title" v-if="_.get(data,'sampling_information',[]).length>0">附录Ⅰ 取样信息</div>
         <div v-for="(item, index) in data.sampling_information" :key="'p'+index">
-          <el-form-item>
-            <template slot="label">
-              <span>{{ (index+1).toString() }}</span>
-              款号/型号
-            </template>
-            <span style="margin-right: 1rem;">{{ item.sampling_number ? item.sampling_number : 'N/A' }}</span>
+          <el-form-item label-width="0">    
+            <span>{{ (index+1).toString() }}</span>
+            <el-form-item v-if="item.sampling_number" style="display:inline-block;width:70%" label="款号/型号" label-width="80px">
+              <span>{{ item.sampling_number ? item.sampling_number : 'N/A' }}</span>
+            </el-form-item>
+            <span v-else style="margin-right: 1rem;">{{ item.sampling_name }}</span>
           </el-form-item>
           <el-form-item label-width="0" style="margin: 0 0 24px 0;">
             <table cellspacing="0" cellpadding="0" border="0" class="tc-table" style="width: 100%">
@@ -47,10 +47,10 @@
                     </el-form-item>
                   </td>
                   <td style="text-align: left; width: 850px;" valign="top">
-                    <el-form-item label="快递公司" label-width="100px">
+                    <el-form-item label="快递公司" label-width="100px" :prop="'sampling_information.' + index + '.courier_company'" :rules="[{ required: true, message: '请输入快递公司', trigger: 'blur' }]">
                       <el-input v-model="item.courier_company" placeholder="请输入快递公司" style="width: 690px;"/>
                     </el-form-item>
-                    <el-form-item label="快递单号" label-width="100px">
+                    <el-form-item label="快递单号" label-width="100px" :prop="'sampling_information.' + index + '.courier_number'" :rules="[{ required: true, message: '请输入快递单号', trigger: 'blur' }]">
                       <el-input v-model="item.courier_number" placeholder="请输入快递单号" style="width: 690px;"/>
                     </el-form-item>
                     <el-form-item label="备注信息" label-width="100px">
@@ -59,7 +59,7 @@
                   </td>
                 </tr>
                 <tr>
-                  <td colspan="2">
+                  <td colspan="2" style="padding:20px 10px">
                     <tc-upload-image
                       :files="item.files"
                       :name="'sampling_information.'+index+'.files'"
@@ -71,7 +71,8 @@
             </table>
           </el-form-item>
         </div>
-        <div class="tc-report-card-content-title">附录Ⅱ 测量及测试仪器记录</div>
+
+        <!-- <div class="tc-report-card-content-title">附录Ⅱ 测量及测试仪器记录</div>
         <el-form-item label-width="0" style="margin: 0 0 24px 0;">
           <el-table
             :data="data.tools"
@@ -145,9 +146,11 @@
 
         <el-form-item label-width="0" style="margin: 0 0 24px 0;">
           <el-button type="success" icon="el-icon-plus" @click="handleAddTool">添加</el-button>
-        </el-form-item>
+        </el-form-item> -->
 
-        <div class="tc-report-card-content-title">附录Ⅲ 其他图片( 廉政声明、工厂大门，仓储，测量图标，包装清单等)</div>
+        <div class="tc-report-card-content-title">
+          <span v-if="_.get(data,'sampling_information',[]).length>0">附录II</span><span v-else>附录I</span>其他图片( 廉政声明、工厂大门，仓储，测量图标，包装清单等)
+        </div>
         <el-form-item label-width="0" style="margin: 0 0 24px 0;">
           <tc-upload-image
             :files="data.files"
@@ -168,7 +171,7 @@ import UploadImage from '@/views/report/components/UploadImage'
 
 const defaultData = {
   sampling_information: [],
-  tools: [],
+  // tools: [],
   files: []
 }
 const defaultTool = {
@@ -241,11 +244,23 @@ export default {
     handleComfirm() {
       this.$refs.form.validate(valid => {
         if (valid) {
+          if(this.data.files.length == 0){
+            this.$message({
+              message: '请上传附录II所需图片',
+              type: 'error'
+            })
+          }else{
+            this.$message({
+              message: '附录保存成功',
+              type: 'success'
+            })
+            this.$emit('save', this.data, 'appendix')       
+          }      
+        }else{
           this.$message({
-            message: '附录保存成功',
-            type: 'success'
+            message: '存在未填写必填项，请确认',
+            type: 'error'
           })
-          this.$emit('save', this.data, 'appendix')
         }
       })
     }

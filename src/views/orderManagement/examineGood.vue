@@ -33,7 +33,10 @@
       :data="tableData2"
       :row-class-name="tableRowClassName"
       class="table-content"
-      style="width: 100%">
+      style="width: 100%"
+      v-loading="loading"
+      height="calc(100vh - 400px)"
+      >
       <el-table-column
         label="订单号"
         width="230"
@@ -57,7 +60,7 @@
         width="200"
         label="验货地区">
         <template slot-scope="scope">
-          <span>{{ scope.row.inspection_address.address_detail }}</span>
+          <span>{{ scope.row.inspection_address.address_summary }}</span>
           <!-- <div ><span v-for="(item,index) in filterFees(scope.row.fees)" :key='index'>{{item}}</span></div>  -->
         </template>
       </el-table-column>
@@ -123,6 +126,7 @@ export default {
   components: {},
   data() {
     return {
+      loading:false,
       filters: {
         page: 1,
         rows: 15,
@@ -269,6 +273,7 @@ export default {
         marking:marking?marking:'',
       }).then(response => {
         if (response.data.code == 0) {
+          this.loading = false
           this.tableData2 = response.data.data
           this.total = response.data.meta.total
         }
@@ -286,6 +291,7 @@ export default {
     tab(item, index) {
       this.tablist.forEach((item, index) => {
         item.isBool = false
+        this.loading = true
       })
       this.num = index
       item.isBool = true

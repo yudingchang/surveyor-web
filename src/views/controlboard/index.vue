@@ -1,5 +1,5 @@
 <template>
-  <div class="controlboard">
+  <div class="controlboard" v-loading.fullscreen.lock="fullscreenLoading">
     <div class="nomarlTop">
       <span class="left">抢单</span>
       <a class="right" @click="goGrabList()">更多<i class="el-icon-d-arrow-right"/></a>
@@ -23,7 +23,7 @@
         label="验货地区"
         width="200">
         <template slot-scope="scope">
-          {{ scope.row.inspection_address.address_detail }}
+          {{ scope.row.inspection_address.address_summary }}
         </template>
       </el-table-column>
       <el-table-column
@@ -68,8 +68,8 @@
         prop="address"
         label="操作">
         <template slot-scope="scope">
-          <el-button v-if="(scope.row.can.confirm == false) && (scope.row.can.chase == false)" type="warning" @click="showNoRobbingPump(scope.row)">查看原因</el-button>
-          <el-button v-else type="success" @click="showGrabSheetPump(scope.row)">抢单</el-button>
+          <!-- <el-button v-if="(scope.row.can.confirm == false) && (scope.row.can.chase == false)" type="warning" @click="showNoRobbingPump(scope.row)">查看原因</el-button> -->
+          <el-button type="success" @click="showGrabSheetPump(scope.row)">抢单</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -168,7 +168,7 @@
         label="订单号"
         width="180">
         <template slot-scope="scope">
-          <el-button type="text" class="btnText"  @click="goOrderDetail(scope.row)">{{ scope.row.service.number }}</el-button>
+          <el-button type="text" class="btnText"  @click="goReportsDetail(scope.row)">{{ scope.row.service.number }}</el-button>
         </template>
       </el-table-column>
       <el-table-column
@@ -178,7 +178,7 @@
       <el-table-column
         label="验货地名称">
         <template slot-scope="scope">
-          {{ scope.row.address.address_summary }}{{ scope.row.address.address_detail }}
+          {{ scope.row.address.name }}
         </template>
       </el-table-column>
       <el-table-column
@@ -206,7 +206,7 @@
           <el-button type="text" class="orangeText" v-if="(scope.row.type == 'offline')&&((scope.row.service.marking == 'WAIT_INSPECT') || (scope.row.service.marking == 'INSPECTING'))" @click="goReportDetail(scope.row)"> 下载模版</el-button>
           <el-button type="text" class="orangeText"  @click="uploadReport(scope.row)" v-if="(scope.row.type == 'offline')&&(scope.row.service.marking == 'INSPECTING')">上传报告</el-button> 
           <el-button type="text" class="orangeText" @click="goReportDetail(scope.row,true)" v-if="(scope.row.type == 'online')&&(scope.row.service.marking == 'INSPECTING')&& (scope.row.marking == 'WAIT_MODIFY')">修改报告</el-button>
-          <el-button type="text" class="orangeText" v-if="(scope.row.type == 'online')&&(scope.row.service.marking=='INSPECTING')&& (scope.row.marking == 'WAIT_MODIFY')" @click="goReportDetail(scope.row)">查看原因</el-button>
+          <el-button type="text" class="orangeText" v-if="(scope.row.type == 'online')&&(scope.row.service.marking=='INSPECTING')&& (scope.row.marking == 'WAIT_MODIFY')" @click="viewReasons(scope.row)">查看原因</el-button>
           <el-button type="text" class="orangeText" v-if="(scope.row.type == 'online')&&(scope.row.service.marking == 'INSPECTING')&& (scope.row.marking == 'WAIT_WRITE')" @click="goReportDetail(scope.row,false)">写报告</el-button>
         </template>
       </el-table-column>
@@ -237,6 +237,21 @@
         <el-button type="primary" class="confirm" @click="confirmgrabSheet()">是</el-button> -->
       </span>
     </el-dialog>
+    <!-- 报告拒绝原因弹框 -->
+    <el-dialog
+      :visible.sync="reasonsVisible"
+      width="30%"
+      left>
+      <el-table :data="reasonsData" style="width: 100%">
+        <el-table-column type="index"  ></el-table-column>
+        <el-table-column property="created_at" label="时间" ></el-table-column>
+        <el-table-column property="remark" label="原因" ></el-table-column>
+      </el-table>
+      <!-- <span slot="footer" class="dialog-footer">
+        <el-button @click="centerDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="centerDialogVisible = false">确 定</el-button>
+      </span> -->
+    </el-dialog>
 
     <div class="productBorder">
       <el-dialog :visible.sync="dialogTableVisible" title="产品名称" class="detail-dialog" width="400px" >
@@ -250,15 +265,20 @@
   </div>
 </template>
 <script>
+import store from '@/store/'
 import { mapGetters } from 'vuex'
 import { grabSheet, confirmgrabSheet , qualification} from '@/api/dashboard'
 import { getWallet } from '@/api/walletDetail'
-import { getReportList } from '@/api/report'
+import { getReportList , getReason } from '@/api/report'
 export default {
   name: '',
   components: { },
   data() {
     return {
+      // 不通过原因
+      reasonsVisible:false,
+      reasonsData:[],
+      fullscreenLoading:true,
       orderInformation:{},
       balance: '0',
       tableData: [
@@ -300,10 +320,12 @@ export default {
     ])
   },
   created() {
+    store.dispatch('GetUserInfo')
     this.getgrabSheet()
     this.getWallet()
     this.getReportList()
     this.getQualification()
+    
   },
   mounted() {
     // console.log(this.$route.fullPath)
@@ -319,12 +341,6 @@ export default {
     goGrabList() {
       this.$router.push({
         path: 'grabList'
-      })
-    },
-    // 遍历数组
-    getArray(data) {
-      return data.map((val, index) => {
-        return val.locale_name
       })
     },
     // 获取钱包信息
@@ -344,18 +360,20 @@ export default {
     },
     // 显示抢单弹框
     showGrabSheetPump(row) {
-      this.orderService = row.id   
-      this.orderInformation = _.cloneDeep(row)
-      this.grabSheetText = row.is_main == false ? `此单为辅单，订单金额为￥${Number(row.commission) + Number(row.other_fee)}，您确认抢此订单吗？` : `订单金额￥${Number(row.commission) + Number(row.other_fee)}，需要写${this.getArray(row.reports)}报告您确认抢此订单吗？`
-      this.centerDialogVisible = true
-      this.canConfirm = row.can.confirm
-      this.canChase = row.can.chase
+      if(row.can.chase==false && row.can.confirm==false){
+        // 显示不可抢弹框
+        this.noRobbing = true
+        this.noRobbingText = row.can_messages.chase
+      }else{
+        this.orderService = row.id   
+        this.orderInformation = _.cloneDeep(row)
+        this.grabSheetText = row.is_main == false ? `此单为辅单，订单金额为￥${Number(row.commission) + Number(row.other_fee)}，您确认抢此订单吗？` : `订单金额￥${Number(row.commission) + Number(row.other_fee)}，需要写${this._.map(_.uniqBy(row.reports, 'locale'), 'locale_name')}报告您确认抢此订单吗？`
+        this.centerDialogVisible = true
+        this.canConfirm = row.can.confirm
+        this.canChase = row.can.chase
+      }   
     },
-    // 显示不可抢弹框
-    showNoRobbingPump(row){
-      this.noRobbing = true
-      this.noRobbingText = row.can_messages.chase
-    },
+    
     // 抢单
     confirmgrabSheet() {
       let chaseText
@@ -418,6 +436,7 @@ export default {
       qualification().then(res=>{
         if (res.data.code == 0) {
           this.qualification = res.data.data
+          this.fullscreenLoading = false
           // this.tableData2 = res.data.data
         }
       })
@@ -450,6 +469,24 @@ export default {
     goOrderDetail(row) {
       this.$router.push({ path: '/orderManagement/orderDetails', query: { orderId:row.id}})
     },
+    // 报告详情
+    goReportsDetail(row) {
+      this.$router.push({ path: '/orderManagement/orderDetails', query: { orderId:row.service.id}})
+    },
+    // 取消原因
+    viewReasons(row){
+      this.getReasons(row.id)
+      this.reasonsVisible = true     
+    },
+    // 原因数据
+    getReasons(row){
+      getReason(row).then(res =>{
+        if(res.data.code == 0){
+          let data = res.data.data
+          this.reasonsData = data
+        }
+      })
+    }
     
   }
 }

@@ -13,12 +13,12 @@
         <span style="font-size:14px;color:#ffffff;">欢迎您，</span>
         <span class="userName">{{ name ? name : phonenumber }}</span>
         <span class="gender" @click="goAccountSetting()">   
-          <span v-if="avatar==''">
+          <span v-if="avatar==null">
             <span v-if="sex==0" class="neuter"/>
             <span v-else-if="sex==1" class="male"/>
             <span v-else-if="sex==2" class="female"/>
           </span> 
-          <span v-if="avatar != ''" class="headShow">
+          <span v-if="avatar!=null" class="headShow">
             <img :src="avatar" alt="">
           </span>       
         </span>

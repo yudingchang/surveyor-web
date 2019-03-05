@@ -29,10 +29,10 @@
         <el-form-item label="银行账号" prop="bank_account">
           <el-input v-model="cardMessage.bank_account" placeholder="请输入银行账号" class="inputLength"/>
         </el-form-item>
-        <el-form-item label="手机号码" prop="phone_number">
+        <el-form-item label="手机号码">
           <div>
-            <el-input v-model="cardMessage.phone_number" placeholder="请输入手机号" class="input-with-select" style="width:400px;">
-              <el-select slot="prepend" v-model="cardMessage.area_phone_number" placeholder="中国大陆 +86" style="width:180px;color:#FFA500">
+            <el-input disabled v-model="phonenumber" placeholder="请输入手机号" class="input-with-select" style="width:400px;">
+              <el-select slot="prepend" disabled v-model="cardMessage.area_phone_number" placeholder="中国大陆 +86" style="width:180px;color:#FFA500">
                 <el-option
                   v-for="item in configs.phone_number_codes"
                   :key="item.value"
@@ -45,7 +45,7 @@
         </el-form-item>
         <el-form-item label="验证码" prop="verification_code">
           <el-input v-model="cardMessage.verification_code" placeholder="请输入验证码" class="input-with-select" style="width:400px;">
-            <el-button slot="append" style="width:120px;color:#FFA500;" :disabled="sendMaDisabled==true ||  cardMessage.phone_number==''" @click="secondStepSendMa()">{{ secondStepText }}</el-button>
+            <el-button slot="append" style="width:120px;color:#FFA500;" :disabled="sendMaDisabled==true ||  phonenumber==''" @click="secondStepSendMa()">{{ secondStepText }}</el-button>
           </el-input>
         </el-form-item>
         <el-form-item label=" ">
@@ -57,7 +57,7 @@
 </template>
 <script>
 import { mapGetters } from 'vuex'
-import { addCard , getBankList , sendMa } from '@/api/walletDetail'// 列表请求数据
+import { addCard , getBankList , sendMa , setDefalt } from '@/api/walletDetail'// 列表请求数据
 export default {
   name: '',
   components: {
@@ -105,9 +105,9 @@ export default {
         //    open_bank: [
         //     { required: true, message: '请选择区号', trigger: 'change' },
         //   ],
-        phone_number: [
-          { required: true, message: '请输入手机号', trigger: 'blur' }
-        ],
+        // phone_number: [
+        //   { required: true, message: '请输入手机号', trigger: 'blur' }
+        // ],
         verification_code: [
           { required: true, message: '请输入验证码', trigger: 'blur' }
         ]
@@ -118,6 +118,7 @@ export default {
     ...mapGetters([
       'real_name',
       'name',
+      'phonenumber',
       'configs'
     ])
   },
@@ -161,7 +162,7 @@ export default {
     // 发送验证码
     sendMa(){
       sendMa({
-        to:this.cardMessage.phone_number,
+        to:this.phonenumber,
         type:'phone_number'
       }).then(res=>{
         if(res.data.code == 0){
@@ -174,6 +175,7 @@ export default {
         if (valid) {
           addCard({
             ...this.cardMessage,
+            phone_number:this.phonenumber,
             cardholder: this.name
           }).then(res => {
             if (res.data.code == 0) {
@@ -182,7 +184,7 @@ export default {
                 type: 'success'
               })
               this.$router.push({
-                path: 'cardManagement'
+                path: 'withdrawCash'
               })
             }
           })

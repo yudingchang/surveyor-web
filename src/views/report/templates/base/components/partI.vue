@@ -205,6 +205,7 @@ export default {
   },
   data() {
     return {
+      productQuantity:'',
       loading: true,
       data: this._.cloneDeep(defaultData),
       partHShow: true
@@ -245,7 +246,7 @@ export default {
 
         this.data = _data
       }
-      this.productQuantity = this._.sum(this._.map(Deepclone.review.quantity_conformity.products,'order_quantity'))
+      this.productQuantity = Deepclone.review.quantity_conformity ? this._.sum(this._.map(Deepclone.review.quantity_conformity.products,'shipment_quantity')) : ''
       this.loading = false
     },
     // 提交
@@ -257,6 +258,11 @@ export default {
             type: 'success'
           })
           this.$emit('save', this.data, 'general_information')
+        }else{
+          this.$message({
+            message: '存在未填写必填项，请确认',
+            type: 'error'
+          })
         }
       })
     },

@@ -6,10 +6,10 @@
     <tc-report-part-d ref="data_measurement" :checkitems="data.checkitems" :configs="configs" @save="handleSave"/>
     <tc-report-part-e ref="visual_and_workmanship" :sampling="data.sampling" :configs="configs" @save="handleSave"/>
     <tc-report-part-f ref="special_attention" :configs="configs" @save="handleSave"/>
-    <tc-report-part-g ref="appendix" :configs="configs" :sampling-information="_.get(data, 'order.sampling_information')" @save="handleSave"/>
+    <tc-report-part-g ref="appendix" :configs="configs" :samplingInformation="_.get(data, 'sampling_information')" @save="handleSave"/>
     <tc-report-part-h ref="inspection_styles" :order="data" :configs="configs" @save="handleSave"/>
     <tc-report-part-i ref="general_information" :order="data" :configs="configs" @save="handleSave"/>
-    <tc-report-part-j ref="inspection_results" :order="data" :configs="configs" @save="handleSave"/>
+    <tc-report-part-j ref="inspection_results" :sampling="data.sampling" :order="data" :configs="configs" @save="handleSave"/>
     <el-form style="margin:60px auto 100px">
       <el-form-item label-width="0" style="text-align: center;">
         <el-button style="border:1px solid rgba(144,147,153,1);width:140px;color:#909399;" @click="back()">返回</el-button>
@@ -56,7 +56,8 @@ export default {
       configs: { packageOptions: {}},
       loading: false,
       data: {
-        reviews: {}
+        reviews: {},
+        checkitems:[]
       }
     }
   },
@@ -112,7 +113,6 @@ export default {
     },
     reportsubmit() {
       var _self=this
-
       function checkForm(formName) { //封装验证表单的函数
         var result = new Promise(function(resolve, reject) {
           _self.$refs[formName].$refs.form.validate((valid) => {
@@ -123,28 +123,50 @@ export default {
         })
         resultArr.push(result) //push 得到promise的结果
       }
-      let formArr=['quantity_conformity','packing_and_marking','product_conformity','data_measurement','visual_and_workmanship','special_attention']//假设这是四个form表单的ref
+      let formArr=['quantity_conformity','packing_and_marking','product_conformity','data_measurement','visual_and_workmanship','special_attention','inspection_results']//假设这是四个form表单的ref
       var resultArr=[]//用来接受返回结果的数组
       formArr.forEach(item => { //根据表单的ref校验
           checkForm(item)
       })
+      var p1 = new Promise(function(resolve, reject) {
+        if(_self.data.review.inspection_style){
+           resolve();
+        }
+      })
       Promise.all([...resultArr]).then(function() { //都通过了
-        reportsubmit(_self.id, _self.configs).then(res => {
-          if (res.data.code == 0) {
-            this.$message({
-              message: '报告提交成功',
-              type: 'success'
-            })
-            _self.$router.push({
-              path:'/orderManagement/reporteManager'
-            })
-          }
-        })
+        _self.$confirm('请保证报告各项数据及检验结论正确无误!您确认提交此报告吗?',  {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            // type: 'warning',
+            center: true
+          }).then(() => {
+            reportsubmit(_self.id, _self.configs).then(res => {
+            if (res.data.code == 0) {
+              _self.$message({
+                message: '报告提交成功',
+                type: 'success'
+              })
+              _self.$router.push({
+                path:'/orderManagement/reporteManager'
+              })
+            }
+          })
+        }).catch(() => {
+          _self.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
       }).catch(function() {
-        this.$message({
+         _self.$message({
           message: '报告信息不完整',
           type: 'error'
         })
+        setTimeout(()=>{
+          var isError= document.getElementsByClassName("is-error");
+          isError[0].querySelector('input').focus();
+        },1)
+        return false;   
       });    
      
     },
@@ -198,6 +220,9 @@ export default {
     .el-radio+.el-radio {
         margin-left: 30px;
     }
+    .el-message-box__wrapper .el-button--primary{
+      background-color: #FFA800;
+    }
     .tc-remove {
       float: right;
       color: #F56C6C;
@@ -210,6 +235,7 @@ export default {
       background-color: #F5F8FA;
     }
     .el-form-item__label {
+      text-align: left;
       span {
         display: inline-block;
         margin-right: .5rem;

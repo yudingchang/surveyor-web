@@ -67,8 +67,8 @@
         prop="address"
         label="操作">
         <template slot-scope="scope">
-          <el-button v-if="(scope.row.can.confirm == false) && (scope.row.can.chase == false)" type="warning" @click="showNoRobbingPump(scope.row)">查看原因</el-button>
-          <el-button v-else type="success" @click="showGrabSheetPump(scope.row)">抢单</el-button>
+          <!-- <el-button v-if="(scope.row.can.confirm == false) && (scope.row.can.chase == false)" type="warning" @click="showNoRobbingPump(scope.row)">查看原因</el-button> -->
+          <el-button type="success" @click="showGrabSheetPump(scope.row)">抢单</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -184,7 +184,7 @@ export default {
     },
     // 去订单详情
     goOrderDetail(row) {
-      this.$router.push({ path: '/orderManagement/orderDetails', query: { orderId:row.id}})
+      this.$router.push({ path: '/orderManagement/orderDetails', query: { orderId:row.service.id}})
     },
     handleSizeChange(val) {
       this.filters.rows = val
@@ -198,12 +198,18 @@ export default {
     },
     // 显示抢单弹框
     showGrabSheetPump(row) {
-      this.orderService = row.id   
-      this.orderInformation = _.cloneDeep(row)
-      this.grabSheetText = row.is_main == false ? `此单为辅单，订单金额为￥${Number(row.commission) + Number(row.other_fee)}，您确认抢此订单吗？` : `订单金额￥${Number(row.commission) + Number(row.other_fee)}，需要写${this.getArray(row.reports)}报告您确认抢此订单吗？`
-      this.centerDialogVisible = true
-      this.canConfirm = row.can.confirm
-      this.canChase = row.can.chase
+      if(row.can.chase==false && row.can.confirm==false){
+        // 显示不可抢弹框
+        this.noRobbing = true
+        this.noRobbingText = row.can_messages.chase
+      }else{
+        this.orderService = row.id   
+        this.orderInformation = _.cloneDeep(row)
+        this.grabSheetText = row.is_main == false ? `此单为辅单，订单金额为￥${Number(row.commission) + Number(row.other_fee)}，您确认抢此订单吗？` : `订单金额￥${Number(row.commission) + Number(row.other_fee)}，需要写${this.getArray(row.reports)}报告您确认抢此订单吗？`
+        this.centerDialogVisible = true
+        this.canConfirm = row.can.confirm
+        this.canChase = row.can.chase
+      }   
     },
     // 显示不可抢弹框
     showNoRobbingPump(row){

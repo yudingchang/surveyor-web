@@ -81,13 +81,14 @@
         </el-form-item>
         
         <div v-for="(product, index) in data.products" :key="'p'+index">
-          <el-form-item label-width="100px">
-            <template slot="label">
-              <span>{{ (index+1).toString() }}</span>
-              款号/型号
-            </template>
-            <span style="margin-right: 1rem;">{{ product.number || product.name ? (product.number ?product.number:product.name) : '' }}</span>
-            <el-input v-if="!product.number && !product.name" v-model="product.name" style="width: 300px;" placeholder="请输入款号或名称"/>
+          <el-form-item label-width="0">
+            <span>{{ (index+1).toString() }}</span>
+            <el-form-item v-if="product.id" style="display:inline-block;margin-left:10px;" label="款号/型号" label-width="80px">
+                <span style="display:inline-block;vertical-align: middle; max-width: 500px;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">{{ product.number ? product.number : 'N/A' }}</span>
+            </el-form-item>
+            <el-form-item :prop="'products.'+index+'.name'" :rules="[{ required: true, message: '请输入款号或产品名称', trigger: 'blur' }]" style="display:inline-block" label-width='10px'>
+              <el-input v-if="!product.number" v-model="product.name" maxlength="50" style="width: 240px;" placeholder="请输入款号或产品名称"/>
+            </el-form-item>
             <span style="margin-left: 1rem;">抽样数</span>
             <!-- <span style="margin-right: 1rem;">{{ product.check_quantity ? product.check_quantity : 'N/A' }}</span> -->
             <el-input v-model="product.check_quantity" style="width: 150px;" placeholder="请输入数量"/>
@@ -168,7 +169,7 @@
           
         </div>
         <el-form-item label-width="0" style="margin: 0 0 22px 0;" >
-            <el-button type="success" icon="el-icon-plus" @click="addProduct(product)">添加产品</el-button>
+            <el-button type="success" icon="el-icon-plus" @click="addProduct()">添加产品</el-button>
           </el-form-item>
 
         <el-form-item label-width="0" style="text-align: center;">
@@ -282,7 +283,7 @@ export default {
       product.defective_items.push(this._.cloneDeep(defaultDefectiveItem))
     },
     // 增加产品
-    addProduct(product){
+    addProduct(){
       this.data.products.push(this._.cloneDeep(defaultProduct))
     },
     // 删除缺陷项
@@ -336,6 +337,11 @@ export default {
           this.data = _data
           console.log(this.data);
           this.$emit('save', this.data, 'visual_and_workmanship')
+        }else{
+          this.$message({
+            message: '存在未填写必填项，请确认',
+            type: 'error'
+          })
         }
       })
     }

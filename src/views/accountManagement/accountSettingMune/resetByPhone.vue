@@ -10,6 +10,7 @@
           <el-form-item prop="phone" :rules="[{ required: true, message: '请输入手机号码', trigger: 'blur' }]">
             <i class="iconfont icon-dianziyouxiangzhongzhi"></i>
             <el-input
+            disabled
                 v-model="form.phone"
               placeholder="请输入手机号码"
               name="username"
@@ -77,6 +78,7 @@
 import { sendMa } from '@/api/walletDetail'
 import { validpassword , resetpassword} from '@/api/accountSetting'
 import { resetPassword , forgetSendMa} from '@/api/login'
+import { mapGetters } from 'vuex'
 export default {
   name: 'resetByPassword',
   components: {
@@ -94,6 +96,14 @@ export default {
         phone:''
       }
     }
+  },
+  computed: {
+    ...mapGetters([    
+      'phonenumber'
+    ])
+  }, 
+  created(){
+    this.form.phone = this.phonenumber
   },
   watch: {
     'form.new_password': function() {

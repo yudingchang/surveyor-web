@@ -12,7 +12,9 @@
           <img v-if="avatar" :src="avatar" class="avatar">
           <!-- <i v-else class="el-icon-plus avatar-uploader-icon"></i> -->
           <div v-else >
-            <img src="/static/image/male.png" style="width:120px;height:120px;">
+            <img v-if="sex==0" src="/static/image/neuter.png" style="width:120px;height:120px;">
+            <img v-if="sex==1" src="/static/image/male.png" style="width:120px;height:120px;">
+            <img v-if="sex==2" src="/static/image/female.png.png" style="width:120px;height:120px;">
             <p style="color:#7C8FA6;font-size:14px">上传头像</p>
           </div>
         </el-upload>
@@ -257,6 +259,7 @@ export default {
     },
     ...mapGetters([
       'sidebar',
+      'sex',
       'name',
       'phonenumber',
       'email',
@@ -366,6 +369,8 @@ export default {
             phone_number:this.form.phone_number
           }).then(res =>{
             if(res.data.code == 0){
+              clearInterval(this.timer)
+              this.form.secondStepText = '发送验证码'
               this.form.dialogFormVisible = false
               this.form.reviseMailSuccess = true
             }

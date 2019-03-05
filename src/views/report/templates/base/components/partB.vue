@@ -15,12 +15,13 @@
         <div v-for="(product, index) in data.packing.products" :key="'p'+index">
           <el-form-item class="borderContent" label-width="0">
             <el-form-item style="margin-bottom:25px">
-              <template slot="label">
-                <span>{{ (index+1).toString() }}</span>
-                款号/型号
-              </template>
-              <span style="margin-right: 1rem;">{{ product.number ? product.number : 'N/A' }}</span>
-              <el-input v-if="!product.number" v-model="product.name" style="width: 480px;"/>
+              <span>{{ (index+1).toString() }}</span>
+              <el-form-item v-if="product.id" style="display:inline-block;width:70%" label="款号/型号" label-width="80px">
+                  <span>{{ product.number ? product.number : 'N/A' }}</span>
+              </el-form-item> 
+              <el-form-item :prop="'packing.products.'+index+'.name'" :rules="[{ required: true, message: '请输入款号或产品名称', trigger: 'blur' }]" style="display:inline-block" label-width='10px'>
+                <el-input v-if="!product.number" maxlength="50" v-model="product.name" style="width: 480px;" placeholder="请输入款号或产品名称"/>
+              </el-form-item>
               <i v-if="!product.id" class="el-icon-close tc-remove" @click="handleRemovePackingProduct(index)"/>
             </el-form-item>
             <el-form-item
@@ -235,14 +236,16 @@
         <div class="tc-report-card-content-title">唛头/标识</div>
         <div v-for="(product, index) in data.marking.products" :key="'s'+index">
           <el-form-item label-width="70px" >
-            <el-form-item class="borderContent">
+            <el-form-item class="borderContent" >          
               <el-form-item style="margin-bottom:24px;">
-                <template slot="label">
-                  <span>{{ (index+1).toString() }}</span>
-                  款号/型号
-                </template>
-                <span>{{ product.number ? product.number : 'N/A' }}</span>
-                <el-input v-if="!product.number" v-model="product.name" style="width: 480px;" placeholder="请输入产品名称"/>
+                <span>{{ (index+1).toString() }}</span>
+                <el-form-item v-if="product.id" style="display:inline-block;width:70%" label="款号/型号" label-width="80px">
+                  <span>{{ product.number ? product.number : 'N/A' }}</span>
+                </el-form-item>  
+                <el-form-item :prop="'marking.products.'+index+'.name'" :rules="[{ required: true, message: '请输入款号或产品名称', trigger: 'blur' }]" style="display:inline-block" label-width='10px'>
+                  <el-input v-if="!product.number" v-model="product.name" maxlength="50" style="width: 480px;" placeholder="请输入款号或产品名称"/>
+                </el-form-item>
+                <!-- <el-input v-if="!product.number" v-model="product.name" style="width: 480px;" placeholder="请输入产品名称"/> -->
                 <i v-if="!product.id" class="el-icon-close tc-remove" @click="handleRemoveMarkingProduct(index)"/>
               </el-form-item>
               <el-form-item
@@ -406,6 +409,11 @@ export default {
             type: 'success'
           })
           this.$emit('save', this.data, 'packing_and_marking')
+        }else{
+          this.$message({
+            message: '存在未填写必填项，请确认',
+            type: 'error'
+          })
         }
       })
     }

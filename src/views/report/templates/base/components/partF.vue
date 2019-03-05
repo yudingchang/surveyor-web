@@ -13,13 +13,14 @@
         <div v-for="(product, index) in data.products" :key="index">
           <el-form-item >
             <el-form-item class="borderContent">
-              <el-form-item label-width="100px" >
-                <template slot="label">
-                  <span>{{ (index+1).toString() }}</span>
-                  款号/型号
-                </template>
-                <span style="margin-right: 1rem;">{{ product.number ? product.number : 'N/A' }}</span>
-                <el-input v-if="!product.number" v-model="product.name" style="width: 480px;"/>
+              <el-form-item label-width="0" style="margin-bottom:24px;">
+                <span>{{ (index+1).toString() }}</span>
+                <el-form-item v-if="product.id" style="display:inline-block;width:70%" label="款号/型号" label-width="80px">
+                    <span>{{ product.number ? product.number : 'N/A' }}</span>
+                </el-form-item>
+                <el-form-item v-if="!product.number" :prop="'products.'+index+'.name'" :rules="[{ required: true, message: '请输入款号或产品名称', trigger: 'blur' }]" style="display:inline-block" label-width='10px'>
+                  <el-input  maxlength="50" v-model="product.name" style="width: 480px;" placeholder="请输入款号或产品名称"/>
+                </el-form-item>
                 <i class="el-icon-close tc-remove" @click="handleRemoveProduct(index)"/>
               </el-form-item>
               <el-form-item
@@ -133,6 +134,11 @@ export default {
             type: 'success'
           })
           this.$emit('save', this.data, 'special_attention')
+        }else{
+          this.$message({
+            message: '存在未填写必填项，请确认',
+            type: 'error'
+          })
         }
       })
     }

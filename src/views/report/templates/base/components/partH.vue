@@ -1,5 +1,5 @@
 <template>
-  <div v-loading="loading" class="tc-report-card tc-report-cards">
+  <div v-loading="loading" class="tc-report-card partH">
     <div :class="{titleChange:!partHShow}" class="tc-report-card-title clearfix">
       <span><span class="titleText">H</span>检验款</span>
       <span class="right" style="float:right;color:#FFA800" @click="partHShow=!partHShow">
@@ -174,12 +174,14 @@ export default {
 </script>
 
 <style lang="scss">
-.tc-report-cards {
+.partH {
   .el-upload {
     width: 100% !important;
+    height: 100%;
     .avatar{
       width: 100%;
-      max-height:400px;
+      height: 100%;
+      object-fit: contain;
     }
   }
 }
@@ -205,7 +207,7 @@ export default {
   } */
 </style>
 <style rel="stylesheet/scss" lang="scss" scoped>
-  .tc-report-card{
+  .partH{
     .noFileStyle{
       padding-top:130px;
       i{
@@ -231,10 +233,18 @@ export default {
         width: 50%;
         height: 100%;
         border-right:1px solid #D7DCE3;
+        >div{
+          width: 100%;
+          height: 100%;
+        }
       }
       .rightImg{
         width: 50%;
         height: 100%;
+        >div{
+          width: 100%;
+          height: 100%;
+        }
       }
     }
   }

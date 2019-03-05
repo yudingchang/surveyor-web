@@ -35,8 +35,10 @@
     <el-table
       :data="tableData2"
       style="width: 100%"
+      v-loading="loading"
       class="grabSheet"
       empty-text="暂无待办事项"
+      height="calc(100vh - 400px)"
     >
       <el-table-column
         label="订单号"
@@ -53,7 +55,7 @@
       <el-table-column
         label="验货地名称">
         <template slot-scope="scope">
-          {{ scope.row.address.address_summary }}{{ scope.row.address.address_detail }}
+          {{ scope.row.address.name }}
         </template>
       </el-table-column>
       <el-table-column
@@ -81,7 +83,7 @@
           <el-button type="text" class="orangeText" v-if="(scope.row.type == 'offline')&&((scope.row.service.marking == 'WAIT_INSPECT') || (scope.row.service.marking == 'INSPECTING'))" @click="goReportDetail(scope.row)"> 下载模版</el-button>
           <el-button type="text" class="orangeText"  @click="uploadReport(scope.row)" v-if="(scope.row.type == 'offline')&&(scope.row.service.marking == 'INSPECTING')">上传报告</el-button> 
           <el-button type="text" class="orangeText" @click="goReportDetail(scope.row,true)" v-if="(scope.row.type == 'online')&&(scope.row.service.marking == 'INSPECTING')&& (scope.row.marking == 'WAIT_MODIFY')">修改报告</el-button>
-          <el-button type="text" class="orangeText" v-if="(scope.row.type == 'online')&&(scope.row.service.marking=='INSPECTING')&& (scope.row.marking == 'WAIT_MODIFY')" @click="goReportDetail(scope.row)">查看原因</el-button>
+          <el-button type="text" class="orangeText" v-if="(scope.row.type == 'online')&&(scope.row.service.marking=='INSPECTING')&& (scope.row.marking == 'WAIT_MODIFY')" @click="viewReasons(scope.row)">查看原因</el-button>
           <el-button type="text" class="orangeText" v-if="(scope.row.type == 'online')&&(scope.row.service.marking == 'INSPECTING')&& (scope.row.marking == 'WAIT_WRITE')" @click="goReportDetail(scope.row,false)">写报告</el-button>
         </template>
       </el-table-column>
@@ -91,6 +93,21 @@
         <el-table-column type="index" label="序号" width="100"/>
         <el-table-column property="name" label="产品名称"/>
       </el-table>
+    </el-dialog>
+    <!-- 报告拒绝原因弹框 -->
+    <el-dialog
+      :visible.sync="reasonsVisible"
+      width="30%"
+      center>
+      <el-table :data="reasonsData" style="width: 100%">
+        <el-table-column type="index"  ></el-table-column>
+        <el-table-column property="created_at" label="时间" ></el-table-column>
+        <el-table-column property="remark" label="原因" ></el-table-column>
+      </el-table>
+      <!-- <span slot="footer" class="dialog-footer">
+        <el-button @click="centerDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="centerDialogVisible = false">确 定</el-button>
+      </span> -->
     </el-dialog>
     <el-col :span="24" class="toolbar">
       <el-pagination
@@ -110,12 +127,13 @@
 <script>
 import { getList } from '@/api/order'
 import { orderList } from '@/api/dashboard'
-import { getReportList } from '@/api/report'
+import { getReportList , getReason } from '@/api/report'
 export default {
   name: '',
   components: {},
   data() {
     return {
+      loading:false,
        filters: {
         page: 1,
         rows: 15,
@@ -232,7 +250,10 @@ export default {
       emailTitle: '新增报告接收电子邮箱',
       supplyTitle: '新增供应商信息',
       invoiceTitle: '新增发票信息',
-      dialogTableVisible: false
+      dialogTableVisible: false,
+      // 原因数据
+      reasonsVisible: false,
+      reasonsData:[]
     }
   },
   created() {
@@ -265,6 +286,7 @@ export default {
     tab(item, index) {
       this.tablist.forEach((item, index) => {
         item.isBool = false
+        this.loading = true
       })
       this.num = index
       item.isBool = true
@@ -312,6 +334,7 @@ export default {
         marking:marking?marking:'',
       }).then(res => {
         if (res.data.code == 0) {
+          this.loading = false
           this.tableData2 = res.data.data
            this.total = res.data.meta.total
            this.$route.query.number = ''
@@ -340,7 +363,24 @@ export default {
         path: 'uploadReport', 
         query: { id: row.id }
       })
+    },
+    // 取消原因
+    viewReasons(row){
+      this.getReasons(row.id)
+      this.reasonsVisible = true
+      
+    },
+    // 原因数据
+    getReasons(row){
+      getReason(row).then(res =>{
+        if(res.data.code == 0){
+          let data = res.data.data
+          this.reasonsData = data
+        }
+      })
     }
+
+
   }
 }
 </script>
@@ -445,106 +485,109 @@ content: '/ ';
 }
 .reporteManager{
   margin:25px 40px;
-.btnText{
-    color:#158BE4;
-    font-size:12px !important;
-    display: inline-block;
-}
-.orangeText{
-    color:#FFA800;
-    font-size:12px !important;
-    display: inline-block;
-}
-.examine-good {
-  border: 1px solid #e6eaee;
-  border-radius: 4px;
-  // padding-bottom: 70px;
-  background-color: #ffffff;
-  .tab-content {
-    // line-height: 200px;
-    background-color: #ffffff;
-    // height: 50px;
-    // border-bottom: 1px solid #f5f8fa;
-    .top-form {
-      background-color: #ffffff;
-      border-bottom: 1px solid #e6eaee;
-      padding: 19px 0 0 32px;
-    }
-    .tabs-top {
-      background-color: #ffffff;
-      height: 50px;
-      line-height: 50px;
-      .tabs {
-        display: inline-block;
-        width: 800px;
-        overflow: hidden;
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        li {
-          float: left;
-          width: 20%;
-          height: 50px;
-          line-height: 50px;
-          text-align: center;
-          font-size: 14px;
-          color: #50688c;
-        }
-        .active {
-          border-bottom: 2px solid #ffa800;
-          color: #ffa800;
-        }
-      }
-    }
-
-    .add {
-      // display: inline-block;
-      float: right;
-      margin-right: 40px;
-      width: 130px;
-      height: 40px;
-      vertical-align: top;
-      margin-top: 5px;
-      font-size: 16px;
-      background: #67c23a;
-      color: #ffffff;
-      outline: none;
-      &:hover {
-        color: #ffffff;
-      }
-      span {
-        &::before {
-          content: "+";
-          font-size: 16px;
-          margin-right: 15px;
-        }
-      }
-    }
+  .grabSheet{
+    margin-top:20px;
   }
-}
-.table-content {
-  margin-top:22px;
   .btnText{
-    color:#158BE4;
-    font-size:12px !important;
-    display: inline-block;
+      color:#158BE4;
+      font-size:12px !important;
+      display: inline-block;
   }
-  .numberBg{
-    display:inline-block;
-    // paddding:5px;
-    border-radius:6px;
-    width:22px;
-    height:22px;
-    color:#ffffff;
-    text-align:center;
-    line-height:22px;
-    background:rgba(74,144,226,1);
+  .orangeText{
+      color:#FFA800;
+      font-size:12px !important;
+      display: inline-block;
   }
-}
-.toolbar{
-  position: absolute;
-  right: 40px;
-  bottom: 10px;
+  .examine-good {
+    border: 1px solid #e6eaee;
+    border-radius: 4px;
+    // padding-bottom: 70px;
+    background-color: #ffffff;
+    .tab-content {
+      // line-height: 200px;
+      background-color: #ffffff;
+      // height: 50px;
+      // border-bottom: 1px solid #f5f8fa;
+      .top-form {
+        background-color: #ffffff;
+        border-bottom: 1px solid #e6eaee;
+        padding: 19px 0 0 32px;
+      }
+      .tabs-top {
+        background-color: #ffffff;
+        height: 50px;
+        line-height: 50px;
+        .tabs {
+          display: inline-block;
+          width: 800px;
+          overflow: hidden;
+          list-style: none;
+          margin: 0;
+          padding: 0;
+          li {
+            float: left;
+            width: 20%;
+            height: 50px;
+            line-height: 50px;
+            text-align: center;
+            font-size: 14px;
+            color: #50688c;
+          }
+          .active {
+            border-bottom: 2px solid #ffa800;
+            color: #ffa800;
+          }
+        }
+      }
+
+      .add {
+        // display: inline-block;
+        float: right;
+        margin-right: 40px;
+        width: 130px;
+        height: 40px;
+        vertical-align: top;
+        margin-top: 5px;
+        font-size: 16px;
+        background: #67c23a;
+        color: #ffffff;
+        outline: none;
+        &:hover {
+          color: #ffffff;
+        }
+        span {
+          &::before {
+            content: "+";
+            font-size: 16px;
+            margin-right: 15px;
+          }
+        }
+      }
+    }
+  }
+  .table-content {
+    margin-top:22px;
+    .btnText{
+      color:#158BE4;
+      font-size:12px !important;
+      display: inline-block;
+    }
+    .numberBg{
+      display:inline-block;
+      // paddding:5px;
+      border-radius:6px;
+      width:22px;
+      height:22px;
+      color:#ffffff;
+      text-align:center;
+      line-height:22px;
+      background:rgba(74,144,226,1);
+    }
+  }
+  .toolbar{
+    position: absolute;
+    right: 40px;
+    bottom: 10px;
   }
 }
 

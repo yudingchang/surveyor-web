@@ -4,11 +4,10 @@
       <div class="image-preview-wrapper">
         <img :src="file.url">
         <div class="image-name">
-          <el-input v-model="file.tag"/>
+          <el-input v-model="file.tag" maxlength="30"/>
         </div>
         <i class="el-icon-close" @click="handleRemove(file)"/>
       </div>
-
     </div>
     <div v-for="(uploadingFile, index) in uploadingFiles" :key="index" class="image-preview shadow-sm">
       <div class="image-preview-wrapper">
@@ -31,9 +30,7 @@
       list-type="picture-card">
       <i class="el-icon-upload"/>
       <p style="font-size:14px;color:#7F8FA4;line-height:20px;">上传图片</p>
-      <!-- <div>
-
-      </div> -->
+      <p style="position:absolute;bottom:-20px;left:40px;font-size: 12px;color: #7F8FA4;">图片大小≤10M，格式jpg/png</p>
     </el-upload>
   </div>
 </template>
@@ -78,14 +75,14 @@ export default {
       return prettyFileIcons.getIcon(url)
     },
     handleBeforeUpload(file) {
-      // if (!['image/jpeg', 'image/png'].includes(file.type)) {
-      //   this.$message.error('上传图片只能是 JPG/PNG 格式!')
-      //   return false
-      // }
-      // if (file.size / 1024 / 1024 > 10) {
-      //   this.$message.error('上传图片大小不能超过 10MB!')
-      //   return false
-      // }
+      if (!['image/jpeg', 'image/png'].includes(file.type)) {
+        this.$message.error('上传图片只能是 JPG/PNG 格式!')
+        return false
+      }
+      if (file.size / 1024 / 1024 > 2) {
+        this.$message.error('上传图片大小不能超过 2MB!')
+        return false
+      }
       file.percent = 0
       this.uploadingFiles.push(file)
     },
@@ -139,13 +136,14 @@ export default {
     margin-right: 10px;
     margin-bottom: 15px;
     text-align: center;
-    overflow: hidden;
+    // overflow: hidden;
     .el-upload-dragger {
       // width: 208px;
       height: 167px;
       margin: 5px;
       border: dotted 1px rgb(220, 223, 230);
       border-radius: 5px;
+      overflow:visible;
       .el-icon-upload {
         font-size: 40px;
         color: #FFA800;

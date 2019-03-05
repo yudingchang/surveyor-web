@@ -10,8 +10,8 @@
                         <li>检验报告</li>
                         <li @click="back()">返回上一页</li>
                     </ul>
-                    <p>检验款</p>
-                    <div class="InspectionSection clearfix">
+                    <p v-if="inspection_styles.files[0].url!='' && inspection_styles.files[1].url!=''">检验款</p>
+                    <div class="InspectionSection clearfix" v-if="inspection_styles.files[0].url!='' && inspection_styles.files[1].url!=''">
                         <div class="fl leftImg">
                             <img :src="inspection_styles.files[0].url" alt="">
                         </div>
@@ -22,19 +22,19 @@
                     <p>基本信息</p>
                     <div class="interface-baseInfo-table">
                            <table border="1" cellspacing="0" cellpadding="0"  height="100%" class="baseInfo-element-table"  style="width: 100%">
-                                <tr height="60px">
+                                <tr height="50px">
                                    <td>买家名称</td>
                                    <td>{{baseInfoData.user_name}}</td>
                                    <td>订单号</td>
                                    <td>{{baseInfoData.order_name}}</td>
                                </tr>
-                               <tr height="60px">
+                               <tr height="50px">
                                    <td>供应商名称</td>
                                    <td>{{baseInfoData.supplier_name}}</td>
                                    <td>款号/型号</td>
                                    <td>{{baseInfoData.product_number}}</td>
                                </tr>
-                               <tr height="60px">
+                               <tr height="50px">
                                    <td style="text-align:center;vertical-align:middle;">检验日期</td>
                                    <td>
                                        <span v-for="(item,index) in  baseInfoData.inspection_dates" :key = index>
@@ -44,20 +44,20 @@
                                    <td>产品名称</td>
                                    <td>{{baseInfoData.product_name}}</td>
                                </tr>
-                                <tr height="60px">
+                                <tr height="50px">
                                    <td>检验地点</td>
                                    <td>{{baseInfoData.inspection_address}}</td>
                                    <td>整批次数量</td>
                                    <td>{{productQuantity}}</td>
                                </tr>
-                               <tr height="60px">
+                               <tr height="50px">
                                    <td>检验服务</td>
                                    <td>{{ _.get(_.find( configs.inspectionTypes, {value : baseInfoData.inspection_type}), 'label') }}  <span v-if="baseInfoData.inspection_type==0">第{{baseInfoData.number}}次验货</span></td>
                                    <td>是否合并抽样</td>
                                    <td>{{ baseInfoData.is_merge_sampling==0 ? '否' : '是' }}</td>
                                    <!-- <td>{{ _.get(_.find(configs.inspectionTypes, {value : baseInfoData.inspection_type}), 'label') }}</td> -->
                                </tr>
-                              <tr height="60px">
+                              <tr height="50px">
                                    <td>检验依据</td>
                                    <td colspan="3">
                                        <span v-for="(item,index) in _.sortBy(_.uniq(baseInfoData.inspection_basis))" :key=index>
@@ -108,7 +108,7 @@
                             </tr>
                             <tr>
                                 <td rowspan="3" class="background-gray" style="vertical-align:middle;text-align:center;">检验水平</td>
-                                <td rowspan="3">{{ _.get(_.find(_.get(configs, 'samplings.levels', []), { level: _.get(order, 'visual_and_workmanship.sampling.params.level') }), 'value') }}</td>
+                                <td rowspan="3">{{ _.get(_.find(_.get(configs, 'samplings.levels', []), { value: _.get(exteriorData, 'sampling.params.level') }), 'label') }}</td>
                                 <td height="40px">最大允许值</td>
                                 <td>{{ exteriorData.sampling.params.fatal_defect }}</td>
                                 <td>{{ exteriorData.sampling.params.serious_defect }}</td>
@@ -123,7 +123,8 @@
                             <tr>
                                 <td height="40px">结论</td>
                                 <td colspan="3" v-if="(exteriorData.real_fatal_defect<exteriorData.sampling.params.fatal_defect) && (exteriorData.real_serious_defect<exteriorData.sampling.params.serious_defect) && (exteriorData.real_minor_defect<exteriorData.sampling.params.minor_defect)">未超出可接受限值</td>
-                                <td colspan="3" v-if="(exteriorData.real_fatal_defect>exteriorData.sampling.params.fatal_defect) || (exteriorData.real_serious_defect>exteriorData.sampling.params.serious_defect) || (exteriorData.real_minor_defect>exteriorData.sampling.params.minor_defect)">超出可接受限值</td>
+                                <td colspan="3" v-else-if="(exteriorData.real_fatal_defect>exteriorData.sampling.params.fatal_defect) || (exteriorData.real_serious_defect>exteriorData.sampling.params.serious_defect) || (exteriorData.real_minor_defect>exteriorData.sampling.params.minor_defect)">超出可接受限值</td>
+                                <td colspan="3" v-else></td>
                             </tr>
                             </tbody>
                         </table>
@@ -186,11 +187,11 @@
                         <table cellspacing="0" cellpadding="0" width="100%" height="100%" class="conclusion-element-tableB">
                             <tr height="50px">
                                 <td width="270px">数量符合性</td>
-                                <td v-if="QuantityData.conclusion==1" style="width: 270px;" class="trueText">符合</td>
+                                <td v-if="QuantityData.conclusion==1 || QuantityData.conclusion==''" style="width: 270px;" class="trueText">符合</td>
                                 <td v-if="QuantityData.conclusion==2" style="width: 270px;" class='wrongText'>不符合</td>
                                 <td v-if="QuantityData.conclusion==3" style="width: 270px;" class='wrongText'>待定</td>
                                 <td v-if="QuantityData.conclusion==4" style="width: 270px;" class='wrongText'>不适用</td>
-                                <td > <span>{{conclusionData.conclusion.quantityCompliance ? conclusionData.conclusion.quantityCompliance : '无'}}</span></td>
+                                <td ><span>{{conclusionData.conclusion.quantityCompliance ? conclusionData.conclusion.quantityCompliance : '无'}}</span></td>
                             </tr>
                             <tr height="50px">
                                 <td>包装/标识/标签</td>
@@ -223,169 +224,185 @@
                                 <td v-if="CloneFStatu == 1" class='wrongText'>不符合</td>
                                 <td v-if="CloneFStatu == 2" class='wrongText'>待定</td>
                                 <td v-if="CloneFStatu == 3" class="trueText">符合</td>
+                                <td v-if="CloneFStatu == 0" class="trueText">无</td>
                                 <td><span>{{conclusionData.conclusion.keyPoint ? conclusionData.conclusion.keyPoint : '无'}}</span></td>            
                             </tr>
                         </table>
                     </div>
-                    <p class="conclusion-remark">备注</p>
-                    <div class="conclusion-remark-table">
+                    <div style="width:100%;padding:25px;border:1px solid rgba(215,220,227,1);border-radius:4px;margin-bottom:25px" v-if="baseInfoData.is_merge_sampling == 1">
+                        注意：您选择的检验是基于合并抽样方法，当一个批次中含有多个产品款式，采用合并抽样时，我们建议所有客户需注意‘’合并抽样‘’的相关风险。合并抽样对您来说意味着风险的增加，由于抽样数量及相关统计规则的影响，遗漏质量问题的可能性比单款式抽样大得多。如果贵方决定接受并采用合并抽样的方式检验货物, 由此带来的增加的抽样风险，我方将不承担责任。
+                    </div>
+                    <p class="conclusion-remark" v-if="_.get(conclusionData,'remarks',[]).length>0">备注</p>
+                    <div class="conclusion-remark-table" v-if="_.get(conclusionData,'remarks',[]).length>0">
                         <table cellspacing="0" cellpadding="0" width="100%" height="100%">
                             <tr height="50px" v-for="(item,index) in conclusionData.remarks" :key="index+'-conclusion'">
                                 <td width="100px">{{index+1}}</td>
                                 <td width="1359px">{{item.remark}}</td>
                             </tr>
-                            <!-- <tr height="60px">
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr height="60px">
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr height="60px">
-                                <td></td>
-                                <td></td>
-                            </tr> -->
                         </table>
+                    </div>
+                    <div class="imagesList clearfix" v-if="_.get(conclusionData,'files',[]).length>0">
+                        <div>图片:</div>
+                        <ShowFile :file-list="_.get(conclusionData,'files',[])"/>
                     </div>
                 </div>
                 <!-- A、数量符合性 -->
                 <div class="Report-interface-Quantity">
                     <p class="Quantity-p1">A、数量符合性</p>
                     <p class="Quantity-p2"><span>报告总结论</span><span :class="addClass(QuantityData.conclusion)">{{ _.get(_.find( configs.conclusionOptions, {value : QuantityData.conclusion}), 'label') }}</span></p>
-                    <div class="interface-Quantity-table">
-                        <table cellspacing="0" cellpadding="0" width="100%" height="100%">
-                            <tr height="40px">
-                                <td width="200px" rowspan="2">款号/型号</td>
-                                <td width="200px" rowspan="2">订单号码</td>
-                                <td width="134px" rowspan="2">订单产品数</td>
-                                <td width="134px" rowspan="2">出货数量</td>
-                                <td width="128px" colspan="2">实际完成数量</td>
-                                <td width="128px" colspan="2">箱数</td>
-                                <td width="128px" rowspan="2">抽样数</td>
-                                <td width="128px" rowspan="2">抽箱数</td>
-                            </tr>
-                            <tr height="40px">
-                                <td>已包装</td>
-                                <td>未包装</td>
-                                <td>已包装</td>
-                                <td>未包装</td>
-                            </tr>
-                            <tr height="40px" v-if="QuantityData.products" v-for="(item,index) in _.get(QuantityData, 'products',[])" :key="index+'Quantity'">
-                                <td>{{item.section_number}}</td>
-                                <td>{{item.order_number}}</td>
-                                <td>{{item.order_quantity}}</td>
-                                <td>{{item.shipment_quantity}}</td>
-                                <td>{{item.completed_unpackaged}}</td>
-                                <td>{{item.completed_packaged}}</td>
-                                <td>{{item.unpackaged}}</td>
-                                <td>{{item.packaged}}</td>
-                                <td>{{item.check_quantity}}</td>
-                                <td>{{item.check_package_quantity}}</td>
-                            </tr>
-                            <tr height="40px">
-                                <td colspan="2">总数</td>
-                                <td>{{sum(_.get(QuantityData, 'products'),'order_quantity')}}</td>
-                                <td>{{sum(_.get(QuantityData, 'products'),'shipment_quantity')}}</td>
-                                <td>{{sum(_.get(QuantityData, 'products'),'completed_unpackaged')}}</td>
-                                <td>{{sum(_.get(QuantityData, 'products'),'completed_packaged')}}</td>
-                                <td>{{sum(_.get(QuantityData, 'products'),'unpackaged')}}</td>
-                                <td>{{sum(_.get(QuantityData, 'products'),'packaged')}}</td>
-                                <td>{{sum(_.get(QuantityData, 'products'),'check_quantity')}}</td>
-                                <td>{{sum(_.get(QuantityData, 'products'),'check_package_quantity')}}</td>
-                            </tr>
-                        </table>
-                    </div>
-                    <p class="Quantity-p3"><span>是否有箱号:</span><span>{{QuantityData.has_package_number==0 ? '无' :'有'}}</span></p>
-                    <p class="Quantity-p4" v-if="QuantityData.has_package_number!=0">{{QuantityData.packag_number}}</p>
-                    <div class="interface-Quantity-remark clearfix">
-                        <p>备注:</p>
-                        <p class="content">{{QuantityData.remark_content}}</p>
-                    </div>
-                    <div class="interface-Quantity-images clearfix">
-                        <div>图片:</div>
-                        <ShowFile :file-list="QuantityData.files"/>
-                    </div>
+                    <div v-if="_.get(_.find( configs.conclusionOptions, {value : QuantityData.conclusion}), 'label') != '不适用'">
+                        <div class="interface-Quantity-table">
+                            <table cellspacing="0" cellpadding="0" width="100%" height="100%">
+                                <tr height="40px">
+                                    <td width="200px" rowspan="2">款号/型号</td>
+                                    <td width="200px" rowspan="2">订单号码</td>
+                                    <td width="134px" rowspan="2">订单产品数</td>
+                                    <td width="134px" rowspan="2">出货数量</td>
+                                    <td width="128px" colspan="2">实际完成数量</td>
+                                    <td width="128px" colspan="2">箱数</td>
+                                    <td width="128px" rowspan="2">抽样数</td>
+                                    <td width="128px" rowspan="2">抽箱数</td>
+                                </tr>
+                                <tr height="40px">
+                                    <td>已包装</td>
+                                    <td>未包装</td>
+                                    <td>已包装</td>
+                                    <td>未包装</td>
+                                </tr>
+                                <tr height="40px" v-if="QuantityData.products" v-for="(item,index) in _.get(QuantityData, 'products',[])" :key="index+'Quantity'">
+                                    <td>{{item.section_number}}</td>
+                                    <td>{{item.order_number}}</td>
+                                    <td>{{item.order_quantity}}</td>
+                                    <td>{{item.shipment_quantity}}</td>
+                                    <td>{{item.completed_unpackaged}}</td>
+                                    <td>{{item.completed_packaged}}</td>
+                                    <td>{{item.unpackaged}}</td>
+                                    <td>{{item.packaged}}</td>
+                                    <td>{{item.check_quantity}}</td>
+                                    <td>{{item.check_package_quantity}}</td>
+                                </tr>
+                                <tr height="40px">
+                                    <td colspan="2">总数</td>
+                                    <td>{{sum(_.get(QuantityData, 'products'),'order_quantity')}}</td>
+                                    <td>{{sum(_.get(QuantityData, 'products'),'shipment_quantity')}}</td>
+                                    <td>{{sum(_.get(QuantityData, 'products'),'completed_unpackaged')}}</td>
+                                    <td>{{sum(_.get(QuantityData, 'products'),'completed_packaged')}}</td>
+                                    <td>{{sum(_.get(QuantityData, 'products'),'unpackaged')}}</td>
+                                    <td>{{sum(_.get(QuantityData, 'products'),'packaged')}}</td>
+                                    <td>{{sum(_.get(QuantityData, 'products'),'check_quantity')}}</td>
+                                    <td>{{sum(_.get(QuantityData, 'products'),'check_package_quantity')}}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <p class="Quantity-p3"><span>是否有箱号:</span><span>{{QuantityData.has_package_number==0 ? '无' :'有'}}</span></p>
+                        <p class="Quantity-p4" v-if="QuantityData.has_package_number!=0">{{QuantityData.packag_number}}</p>
+                        <div class="interface-Quantity-remark clearfix" v-if="QuantityData.remark_content">
+                            <p>备注:</p>
+                            <p class="content">{{QuantityData.remark_content}}</p>
+                        </div>
+                        <div class="interface-Quantity-images clearfix" v-if="_.get(QuantityData, 'files',[]).length>0">
+                            <div>图片:</div>
+                            <ShowFile :file-list="QuantityData.files"/>
+                        </div>
+                    </div>   
                 </div>
                 <!-- B、包装/标识/标签 -->
                 <div class="Report-interface-packageLogo">
                     <p class="packageLogo-p1">B、包装/标识/标签</p>
                     <p class="packageLogo-p2">包装符合型</p>
                     <div class="packageLogo-packageInfo1" v-if="packageLogoData.packing.products" v-for="(item,index) in _.get(packageLogoData.packing, 'products', [])" :key="index+'-Info1'">
-                        <p class="packageInfo1-p1">{{index+1}}、{{item.name}}/型号{{item.number}}</p>
+                        <p class="packageInfo1-p1">{{index+1}}、
+                            <span v-if="item.number">
+                                款号/型号 : {{item.number}}
+                            </span> 
+                            <span v-else>
+                                {{item.name}}
+                            </span> 
+                        </p>
                         <p class="packageInfo1-p2"><span>结论</span><span :class="addClass(item.conclusion)">{{ _.get(_.find( configs.conclusionOptions, {value : item.conclusion}), 'label') }}</span></p>
-                        <div class="packageInfo1-table">
-                            <table cellspacing="0" cellpadding="0" width="100%" height="100%">
-                                <tr height="60px">
-                                    <td width="180px">项目</td>
-                                    <td colspan="4">检查结果</td>
-                                </tr>
-                                <tr height="60px">
-                                    <td width="180px">单个包装</td>
-                                    <td width="235px">
-                                        <span>包装:</span><span>{{  _.get(_.find( configs.packageOptions.single, {value : item.single.package}), 'label')}}</span>
-                                    </td>
-                                    <td width="206px" colspan="3">
-                                        <span>说明:</span><span>{{item.single.description?item.single.description:'无'}}</span>
-                                    </td>
-                                </tr>
-                                <tr height="60px">
-                                    <td>内包装</td>
-                                    <td>
-                                        <span>入数:</span><span>{{item.inner.quantity}}</span>
-                                    </td>
-                                    <td width="206px">
-                                        <span>包装:</span><span>{{ _.get(_.find( configs.packageOptions.inner, {value : item.inner.package}), 'label')}}</span>
-                                    </td>
-                                    <td colspan="2">
-                                        <span>说明:</span><span>{{item.inner.description?item.inner.description:'无'}}</span>
-                                    </td>
-                                </tr>
-                                <tr height="60px">
-                                    <td>外包装</td>
-                                    <td>
-                                        <span>入数</span><span>{{item.outer.quantity}}</span>
-                                    </td>
-                                    <td>
-                                        <span>包装:</span><span>{{_.get(_.find( configs.packageOptions.outer, {value : item.outer.package}), 'label')}}</span>
-                                    </td>
-                                    <td colspan="2">
-                                        <span>说明:</span><span>{{item.outer.description?item.outer.description:'无'}}</span>
-                                    </td>
-                                </tr>
-                                <tr height="54px">
-                                    <td></td>
-                                    <td></td>
-                                    <td colspan="2">
-                                        <span>外箱尺寸:</span><span>{{item.outer.size_length}}（L） x {{item.outer.size_width}}（W） x {{ item.outer.size_height}}（H）{{_.get(_.find( configs.packageOptions.size, {value : item.outer.size_unit}), 'label')}}</span>
-                                    </td>
-                                    <td width="564px">
-                                        <span>外箱毛重:</span><span>{{item.outer.weight}}{{_.get(_.find( configs.packageOptions.weight, {value : item.outer.weight_unit}), 'label')}}</span>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                        <div class="packageInfo1-remark clearfix">
-                            <p>备注:</p>
-                            <p class="content">{{item.remark_content}}</p>
-                        </div>
-                        <div class="packageInfo1-picture clearfix">
-                            <div>图片:</div>
-                            <ShowFile :file-list="item.files"/>
-                        </div>
+                        <div v-if="_.get(_.find( configs.conclusionOptions, {value : item.conclusion}), 'label') != '不适用'">    
+                            <div class="packageInfo1-table">
+                                <table cellspacing="0" cellpadding="0" width="100%" height="100%">
+                                    <tr height="60px">
+                                        <td width="180px">项目</td>
+                                        <td colspan="4">检查结果</td>
+                                    </tr>
+                                    <tr height="60px">
+                                        <td width="180px">单个包装</td>
+                                        <td width="235px">
+                                            <span>包装:</span><span>{{  _.get(_.find( configs.packageOptions.single, {value : item.single.package}), 'label')}}</span>
+                                        </td>
+                                        <td width="206px" colspan="3">
+                                            <span>说明:</span><span>{{item.single.description?item.single.description:'无'}}</span>
+                                        </td>
+                                    </tr>
+                                    <tr height="60px">
+                                        <td>内包装</td>
+                                        <td>
+                                            <span>入数:</span><span>{{item.inner.quantity}}</span>
+                                        </td>
+                                        <td width="206px">
+                                            <span>包装:</span><span>{{ _.get(_.find( configs.packageOptions.inner, {value : item.inner.package}), 'label')}}</span>
+                                        </td>
+                                        <td colspan="2">
+                                            <span>说明:</span><span>{{item.inner.description?item.inner.description:'无'}}</span>
+                                        </td>
+                                    </tr>
+                                    <tr height="60px">
+                                        <td>外包装</td>
+                                        <td>
+                                            <span>入数</span><span>{{item.outer.quantity}}</span>
+                                        </td>
+                                        <td>
+                                            <span>包装:</span><span>{{_.get(_.find( configs.packageOptions.outer, {value : item.outer.package}), 'label')}}</span>
+                                        </td>
+                                        <td colspan="2">
+                                            <span>说明:</span><span>{{item.outer.description?item.outer.description:'无'}}</span>
+                                        </td>
+                                    </tr>
+                                    <tr height="54px" v-if="_.get(_.find( configs.packageOptions.outer, {value : item.outer.package}), 'label') == '外箱'">
+                                        <td></td>
+                                        <td></td>
+                                        <td colspan="2">
+                                            <span>外箱尺寸:</span><span>{{item.outer.size_length}}（L） x {{item.outer.size_width}}（W） x {{ item.outer.size_height}}（H）{{_.get(_.find( configs.packageOptions.size, {value : item.outer.size_unit}), 'label')}}</span>
+                                        </td>
+                                        <td width="564px">
+                                            <span>外箱毛重:</span><span>{{item.outer.weight}}{{_.get(_.find( configs.packageOptions.weight, {value : item.outer.weight_unit}), 'label')}}</span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="packageInfo1-remark clearfix"  v-if="item.remark_content">
+                                <p>备注:</p>
+                                <p class="content">{{item.remark_content}}</p>
+                            </div>
+                            <div class="packageInfo1-picture clearfix" v-if="_.get(item,'files',[]).length>0 ">
+                                <div>图片:</div>
+                                <ShowFile :file-list="item.files"/>
+                            </div>
+                        </div>    
                     </div>
                     <p class="packageLogo-p3">唛头/标识</p>
                     <div class="packageLogo-identify" v-if="packageLogoData.marking.products" v-for="(item,index) in _.get(packageLogoData.marking, 'products', [])" :key="index+'-identify'">
-                        <p class="identify-p1">{{index+1}}、{{item.name}}/型号{{item.number}}</p>
+                        <p class="identify-p1">{{index+1}}、
+                            <span v-if="item.number">
+                                款号/型号 : {{item.number}}
+                            </span> 
+                            <span v-else>
+                                {{item.name}}
+                            </span> 
+                        </p>
                         <p class="identify-p2"><span>结论</span><span :class="addClass(item.conclusion)">{{ _.get(_.find( configs.conclusionOptions, {value : item.conclusion}), 'label') }}</span></p>
-                        <div class="identify-remark clearfix">
-                            <p>备注:</p>
-                            <p class="content">{{item.remark_content?item.remark_content:'无'}}</p>
-                        </div>
-                        <div class="identify-images clearfix">
-                            <div>图片:</div>
-                            <ShowFile :file-list="item.files"/>
-                        </div>
+                        <div v-if=" _.get(_.find( configs.conclusionOptions, {value : item.conclusion}), 'label')!='不适用'">    
+                            <div class="identify-remark clearfix" v-if="item.remark_content">
+                                <p>备注:</p>
+                                <p class="content">{{item.remark_content?item.remark_content:'无'}}</p>
+                            </div>
+                            <div class="identify-images clearfix" v-if="_.get(item,'files',[]).length>0">
+                                <div>图片:</div>
+                                <ShowFile :file-list="item.files"/>
+                            </div>
+                        </div>    
                     </div>
                 </div>
                 <!-- C、产品符合性 -->
@@ -393,22 +410,25 @@
                     <p class="goodsInfo-p1">C、产品符合性</p>
                     <p class="goodsInfo-p2">款式/材料/颜色符合型</p>
                     <div class="goodsInfo-detail" v-if="goodsInfoData.products" v-for="(item,index) in _.get(goodsInfoData, 'products', [])" :key="index+'-Info-detail'">
-                        <p class="detail-p1">{{index+1}}、{{item.name}}/型号{{ item.number }}</p>
+                        <p class="detail-p1">{{index+1}}、
+                            <span v-if="item.number">
+                                款号/型号 : {{item.number}}
+                            </span> 
+                            <span v-else>
+                                {{item.name}}
+                            </span> 
+                        </p>
                         <p class="detail-p2"><span>结论</span><span :class="addClass(item.conclusion)">{{ _.get(_.find( configs.conclusionOptions, {value : item.conclusion}), 'label') }}</span></p>
-                        <div class="detail-remark clearfix">
-                            <p>备注:</p>
-                            <p class="content">{{ item.remark_content?item.remark_content:'无' }}</p>
-                        </div>
-                        <div class="detail-images clearfix">
-                           <div>图片:</div>
-                           <ShowFile :file-list="item.files"/>
-                            <!-- <div class="content">
-                                <p v-for="(Image,index) in item.files" :key="index+'-detail-images'">
-                                    <img :src="Image && Image.url" alt="">
-                                    <span>{{Image.name}}</span>
-                                </p>
-                            </div>  -->
-                        </div>
+                        <div v-if="_.get(_.find( configs.conclusionOptions, {value : item.conclusion}), 'label') != '不适用'">    
+                            <div class="detail-remark clearfix" v-if="item.remark_content">
+                                <p>备注:</p>
+                                <p class="content">{{ item.remark_content?item.remark_content:'无' }}</p>
+                            </div>
+                            <div class="detail-images clearfix" v-if="_.get(item,'files',[]).length>0">
+                                <div>图片:</div>
+                                <ShowFile :file-list="item.files"/>
+                            </div>
+                        </div>    
                     </div>
                 </div>
                 <!-- D、数据测量/现场测试 -->
@@ -418,13 +438,13 @@
                         <table cellspacing="0" cellpadding="0" width="100%" height="100%">
                             <tr height="60px">
                                 <td width="220px">测试项目</td>
-                                <td width="220px">测试要求</td>
-                                <td width="532px">测试数据</td>
+                                <td width="300px">测试要求</td>
+                                <td width="300px">测试数据</td>
                                 <td width="150px">包含产品</td>
-                                <td width="123px">测试数量</td>
-                                <td width="209px">测试结论</td>
+                                <td width="120px">测试数量</td>
+                                <td width="100px">测试结论</td>
                             </tr>
-                            <tr height="80px" v-if="gaugeData.checkitems" v-for="(item,index) in gaugeData.checkitems" :key="index+'-gauge-table'">
+                            <tr height="60px" v-if="gaugeData.checkitems" v-for="(item,index) in gaugeData.checkitems" :key="index+'-gauge-table'">
                                 <td>{{ item.title }}</td>
                                 <td>{{ item.description }}</td>
                                 <td>{{ item.message }}</td>
@@ -434,19 +454,13 @@
                             </tr>
                         </table>
                     </div>
-                    <div class="gauge-remark clearfix">
+                    <div class="gauge-remark clearfix" v-if="gaugeData.remark_content">
                         <p>备注:</p>
                         <p class="content">{{ gaugeData.remark_content?gaugeData.remark_content:'无' }}</p>
                     </div>
-                    <div class="gauge-images clearfix">
+                    <div class="gauge-images clearfix" v-if="_.get(gaugeData,'files',[]).length>0">
                         <div>图片:</div>
                         <ShowFile :file-list="gaugeData.files"/>
-                        <!-- <div class="content">
-                            <p v-for="(Image,index) in gaugeData.files" :key="index+'-gauge-images'">
-                                <img :src="Image && Image.url" alt="">
-                                <span>{{Image.name}}</span>
-                            </p>
-                        </div>  -->
                     </div>
                 </div>
                 <!-- E、外观及工艺 -->
@@ -493,7 +507,7 @@
                             </tr>
                             <tr style="height:50px">
                                 <td class="background-gray">可接受质量限（AQL）</td>
-                                <td>{{ exteriorData.sampling.params.fatal_defect_limit ? exteriorData.sampling.params.fatal_defect_limit : 'N/A' }}</td>
+                                <td>{{ exteriorData.sampling.params.fatal_defect_limit ? exteriorData.sampling.params.fatal_defect_limit : 0 }}</td>
                                 <td>{{ exteriorData.sampling.params.serious_defect_limit ? exteriorData.sampling.params.serious_defect_limit : 'N/A' }}</td>
                                 <td>{{ exteriorData.sampling.params.minor_defect_limit ? exteriorData.sampling.params.minor_defect_limit : 'N/A' }}</td>
                             </tr>
@@ -515,22 +529,22 @@
                     <div class="exterior-detail-div">
                         <table border="1" cellspacing="0" cellpadding="0" width="100%" height="100%">
                             <tr height="50px">
-                                <td width="260px">产品</td>
-                                <td width="260px">抽样数</td>
-                                <td width="220px">缺陷类别</td>
-                                <td width="260px">缺陷明细</td>
-                                <td width="152px">致命缺陷</td>
-                                <td width="152px">严重缺陷</td>
-                                <td width="158px">轻微缺陷</td>
+                                <td width="200px">产品</td>
+                                <td width="120px">抽样数</td>
+                                <td width="150px">缺陷类别</td>
+                                <td width="350px">缺陷明细</td>
+                                <td width="120px">致命缺陷</td>
+                                <td width="120px">严重缺陷</td>
+                                <td width="120px">轻微缺陷</td>
                             </tr>
                             <tr height="50px" v-for="(item,index) in defectItem" :key="index">
-                                <td>{{item.number}}</td>
+                                <td>{{item.number?item.number:item.name}}</td>
                                 <td>{{item.check_quantity}}</td>
-                                <td>{{ _.get(_.find( configs.defectiveCategories, {value : item.title}), 'label') }}</td>                               
-                                <td>{{item.description}}</td>
-                                <td>{{item.fatal_defect}}</td>
-                                <td>{{item.serious_defect}}</td>
-                                <td>{{item.minor_defect}}</td>
+                                <td>{{ _.get(_.find( configs.defectiveCategories, {value : item.title}), 'label') ?  _.get(_.find( configs.defectiveCategories, {value : item.title}), 'label') : '其他' }}</td>                               
+                                <td>{{item.description ? item.description : '无'}}</td>
+                                <td>{{item.fatal_defect ? item.fatal_defect : 0 }}</td>
+                                <td>{{item.serious_defect ? item.serious_defect : 0}}</td>
+                                <td>{{item.minor_defect ? item.minor_defect : 0}}</td>
                             </tr>
                             <tr height="50px">
                                 <td  colspan="4">总数</td>
@@ -547,8 +561,15 @@
                         </table>
                     </div>
                     <div class="exterior-detail" v-for="(item,index) in _.get(exteriorData, 'products', [])" :key="index+'-exterior-detail'">
+                        
                         <p class="exterior-detail-p" v-if="item.has_defect==1">
-                            <span>款号/型号{{ item.number }}的图片</span>
+                            <span>
+                               {{index+1}} 
+                              <span v-if="item.number">款号/型号:{{ item.number }}</span>
+                              <span v-else>{{item.name}}</span>的图片
+                              
+                            </span>
+                            
                         </p>
                         <div class="exterior-images clearfix" v-if="item.has_defect==1">
                             <!-- <div>图片:</div> -->
@@ -559,89 +580,104 @@
                     
                 </div>
                 <!-- F、客户特殊要求 -->
-                <div class="Report-interface-special" v-if="_.get(specialData, 'products',[]).length != 0">
+                <div class="Report-interface-special" v-if="_.get(specialData, 'products',[]).length>0">
                     <p class="special-p1"> 
                         F、客户特殊要求
                     </p>
                     <div class="special-detail" v-for="(item,index) in _.get(specialData, 'products', [])" :key="index+'-special'">
                         <p class="special-detail-p1">{{index+1}}、{{item.name}}/型号N/A</p>
                         <p class="special-detail-p2"><span>结论</span><span :class="addClass(item.conclusion)">{{ _.get(_.find( configs.conclusionOptions, {value : item.conclusion}), 'label') }}</span></p>
-                        <div class="special-detail-remark clearfix">
-                            <p>备注:</p>
-                            <p class="content">{{ item.remark_content ? item.remark_content : '无'}}</p>
-                        </div>
-                        <div class="special-detail-images clearfix">
-                            <div>图片:</div>
-                            <ShowFile :file-list="item.files"/>
-                        </div>
+                        <div v-if="_.get(_.find( configs.conclusionOptions, {value : item.conclusion}), 'label') != '不符合'">
+                            <div class="special-detail-remark clearfix" v-if="item.remark_content">
+                                <p>备注:</p>
+                                <p class="content">{{ item.remark_content ? item.remark_content : '无'}}</p>
+                            </div>
+                            <div class="special-detail-images clearfix"  v-if="_.get(item,'files',[]).length>0">
+                                <div>图片:</div>
+                                <ShowFile :file-list="item.files"/>
+                            </div>
+                        </div>    
                     </div>    
                 </div>
                 <!-- G、附录 -->
-                <div class="Report-interface-appendix" v-if="!(_.get(appendixData, 'sampling_information',[]).length==0 && _.get(appendixData, 'tools',[]).length==0 && _.get(appendixData, 'files',[]).length==0)">
+                
+                <div class="Report-interface-appendix" v-if="!(_.get(appendixData, 'sampling_information',[]).length==0 && _.get(appendixData, 'files',[]).length==0)">
                     <p class="appendix-p1">G、附录</p>
-                    <p class="appendix-p2"><span>附录 I</span><span>取样信息</span></p>
-                    <div class="appendix-sample" v-for="(item,index) in _.get(appendixData, 'sampling_information', [])" :key="index+'-appendix-sample'">
-                        <p class="appendix-sample-p1">{{ index+1 }}、{{ item.sampling_number }}/型号123456</p>
-                        <div class="appendix-sampl-table">
-                            <div class="appendix-sampl-table-top">
-                                <div class="appendix-sampl-table-top-left">
-                                    <p>取样信息</p>
-                                    <p><span>取样数量:</span><span>{{ item.sampling_quantity }}</span></p>
-                                    <p><span>取样原因:</span><span>{{ item.sampling_reason }}</span></p>
-                                    <p><span>收件公司:</span><span>{{ item.receive_company }}</span></p>
-                                    <p><span>收件人:</span><span>{{ item.receive_person }}</span></p>
-                                    <p><span>收件地址:</span><span>{{ item.receive_address }}</span></p>
-                                    <p><span>备注信息:</span><span>{{ item.remark }}</span></p>
+                    
+                    <div v-if="_.get(appendixData, 'sampling_information',[]).length>0">
+                        <p class="appendix-p2"><span>附录 I</span><span>取样信息</span></p>
+                        <div class="appendix-sample" v-for="(item,index) in _.get(appendixData, 'sampling_information', [])" :key="index+'-appendix-sample'">
+                            <p class="appendix-sample-p1">
+                                <span>{{ (index+1).toString() }}</span>
+                                <span v-if="item.sampling_number">款号/型号 : {{ item.sampling_number ? item.sampling_number : 'N/A' }}</span>
+                                <span v-else>{{ item.sampling_name }}</span>
+                            </p>
+                            <div class="appendix-sampl-table">
+                                <div class="appendix-sampl-table-top">
+                                    <div class="appendix-sampl-table-top-left">
+                                        <p>取样信息</p>
+                                        <p><span>取样数量:</span><span>{{ item.sampling_quantity }}</span></p>
+                                        <p><span>取样原因:</span><span>{{ item.sampling_reason }}</span></p>
+                                        <p><span>收件公司:</span><span>{{ item.receive_company }}</span></p>
+                                        <p><span>收件人:</span><span>{{ item.receive_person }}</span></p>
+                                        <p><span>收件地址:</span><span>{{ item.receive_address }}</span></p>
+                                        <p><span>备注信息:</span><span>{{ item.remark }}</span></p>
+                                    </div>
+                                    <div class="appendix-sampl-table-top-right">
+                                        <p>其他信息</p>
+                                        <p><span>快递公司:</span><span>{{ item.courier_company }}</span></p>
+                                        <p><span>快递单号:</span><span>{{ item.courier_number }}</span></p>
+                                        <p><span>备注信息:</span><span>{{ item.courier_remark }}</span></p>
+                                    </div>
                                 </div>
-                                <div class="appendix-sampl-table-top-right">
-                                    <p>其他信息</p>
-                                    <p><span>快递公司:</span><span>{{ item.courier_company }}</span></p>
-                                    <p><span>快递单号:</span><span>{{ item.courier_number }}</span></p>
-                                    <p><span>备注信息:</span><span>{{ item.courier_remark }}</span></p>
+                                <div class="appendix-sampl-table-bottom clearfix">
+                                    <ShowFile :file-list="item.files"/>
+                                    <!-- <p v-for="(item,index) in item.files" :key="index+'appendix-sampl'">
+                                        <img :src="item && item.url" alt="">
+                                        <span>{{ item.name }}</span>
+                                    </p> -->
                                 </div>
-                            </div>
-                            <div class="appendix-sampl-table-bottom clearfix">
-                                <ShowFile :file-list="item.files"/>
-                                <!-- <p v-for="(item,index) in item.files" :key="index+'appendix-sampl'">
-                                    <img :src="item && item.url" alt="">
-                                    <span>{{ item.name }}</span>
-                                </p> -->
                             </div>
                         </div>
                     </div>
-                    <p class="appendix-p3"><span>附录Ⅱ</span><span>测量及测试仪器记录</span></p>
-                    <div class="appendix-table">
-                         <table cellspacing="0" cellpadding="0" width="100%" height="100%">
-                            <tr height="60px">
-                                <td width="262px">描述</td>
-                                <td width="374px">仪器编号</td>
-                                <td width="280px">校准日期</td>
-                                <td width="280px">有效日期</td>
-                                <td width="260px">来源</td>
-                            </tr>
-                            <tr height="60px" v-for="(item,index) in _.get(appendixData, 'tools', [])" :key="index+'-appendix-table'">
-                                <td>{{ _.get(_.find( _.get(configs, 'toolOptions' ,[]), {value : item.name}), 'label') }}</td>
-                                <td>{{ item.order_number }}</td>
-                                <td>{{ item.calibrated_at | moment("YYYY-MM-DD") }}</td>
-                                <td>{{ item.effected_at | moment("YYYY-MM-DD")}}</td>
-                                <td>{{ _.get(_.find( _.get(configs, 'sourceOptions' ,[]), {value : item.source}), 'label') }}</td>
-                            </tr>
-                        </table>
-                    </div>
-                    <p class="appendix-p4"><span>附录Ⅲ</span><span>其他图片( 廉政声明、工厂大门，仓储，测量图标，包装清单等)</span></p>
-                    <div class="appendix-otherImages clearfix">
-                        <ShowFile :file-list=" _.get(appendixData, 'files', [])"/>
-                        <!-- <p v-for="(item,index) in _.get(appendixData, 'files', [])" :key="index+'-otherImages'">
-                            <img :src="item && item.url" alt="">
-                            <span>{{ item.name }}</span>
-                        </p> -->
-                    </div>
+                    <!-- <div v-if="_.get(appendixData, 'tools',[]).length>0">
+                        <p class="appendix-p3"><span>附录Ⅱ</span><span>测量及测试仪器记录</span></p>
+                        <div class="appendix-table">
+                            <table cellspacing="0" cellpadding="0" width="100%" height="100%">
+                                <tr height="60px">
+                                    <td width="262px">描述</td>
+                                    <td width="374px">仪器编号</td>
+                                    <td width="280px">校准日期</td>
+                                    <td width="280px">有效日期</td>
+                                    <td width="260px">来源</td>
+                                </tr>
+                                <tr height="60px" v-for="(item,index) in _.get(appendixData, 'tools', [])" :key="index+'-appendix-table'">
+                                    <td>{{ _.get(_.find( _.get(configs, 'toolOptions' ,[]), {value : item.name}), 'label') }}</td>
+                                    <td>{{ item.order_number }}</td>
+                                    <td>{{ item.calibrated_at | moment("YYYY-MM-DD") }}</td>
+                                    <td>{{ item.effected_at | moment("YYYY-MM-DD")}}</td>
+                                    <td>{{ _.get(_.find( _.get(configs, 'sourceOptions' ,[]), {value : item.source}), 'label') }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div> -->
+                    
+                    <div v-if="_.get(appendixData, 'files',[]).length>0">
+                        <p class="appendix-p4"><span v-if="_.get(appendixData, 'files',[]).length>0 && _.get(appendixData, 'sampling_information',[]).length>0">附录II</span><span v-else>附录I</span> <span>其他图片( 廉政声明、工厂大门，仓储，测量图标，包装清单等)</span></p>
+                        <div class="appendix-otherImages clearfix">
+                            <ShowFile :file-list=" _.get(appendixData, 'files', [])"/>
+                            <!-- <p v-for="(item,index) in _.get(appendixData, 'files', [])" :key="index+'-otherImages'">
+                                <img :src="item && item.url" alt="">
+                                <span>{{ item.name }}</span>
+                            </p> -->
+                        </div>
+                    </div>    
                 </div>
                 <!-- 提交报告按钮 -->
                 <el-form class="btn-group">
                     <el-form-item label-width="0" style="text-align: center;">
                         <el-button class="btnBack"  @click="back()">返回</el-button>
-                        <el-button class="btnSubmit"  @click="reportsubmit()">提交报告</el-button>
+                        <!-- <el-button class="btnSubmit"  @click="reportsubmit()">提交报告</el-button> -->
                     </el-form-item>
                 </el-form>
 
@@ -708,6 +744,11 @@ export default {
             productQuantity:'',
             //基础信息table数据
             baseInfoData: [],
+            defaultgeneral_information:{
+                user_name:'',
+                order_name:'',
+                supplier_name:'',
+            },
             ClonebStatu: '',
             CloneCStatu: '',
             CloneDStatu: '',
@@ -722,8 +763,13 @@ export default {
             //检验结论table数据
             defaultconclusionData: {
                 conclusion:{
-                    quantityCompliance:''
-                }
+                    quantityCompliance:'',
+                    packing:'',
+                    product:'',
+                    measure:'',
+                    keyPoint:''
+                },
+                remarks:[]
             },
             conclusionData:{
                 conclusion:{
@@ -753,6 +799,11 @@ export default {
             },
             //A、数量符合性table数据
             QuantityData: [],
+            defaultQuantityData:{
+                conclusion:'',
+                products:[],
+                files:[]
+            },
 
             QuantityImg: [],    //imgUrl
 
@@ -785,13 +836,27 @@ export default {
                 sampling:{
                     params:''
                 }
-            },    
+            },  
+            defaultexteriorData:{
+                real_fatal_defect:'',
+                sampling:{
+                    params:''
+                }
+            },
             defectItem:[],
             //F、客户特殊要求table数据
             specialData: [],
+            defaultspecial_attention:{
+                products:[]
+            },
 
             //G、附录table数据
             appendixData: [],
+            defaultappendixData:{
+                sampling_information:[],
+                tools:[],
+                files:[]
+            },
 
             //报告批核table数据
             approvalData: [],
@@ -832,10 +897,10 @@ export default {
                     // console.log(this.gaugeData)
 
                     //接收附录数据
-                    this.appendixData = response.data.data.review.appendix
+                    this.appendixData = response.data.data.review.appendix ? response.data.data.review.appendix : this._.cloneDeep(this.defaultappendixData) 
 
                     //接收基础信息数据
-                    this.baseInfoData = response.data.data.review.general_information
+                    this.baseInfoData = response.data.data.review.general_information ? response.data.data.review.general_information : this._.cloneDeep(this.defaultgeneral_information)
 
                     //接收检验结论数据
                     this.conclusionData = response.data.data.review.inspection_results ? response.data.data.review.inspection_results : this._.cloneDeep(this.defaultconclusionData),
@@ -848,16 +913,18 @@ export default {
                     this.goodsInfoData = response.data.data.review.product_conformity ? response.data.data.review.product_conformity : this._.cloneDeep(this.defaultgoodsInfoData),
 
                     //接收数量符合性数据
-                    this.QuantityData = response.data.data.review.quantity_conformity
+                    this.QuantityData = response.data.data.review.quantity_conformity ? response.data.data.review.quantity_conformity : this._.cloneDeep(this.defaultQuantityData),
                     console.log(this.QuantityData.files)
 
                     //接收特殊要求数据
-                    this.specialData = response.data.data.review.special_attention
+                    this.specialData = response.data.data.review.special_attention ? response.data.data.review.special_attention : this._.cloneDeep(this.defaultspecial_attention),
 
                     //接收外观及工艺数据
-                    this.exteriorData = response.data.data.review.visual_and_workmanship
+                    this.exteriorData = response.data.data.review.visual_and_workmanship ? response.data.data.review.visual_and_workmanship : this._.cloneDeep(this.defaultexteriorData)
                     var defaultdefectItem = this._.cloneDeep(this.exteriorData)
-                    this.productQuantity = this._.sum(this._.map(this.QuantityData.products,'order_quantity')) ? this._.sum(this._.map(this.QuantityData.products,'order_quantity')) : ''
+                    // this.defectItem = defaultdefectItem.products
+                    // console.log(defaultdefectItem.products)
+                    this.productQuantity = this._.sum(this._.map(this.QuantityData.products,'shipment_quantity')) ? this._.sum(this._.map(this.QuantityData.products,'shipment_quantity')) : ''
                     this.$nextTick(()=>{
                         this.defectItem = this._.flatten(this._.map(defaultdefectItem.products, product => {
                             return this._.map(product.defective_items, item => {
@@ -953,9 +1020,11 @@ export default {
             }else if(Array.findIndex(t=>t.conclusion==3)!=-1){
                 this.CloneFStatu = 2
                 return false
-            }else{
+            }else if(Array.findIndex(t=>t.conclusion==1)!=-1){
                 this.CloneFStatu = 3
                 return  false
+            }else{
+                this.CloneFStatu = 0
             }
         },
         reportsubmit(){
@@ -967,6 +1036,14 @@ export default {
                     })
                     this.$router.push({
                         path:'/orderManagement/reporteManager'
+                    })
+                }else{
+                   this.$message({
+                        message: '报告信息不完整',
+                        type: 'error'
+                    }) 
+                    this.$router.push({
+                        path:'writeReporte'
                     })
                 }
             })
@@ -996,21 +1073,25 @@ export default {
         padding:0 40px;      
         .Report-interface-baseInfo{
             .InspectionSection{
-                width: 100%;
+                // width: 100%;
                 margin-bottom:40px;
                 max-height: 410px;
                 .leftImg{
-                    width: 50%;
-                    max-height: 410px;
+                    width: 730px;
+                    height: 410px;
                     img{
                         width: 100%;
+                        height: 100%;
+                        object-fit: contain;
                     }
                 }
                 .rightImg{
-                    width: 50%;
-                    max-height: 410px;
+                    width: 730px;
+                    height: 410px;
                     img{
                         width: 100%;
+                        height: 100%;
+                        object-fit: contain;
                     }
                 }
 
@@ -1078,8 +1159,8 @@ export default {
                     float:left;
                     tr{
                         border-bottom:1px solid rgba(215,220,227,1);
-                        height:60px;
-                        line-height: 60px;
+                        // height:60px;
+                        // line-height: 60px;
                         td{
                             border-right:1px solid rgba(215,220,227,1);
                         }
@@ -1101,7 +1182,7 @@ export default {
                     }
                     tr td:nth-child(2){
                         width:580px;
-                        line-height: 60px;
+                        // line-height: 60px;
                         font-size:14px;
                         color:rgba(80,104,140,1);
                         padding-left:32px;
@@ -1114,7 +1195,7 @@ export default {
                         color:rgba(255,255,255,1);
                     }
                     tr td:nth-child(4){
-                        line-height: 60px;
+                        // line-height: 60px;
                         font-size:14px;
                         color:rgba(80,104,140,1);
                         padding-left:32px;
@@ -1131,6 +1212,10 @@ export default {
                             //     margin-right:16px;
                             // }
                         }
+                    }
+                    td{
+                        vertical-align: middle;
+                        text-align: left;  
                     }
                 }
                 .baseInfo-table-img{
@@ -1382,6 +1467,13 @@ export default {
                     }
                 }
             }
+            .imagesList{
+                margin: 16px 0;
+                >div:first-child{
+                  color: #50688c;
+                  font-size: 16px;
+                }
+            }
         }
         .Report-interface-Quantity{
             // height:982px;
@@ -1516,7 +1608,7 @@ export default {
                     float:left;
                 }
                 div:nth-child(1){
-                    font-size:16px;
+                    font-size:14px;
                     color:rgba(80,104,140,1);
                     padding:15px 0 0 0;
                     margin-right:16px;

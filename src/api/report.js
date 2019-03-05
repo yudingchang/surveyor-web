@@ -7,3 +7,10 @@ export function getReportList(data) {
     params: data
   })
 }
+// 获取拒绝原因
+export function getReason(data) {
+  return request({
+    url: `/v1/inspector/report/${data}/rejectreason`,
+    method: 'get'
+  })
+}

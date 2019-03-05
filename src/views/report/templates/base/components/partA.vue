@@ -1,5 +1,5 @@
 <template>
-  <div v-loading="loading" class="tc-report-card">
+  <div v-loading="loading" class="tc-report-card partA">
     <div :class="{titleChange:!partAShow}" class="tc-report-card-title clearfix">
       <span><span class="titleText">A</span>数量符合性</span>
       <span class="right" style="float:right;color:#FFA800" @click="partAShow=!partAShow">
@@ -43,46 +43,46 @@
                 <!-- <el-table-column label="订单产品数"></el-table-column> -->
               </template>
             </el-table-column>
-            <el-table-column label="订单产品数" align="center" width="150px" prop="order_quantity">
+            <el-table-column label="订单产品数" align="center" width="100px" prop="order_quantity">
               <template slot-scope="scope">
                 <el-input-number v-model="scope.row.order_quantity" :min="0" :controls="false" controls-position="right" class="tc-input-number"/>
               </template>
             </el-table-column>
-            <el-table-column label="出货数量" align="center" width="150px" prop="shipment_quantity">
+            <el-table-column label="出货数量" align="center" width="100px" prop="shipment_quantity">
               <template slot-scope="scope">
                 <el-input-number v-model="scope.row.shipment_quantity" :min="0" :controls="false" controls-position="right" class="tc-input-number"/>
               </template>
             </el-table-column>
             <el-table-column label="实际完成数量" align="center">
-              <el-table-column label="已包装" align="center" width="150px" prop="completed_unpackaged">
+              <el-table-column label="已包装" align="center" width="80px" prop="completed_unpackaged">
                 <template slot-scope="scope">
                   <el-input-number v-model="scope.row.completed_unpackaged" :min="0" :controls="false" controls-position="right" class="tc-input-number"/>
                 </template>
               </el-table-column>
-              <el-table-column label="未包装" align="center" width="150px" prop="completed_packaged">
+              <el-table-column label="未包装" align="center" width="80px" prop="completed_packaged">
                 <template slot-scope="scope">
                   <el-input-number v-model="scope.row.completed_packaged" :min="0" :controls="false" controls-position="right" class="tc-input-number"/>
                 </template>
               </el-table-column>
             </el-table-column>
             <el-table-column label="箱数" align="center">
-              <el-table-column label="已包装" align="center" width="150px" prop="unpackaged">
+              <el-table-column label="已包装" align="center" width="80px" prop="unpackaged">
                 <template slot-scope="scope">
                   <el-input-number v-model="scope.row.unpackaged" :min="0" :controls="false" controls-position="right" class="tc-input-number"/>
                 </template>
               </el-table-column>
-              <el-table-column label="未包装" align="center" width="150px" prop="packaged">
+              <el-table-column label="未包装" align="center" width="80px" prop="packaged">
                 <template slot-scope="scope">
                   <el-input-number v-model="scope.row.packaged" :min="0" :controls="false" controls-position="right" class="tc-input-number"/>
                 </template>
               </el-table-column>
             </el-table-column>
-            <el-table-column label="抽样数" align="center" width="150px" prop="check_quantity">
+            <el-table-column label="抽样数" align="center"  width="100px" prop="check_quantity">
               <template slot-scope="scope" >
                 <el-input-number v-model="scope.row.check_quantity" :min="0" :controls="false" controls-position="right" class="tc-input-number"/>
               </template>
             </el-table-column>
-            <el-table-column label="抽箱数" align="center" width="150px" prop="check_package_quantity">
+            <el-table-column label="抽箱数" align="center"  width="100px" prop="check_package_quantity">
               <template slot-scope="scope" >
                 <el-input-number v-model="scope.row.check_package_quantity" :min="0" :controls="false" controls-position="right" class="tc-input-number"/>
               </template>
@@ -273,6 +273,11 @@ export default {
             type: 'success'
           })
           this.$emit('save', this.data, 'quantity_conformity')
+        }else{
+          this.$message({
+            message: '存在未填写必填项，请确认',
+            type: 'error'
+          })
         }
       })
     },
@@ -287,7 +292,10 @@ export default {
 }
 </script>
 <style lang='scss'>
-  .tc-report-card{
+  .partA{
+    .el-input-number{
+      width: 100%;
+    }
     .el-form-item__label {
       text-align: left;
     }
@@ -301,5 +309,9 @@ export default {
       background-color: #F5F8FA ;
       line-height: inherit;
     }
-  }
+    .el-input-number.is-controls-right .el-input__inner {
+      padding: 0
+    }
+}
 </style>
+

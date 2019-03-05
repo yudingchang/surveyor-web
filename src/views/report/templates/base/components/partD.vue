@@ -194,6 +194,11 @@ export default {
             type: 'success'
           })
           this.$emit('save', this.data, 'data_measurement')
+        }else{
+          this.$message({
+            message: '存在未填写必填项，请确认',
+            type: 'error'
+          })
         }
       })
     }

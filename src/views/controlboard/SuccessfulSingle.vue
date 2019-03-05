@@ -2,7 +2,7 @@
   <div class="SuccessfulSingle">
       <i class="iconfont icon-Fill4"></i>
       <p class="text1">恭喜您！抢单成功</p>
-      <a class="btn1" @click="continueOrder">继续抢单</a>
+      <a class="btn1" @click="ContinueGrab">继续抢单</a>
       <a class="btn2" @click="continueOrder">返回首页</a>
       <!-- {{orderInformation}} -->
       <table class="gridtable" border>
@@ -85,10 +85,16 @@ export default {
 
   },
   methods:{
-    // 继续下单
+    // 返回首页
     continueOrder(){
       this.$router.push({
         path: 'dashboard'
+      })
+    },
+    // 继续下单
+    ContinueGrab(){
+      this.$router.push({
+        path: 'grabList'
       })
     }
   },
