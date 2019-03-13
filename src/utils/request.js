@@ -17,6 +17,7 @@ service.interceptors.request.use(
       // 让每个请求携带token-- ['X-Token']为自定义key 请根据实际情况自行修改
       config.headers['Authorization'] = 'Bearer ' + getToken()
       config.headers['Accept'] = 'application/json'
+      config.headers['Locale'] = 'zh_CN'
     }
     return config
   },

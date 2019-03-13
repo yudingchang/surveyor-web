@@ -14,7 +14,7 @@
           <div v-else >
             <img v-if="sex==0" src="/static/image/neuter.png" style="width:120px;height:120px;">
             <img v-if="sex==1" src="/static/image/male.png" style="width:120px;height:120px;">
-            <img v-if="sex==2" src="/static/image/female.png.png" style="width:120px;height:120px;">
+            <img v-if="sex==2" src="/static/image/female.png" style="width:120px;height:120px;">
             <p style="color:#7C8FA6;font-size:14px">上传头像</p>
           </div>
         </el-upload>
@@ -116,7 +116,7 @@
     <!-- 绑定电子邮箱 -->
     <el-dialog :title="emailForm.emailText" :visible.sync="emailForm.dialogFormVisible" width="400px" center>
       <el-form :model="emailForm" ref='emailForm'>
-        <el-form-item class="modify2" prop="email" :rules="[{ required: true, message: '请输入验证码', trigger: 'blur' }]">
+        <el-form-item class="modify2" prop="email" :rules="[{ required: true, message: '请输入电子邮箱', trigger: 'blur' }]">
           <el-input placeholder="请输入电子邮箱" v-model="emailForm.email" class="input-with-select">
             <i class="iconfont icon-dianziyouxiangzhongzhi" slot="prepend"></i>
           </el-input>

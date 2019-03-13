@@ -726,69 +726,25 @@
           <!-- 行业线编辑 -->
           <div v-show="is_edit_industry">
             <div class="sectorLineBox">
-              <div class="tabs-top">
-                <ul class="tabs">
-                  <li
-                    v-for="(item,index) in tablist"
-                    :class="{active:item.isBool}"
-                    :key="index"
-                    @click="tab(item,index)"
-                  >{{ item.content }}</li>
-                </ul>
-              </div>
-              <el-form :model="multiCascaderIndustrysForm.electronics">
-                <el-tree
-                  v-show="num == 0"
-                  ref="electronics"
-                  :data="configs.multiCascaderIndustrys.electronics"
-                  :default-checked-keys="multiCascaderIndustrysForm.electronics.category_ids"
-                  :props="defaultProps"
-                  show-checkbox
-                  node-key="id"
-                />
-                <el-tree
-                  v-show="num == 1"
-                  ref="light_industry"
-                  :data="configs.multiCascaderIndustrys.light_industry"
-                  :default-checked-keys="multiCascaderIndustrysForm.light_industry.category_ids"
-                  :props="defaultProps"
-                  show-checkbox
-                  node-key="id"
-                />
-                <el-tree
-                  v-show="num == 2"
-                  ref="textile"
-                  :data="configs.multiCascaderIndustrys.textile"
-                  :default-checked-keys="multiCascaderIndustrysForm.textile.category_ids"
-                  :props="defaultProps"
-                  show-checkbox
-                  node-key="id"
-                />
+              <el-form ref="industryForm" :model="multiCascaderIndustrysForm" >
+                <el-tabs type="border-card">
+                  <el-tab-pane v-for="(item,key) in multiCascaderIndustrysForm" :key="key" :label="multiCascaderIndustrysForm[key].name">
+                    <el-form-item :rules="rules.industry" prop="1">
+                      <el-tree :ref="'industry_' + key" :data="configs.multiCascaderIndustrys[key]" :default-checked-keys="multiCascaderIndustrysForm[key].category_ids" show-checkbox node-key="id" :props="defaultProps" @check-change="ispChangeCategory(key)" />
+                    </el-form-item>
+                  </el-tab-pane>
+                </el-tabs>
               </el-form>
             </div>
-            <el-button class="btn" @click="savemultiCascaderIndustrysForm()">保存</el-button>
+            <el-button class="btn" @click="savemultiCascaderIndustrysForm('industryForm')">保存</el-button>
           </div>
           <!-- 行业线只读 -->
           <div v-show="!is_edit_industry">
-            <el-form :model="multiCascaderIndustrysForm.electronics" class="personalCertificateForm" label-width="100px">
-              <el-form-item label="电子电器" style="width:80%">
+            <el-form :model="multiCascaderIndustrysForm" class="personalCertificateForm" label-width="100px">
+              <el-form-item :label="value.name" style="width:80%"  v-for="(value, key, index) in multiCascaderIndustrysForm" :key="index">
                 <span class="tc-separate">
-                  <span v-for="(item,index) in multiCascaderIndustrysForm.electronics.category_arr" :key="index">
-                    {{ item.name }}
-                  </span>
-                </span>
-              </el-form-item>
-              <el-form-item label="轻工产品" style="width:80%">
-                <span class="tc-separate">
-                  <span v-for="(item,index) in multiCascaderIndustrysForm.light_industry.category_arr" :key="index">
-                    {{ item.name }}
-                  </span>
-                </span>
-              </el-form-item>
-              <el-form-item label="纺织品" style="width:80%">
-                <span class="tc-separate">
-                  <span v-for="(item,index) in multiCascaderIndustrysForm.textile.category_arr" :key="index">
-                    {{ item.name }}
+                  <span v-for="(content,index) in value.category_arr" :key="index">
+                    {{ content.name }}
                   </span>
                 </span>
               </el-form-item>
@@ -1016,6 +972,13 @@ export default {
           callback();
         }
       };
+    var category = (rule, value, callback) => {
+  if (this._.sum(this._.map(this.multiCascaderIndustrysForm, item => item.category_ids.length))) {
+    callback()
+    } else {
+    callback(new Error)
+    }
+  }  
     return {
       tableData: [],
       supplier: {
@@ -1026,6 +989,10 @@ export default {
       form: {
         isp: []
       },
+      rules: {
+        industry: [{ validator: category, message: '行业线不能为空'}]
+      },
+      select:0,
       emailForm:{
         email:'',
         verification_code:'',
@@ -1080,13 +1047,13 @@ export default {
       },
       trainingExperienceForm: {
         trainingExperienceFormArray: [
-          {
-            start_end_date: '',
-            training_institution: '',
-            training_course: '',
-            address: '',
-            training_description: ''
-          }
+          // {
+          //   start_end_date: '',
+          //   training_institution: '',
+          //   training_course: '',
+          //   address: '',
+          //   training_description: ''
+          // }
         ]
       },
       trainingExperienceFormRules: {
@@ -1107,18 +1074,18 @@ export default {
         ]
       },
       multiCascaderIndustrysForm: {
-        electronics: {
-          category_ids: [],
-          category_arr: []
-        },
-        light_industry: {
-          category_ids: [],
-          category_arr: []
-        },
-        textile: {
-          category_ids: [],
-          category_arr: []
-        }
+        // electronics: {
+        //   category_ids: [],
+        //   category_arr: []
+        // },
+        // light_industry: {
+        //   category_ids: [],
+        //   category_arr: []
+        // },
+        // textile: {
+        //   category_ids: [],
+        //   category_arr: []
+        // }
       },
       //  个人认证表单
       personalCertificateForm: {
@@ -1838,30 +1805,27 @@ export default {
       })
     },
     // 保存行业线
-    savemultiCascaderIndustrysForm() {
-      this.multiCascaderIndustrysForm.electronics.category_ids = this.$refs.electronics.getCheckedKeys()
-      this.multiCascaderIndustrysForm.light_industry.category_ids = this.$refs.light_industry.getCheckedKeys()
-      this.multiCascaderIndustrysForm.textile.category_ids = this.$refs.textile.getCheckedKeys()
-      if(this.multiCascaderIndustrysForm.electronics.category_ids.length == 0 && this.multiCascaderIndustrysForm.light_industry.category_ids.length == 0 && this.multiCascaderIndustrysForm.textile.category_ids.length == 0){
-         this.$message({
-            message: '请选择行业线',
-            type: 'error'
-          })
-          return false
-      }else{
-        savemultiCascaderIndustrys({
-        industry: this.multiCascaderIndustrysForm
-      }).then(res => {
-        if (res.data.code == 0) {
-          this.$message({
-            message: '行业线资料保存成功',
-            type: 'success'
-          })
-          this.getPersonalAuthentication()
-        }
-      })
-      }
-      // console.log(this.electronicsData)     
+    savemultiCascaderIndustrysForm(formName) {
+      this.$refs[formName].validate((valid) => {
+          if (valid) {
+            savemultiCascaderIndustrys({
+              industry: this.multiCascaderIndustrysForm
+            }).then(res => {
+              if (res.data.code == 0) {
+                this.$message({
+                  message: '行业线资料保存成功',
+                  type: 'success'
+                })
+                this.getPersonalAuthentication()
+              }
+            })
+          }
+      }) 
+    },
+    ispChangeCategory(key) {
+      this.multiCascaderIndustrysForm[key].category_ids = this.$refs[
+      'industry_' + key
+      ][0].getCheckedKeys()
     },
     // 提交所有信息
     submitBtn(){
@@ -1878,11 +1842,11 @@ export default {
            resolve()
         }
       })
-      var p3 = new Promise(function(resolve, reject) {
-        if(_self.multiCascaderIndustrysForm.electronics.category_ids.length != 0 ||  _self.multiCascaderIndustrysForm.light_industry.category_ids.length != 0 || _self.multiCascaderIndustrysForm.textile.category_ids.length != 0){
-          resolve()
-        }
-      })
+      // var p3 = new Promise(function(resolve, reject) {
+      //   if(_self.multiCascaderIndustrysForm.electronics.category_ids.length != 0 ||  _self.multiCascaderIndustrysForm.light_industry.category_ids.length != 0 || _self.multiCascaderIndustrysForm.textile.category_ids.length != 0){
+      //     resolve()
+      //   }
+      // })
       function checkForm(formName) { //封装验证表单的函数
         var result = new Promise(function(resolve, reject) {
           _self.$refs[formName].validate((valid) => {
@@ -1893,12 +1857,12 @@ export default {
         })
         resultArr.push(result) //push 得到promise的结果
       }
-      let formArr=['personalCertificateForm','examineGoodsForm','experienceForm','educationForm','technicalCompetenceRules']//假设这是四个form表单的ref
+      let formArr=['personalCertificateForm','examineGoodsForm','experienceForm','educationForm','technicalCompetenceRules','industryForm']//假设这是四个form表单的ref
       var resultArr=[]//用来接受返回结果的数组
       formArr.forEach(item => { //根据表单的ref校验
           checkForm(item)
       })
-      Promise.all([...resultArr,p2,p3,p1]).then(function() { //都通过了
+      Promise.all([...resultArr,p2,p1]).then(function() { //都通过了
         if(_self.email != null ){
         _self.submitConfirmBtn()
         }else{
@@ -1918,9 +1882,9 @@ export default {
         this.newfront == null ? '' : this.newfront
       ]
       changeList = tempetchangeList.filter(item => item.length != 0)
-      this.multiCascaderIndustrysForm.electronics.category_ids = this.$refs.electronics.getCheckedKeys()
-      this.multiCascaderIndustrysForm.light_industry.category_ids = this.$refs.light_industry.getCheckedKeys()
-      this.multiCascaderIndustrysForm.textile.category_ids = this.$refs.textile.getCheckedKeys()
+      // this.multiCascaderIndustrysForm.electronics.category_ids = this.$refs.electronics.getCheckedKeys()
+      // this.multiCascaderIndustrysForm.light_industry.category_ids = this.$refs.light_industry.getCheckedKeys()
+      // this.multiCascaderIndustrysForm.textile.category_ids = this.$refs.textile.getCheckedKeys()
       saveAllMessage({
         inspector_certificate: {
           ...this.personalCertificateForm,

@@ -48,7 +48,7 @@
         label="产品名称">
         <template slot-scope="scope">
           <span v-if="scope.row.products.length==1">{{ scope.row.products[0].name}}</span>
-          <span v-else-if="scope.row.products.length>1" style="display:inline-block;"><span style="display:inline-block;width:120px;">{{ scope.row.products[0].name }}...</span><i style="display:inline-block;" class="iconfont icon-IconCopy" @click="getDetail(scope.row)"/></span>
+          <span v-else-if="scope.row.products.length>1" style="display:inline-block;"><span style="display:inline-block;width:100px;overflow: hidden; text-overflow:ellipsis; white-space: nowrap;">{{ scope.row.products[0].name }}</span><i style="display:inline-block;" class="iconfont icon-IconCopy" @click="getDetail(scope.row)"/></span>
         </template>
       </el-table-column>
       <el-table-column
@@ -130,11 +130,16 @@
                    <span class="fr" :class="{'noneStyle':getBool(qualification.report_language,'en') && qualification.report_language.length==1}" v-if="getBool(qualification.report_language,'en')">英文报告</span>
                  </p>
                </div>
-               <div class="line fl" v-if="qualification.category_tags.electronics.category_arr.length!=0 && qualification.category_tags.light_industry.category_arr.length!=0 && qualification.category_tags.textile.category_arr.length!=0"></div>
-               <div class="informationContent fl" style="width:340px;" v-if="qualification.category_tags.electronics.category_arr.length!=0 && qualification.category_tags.light_industry.category_arr.length!=0 && qualification.category_tags.textile.category_arr.length!=0">
+               <div class="line fl" v-if="_.flatten(_.map(qualification.category_tags,'category_arr')).length > 0"></div>
+               <div class="informationContent fl" style="width:340px;" v-if="_.flatten(_.map(qualification.category_tags,'category_arr')).length > 0">
                  <p class="informationTitle">可抢产品分类</p>
+
                  <p class="informationList clearfix">
-                   <span class="fl" v-if="Object.keys(qualification.category_tags.electronics).length != 0">
+                   <span v-for="(item,index) in qualification.category_tags" :key="index" v-if="_.get(item,'category_arr',[]).length>0">
+                     {{item.name}}
+                     <i class="iconfont icon-IconCopy" @click="getProductDetail(item.category_arr)"></i>
+                   </span>
+                   <!-- <span class="fl" v-if="Object.keys(qualification.category_tags.electronics).length != 0">
                      电子电器
                      <i class="iconfont icon-IconCopy" @click="getProductDetail(qualification.category_tags.electronics.category_arr)"></i>
                    </span>
@@ -144,7 +149,7 @@
                      </span>
                    <span class="fl" v-if="Object.keys(qualification.category_tags.textile).length != 0">纺织品
                       <i class="iconfont icon-IconCopy" @click="getProductDetail(qualification.category_tags.textile.category_arr)"></i>
-                   </span>
+                   </span> -->
                  </p>
                </div>
             </div>
@@ -301,15 +306,6 @@ export default {
         report_language:'',
         reject_description:'',
         category_tags:{
-          electronics : {
-            category_arr : ''
-          },
-          light_industry :{
-            category_arr : ''
-          },
-          textile : {
-            category_arr : ''
-          }
         }
       }
     }

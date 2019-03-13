@@ -140,7 +140,7 @@ export default {
     // 判断是否每月1.15号
     judgeDay() {
       const day = new Date().getDate()
-      this.isdisabled = !((day == 4 || day == 15))
+      this.isdisabled = !((day == 1 || day == 12))
     },
     // 跳转添加银行卡页面
     addCard(){
